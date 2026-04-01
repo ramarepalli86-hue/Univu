@@ -50,9 +50,9 @@ export default function WesternChart({ sunSign, moonSign, risingSign, planets }:
         🌟 Western Birth Chart
       </h3>
       <div className="flex flex-wrap justify-center gap-3 text-sm text-gray-600 mb-2">
-        <span>☉ Sun: <strong className="text-saffron-600">{sunSign}</strong></span>
-        <span>☽ Moon: <strong className="text-vedic-600">{moonSign}</strong></span>
-        <span>↑ Rising: <strong className="text-terra-600">{risingSign}</strong></span>
+        <span>☉ Sun: <strong className="text-teal-700">{sunSign}</strong></span>
+        <span>☽ Moon: <strong className="text-copper-500">{moonSign}</strong></span>
+        <span>↑ Rising: <strong className="text-saffron-600">{risingSign}</strong></span>
       </div>
       <motion.div
         initial={{ scale: 0.8, opacity: 0 }}

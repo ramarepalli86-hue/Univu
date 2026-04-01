@@ -67,13 +67,13 @@ export default function VedicChart({ rashi, nakshatra, planets, ascendant }: Ved
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.1 * (row * 4 + col) }}
-        className={`chart-cell relative ${isAscendant ? 'bg-saffron-100 border-saffron-400 border-2' : ''}`}
+        className={`chart-cell relative ${isAscendant ? 'bg-saffron-50 border-saffron-300 border-2' : ''}`}
       >
-        <div className="absolute top-0.5 left-1 text-[10px] font-bold text-vedic-400">{abbrev}</div>
+        <div className="absolute top-0.5 left-1 text-[10px] font-bold text-copper-400">{abbrev}</div>
         {isAscendant && <div className="absolute top-0.5 right-1 text-[10px] text-saffron-600 font-bold">As</div>}
         <div className="flex flex-wrap gap-0.5 justify-center items-center pt-3">
           {planetsInSign.map((p, i) => (
-            <span key={i} className="text-[10px] sm:text-xs font-medium text-terra-600 whitespace-nowrap">{p}</span>
+            <span key={i} className="text-[10px] sm:text-xs font-medium text-copper-500 whitespace-nowrap">{p}</span>
           ))}
         </div>
       </motion.div>
@@ -86,10 +86,10 @@ export default function VedicChart({ rashi, nakshatra, planets, ascendant }: Ved
         🕉️ South Indian Kundali
       </h3>
       <p className="text-sm text-gray-500">
-        Rashi: <span className="font-semibold text-vedic-600">{rashi}</span> · 
-        Nakshatra: <span className="font-semibold text-vedic-600">{nakshatra}</span>
+        Rashi: <span className="font-semibold text-copper-500">{rashi}</span> · 
+        Nakshatra: <span className="font-semibold text-copper-500">{nakshatra}</span>
       </p>
-      <div className="grid grid-cols-4 border-2 border-vedic-400 rounded-lg overflow-hidden max-w-md mx-auto bg-cream-50">
+      <div className="grid grid-cols-4 border-2 border-copper-300 rounded-lg overflow-hidden max-w-md mx-auto bg-warm-50">
         {[0, 1, 2, 3].map((row) =>
           [0, 1, 2, 3].map((col) => {
             const cell = getCell(row, col);
@@ -97,11 +97,11 @@ export default function VedicChart({ rashi, nakshatra, planets, ascendant }: Ved
               // Center area
               if (row === 1 && col === 1) {
                 return (
-                  <div key={`${row}-${col}`} className="col-span-2 row-span-2 flex items-center justify-center bg-vedic-50 border border-vedic-200 p-3">
+                  <div key={`${row}-${col}`} className="col-span-2 row-span-2 flex items-center justify-center bg-warm-100 border border-warm-300 p-3">
                     <div className="text-center">
-                      <p className="text-xs text-vedic-500 font-medium">Rashi Chart</p>
-                      <p className="text-lg font-display font-bold text-vedic-700">🕉️</p>
-                      <p className="text-[10px] text-vedic-400">South Indian</p>
+                      <p className="text-xs text-copper-400 font-medium">Rashi Chart</p>
+                      <p className="text-lg font-display font-bold text-copper-500">🕉️</p>
+                      <p className="text-[10px] text-gray-400">South Indian</p>
                     </div>
                   </div>
                 );

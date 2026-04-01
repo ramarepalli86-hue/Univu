@@ -3,57 +3,49 @@
 @tailwind utilities;
 
 @layer base {
-  body { @apply bg-cream-50 text-gray-800 font-body antialiased; }
-  ::selection { @apply bg-saffron-200 text-gray-900; }
+  body { @apply bg-warm-50 text-gray-700 font-body antialiased; }
+  ::selection { @apply bg-teal-100 text-gray-900; }
 }
 
 @layer components {
   .btn-primary {
     @apply px-8 py-3 rounded-xl font-semibold text-white
-           bg-gradient-to-r from-saffron-500 to-terra-500
-           hover:from-saffron-400 hover:to-terra-400
-           shadow-lg hover:shadow-saffron-500/30
-           transition-all duration-300 transform hover:scale-105
-           disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100;
+           bg-teal-600 hover:bg-teal-500
+           shadow-md hover:shadow-lg
+           transition-all duration-200
+           disabled:opacity-50 disabled:cursor-not-allowed;
   }
   .btn-secondary {
-    @apply px-8 py-3 rounded-xl font-semibold text-saffron-700
-           bg-cream-200 border-2 border-saffron-300
-           hover:bg-saffron-50 hover:border-saffron-400
-           shadow-sm hover:shadow-md transition-all duration-300 transform hover:scale-105;
+    @apply px-6 py-2.5 rounded-xl font-medium text-copper-500
+           bg-warm-100 border border-warm-300
+           hover:bg-warm-200
+           shadow-sm transition-all duration-200;
   }
-  .btn-vedic {
-    @apply px-8 py-3 rounded-xl font-semibold text-white
-           bg-gradient-to-r from-vedic-500 to-vedic-600
-           hover:from-vedic-400 hover:to-vedic-500
-           shadow-lg hover:shadow-vedic-500/30
-           transition-all duration-300 transform hover:scale-105;
+  .card-main {
+    @apply bg-white border border-gray-200 rounded-2xl p-6 shadow-sm;
   }
-  .card-warm {
-    @apply bg-white/80 backdrop-blur-sm border border-saffron-200/60 rounded-2xl p-6 shadow-lg shadow-saffron-100/50;
-  }
-  .card-vedic {
-    @apply bg-vedic-50/80 backdrop-blur-sm border-2 border-vedic-200 rounded-2xl p-6 shadow-lg;
+  .card-accent {
+    @apply bg-warm-100 border border-warm-300 rounded-2xl p-6;
   }
   .input-field {
     @apply w-full px-4 py-3 rounded-xl bg-white border border-gray-200
-           text-gray-800 placeholder-gray-400 
-           focus:border-saffron-400 focus:ring-2 focus:ring-saffron-300/40
+           text-gray-700 placeholder-gray-400
+           focus:border-teal-400 focus:ring-2 focus:ring-teal-200/50
            transition-all duration-200 outline-none;
   }
   .select-field {
     @apply w-full px-4 py-3 rounded-xl appearance-none bg-white border border-gray-200
-           text-gray-800 focus:border-saffron-400 focus:ring-2 focus:ring-saffron-300/40
+           text-gray-700 focus:border-teal-400 focus:ring-2 focus:ring-teal-200/50
            transition-all duration-200 outline-none cursor-pointer;
   }
   .section-heading {
-    @apply text-xl font-display font-semibold text-vedic-600 flex items-center gap-2;
+    @apply text-lg font-display font-semibold text-gray-800 flex items-center gap-2;
   }
   .chart-cell {
-    @apply border border-vedic-300 p-2 text-xs text-center text-vedic-600 bg-cream-100/50 min-h-[60px] flex items-center justify-center;
+    @apply border border-copper-200 p-2 text-xs text-center text-copper-500 bg-warm-50 min-h-[60px] flex items-center justify-center;
   }
 }
 
-::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: #FFF9E8; }
-::-webkit-scrollbar-thumb { background: #FDBA74; border-radius: 3px; }
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: #FDFCFB; }
+::-webkit-scrollbar-thumb { background: #C4B8A8; border-radius: 3px; }

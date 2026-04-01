@@ -2,16 +2,19 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { IoSparkles, IoCalendar, IoLocation, IoPerson, IoEarth, IoChatbubbles } from 'react-icons/io5';
+import { IoSparkles } from 'react-icons/io5';
 import LanguageSelector from './LanguageSelector';
+import CityAutocomplete from './CityAutocomplete';
 import { Locale } from '@/i18n';
 
 export interface IntakeFormData {
   name: string;
   dob: string;
+  timeOfBirth: string;
   birthplace: string;
   gender: 'male' | 'female' | 'other';
   location: string;
+  chartType: 'vedic' | 'western';
   concern: string;
   consent: boolean;
   language: Locale;
@@ -29,9 +32,11 @@ export default function IntakeForm({ t, locale, onLocaleChange, onSubmit, loadin
   const [form, setForm] = useState<IntakeFormData>({
     name: '',
     dob: '',
+    timeOfBirth: '',
     birthplace: '',
     gender: 'male',
     location: '',
+    chartType: 'vedic',
     concern: '',
     consent: false,
     language: locale,
@@ -47,7 +52,6 @@ export default function IntakeForm({ t, locale, onLocaleChange, onSubmit, loadin
     onSubmit({ ...form, language: locale });
   }
 
-  // Calculate age from DOB
   function getAge(dob: string): number | null {
     if (!dob) return null;
     const birth = new Date(dob);
@@ -59,20 +63,20 @@ export default function IntakeForm({ t, locale, onLocaleChange, onSubmit, loadin
   }
 
   const age = getAge(form.dob);
-  const isUnderage = age !== null && age < 18;
+  const isUnderage = age !== null && age < 21;
   const maxDate = new Date().toISOString().split('T')[0];
 
   return (
     <motion.form
       onSubmit={handleSubmit}
-      initial={{ opacity: 0, y: 40 }}
+      initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.7, delay: 0.3 }}
-      className="card-glass max-w-2xl mx-auto space-y-6"
+      transition={{ duration: 0.5 }}
+      className="card-main max-w-2xl mx-auto space-y-5"
     >
-      {/* Language Selector — top right of form */}
-      <div className="flex items-center justify-between flex-wrap gap-4">
-        <h2 className="text-xl font-display font-semibold text-gold-400">
+      {/* Header + Language */}
+      <div className="flex items-center justify-between flex-wrap gap-3">
+        <h2 className="text-xl font-display font-semibold text-gray-800">
           {t.start_reading || 'Begin Your Reading'}
         </h2>
         <LanguageSelector current={locale} onChange={onLocaleChange} />
@@ -80,64 +84,72 @@ export default function IntakeForm({ t, locale, onLocaleChange, onSubmit, loadin
 
       {/* Name */}
       <div>
-        <label className="block text-sm font-medium text-white/70 mb-1.5">
-          <IoPerson className="inline mr-1.5 text-cosmic-400" />
+        <label className="block text-sm font-medium text-gray-600 mb-1.5">
           {t.form_name || 'Full Name'}
         </label>
-        <input
-          type="text"
-          required
-          value={form.name}
-          onChange={(e) => update('name', e.target.value)}
-          className="input-field"
-          placeholder="e.g. Rama Krishna"
-        />
+        <input type="text" required value={form.name} onChange={(e) => update('name', e.target.value)} className="input-field" placeholder="e.g. Rama Krishna" />
       </div>
 
-      {/* DOB */}
+      {/* DOB + Time side by side */}
+      <div className="grid sm:grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-600 mb-1.5">
+            {t.form_dob || 'Date of Birth'}
+          </label>
+          <input type="date" required max={maxDate} value={form.dob} onChange={(e) => update('dob', e.target.value)} className="input-field" />
+          {isUnderage && age !== null && (
+            <p className="text-sm text-saffron-600 mt-1">
+              ✨ You&apos;ll receive encouraging guidance. Full readings are for 21+.
+            </p>
+          )}
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-600 mb-1.5">
+            {t.form_time || 'Time of Birth'}
+          </label>
+          <input type="time" value={form.timeOfBirth} onChange={(e) => update('timeOfBirth', e.target.value)} className="input-field" />
+          <p className="text-xs text-gray-400 mt-1">Optional — improves precision</p>
+        </div>
+      </div>
+
+      {/* Chart Type */}
       <div>
-        <label className="block text-sm font-medium text-white/70 mb-1.5">
-          <IoCalendar className="inline mr-1.5 text-cosmic-400" />
-          {t.form_dob || 'Date of Birth'}
+        <label className="block text-sm font-medium text-gray-600 mb-1.5">
+          {t.form_chart_type || 'Chart System'}
         </label>
-        <input
-          type="date"
-          required
-          max={maxDate}
-          value={form.dob}
-          onChange={(e) => update('dob', e.target.value)}
-          className="input-field"
-        />
-        {isUnderage && (
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="text-sm text-gold-400 mt-1.5"
-          >
-            ✨ {t.underage_title || 'Welcome, Young Star!'} — {t.age_gate_text || 'You\'ll receive positive encouraging guidance only.'}
-          </motion.p>
-        )}
+        <div className="flex gap-3">
+          {(['vedic', 'western'] as const).map((ct) => (
+            <button
+              key={ct}
+              type="button"
+              onClick={() => update('chartType', ct)}
+              className={`flex-1 py-2.5 rounded-xl text-sm font-medium transition-all border ${
+                form.chartType === ct
+                  ? 'bg-teal-600 border-teal-600 text-white shadow-sm'
+                  : 'bg-white border-gray-200 text-gray-500 hover:border-teal-300'
+              }`}
+            >
+              {ct === 'vedic' ? '🕉️ Vedic (South Indian)' : '🌟 Western'}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Birthplace */}
       <div>
-        <label className="block text-sm font-medium text-white/70 mb-1.5">
-          <IoLocation className="inline mr-1.5 text-cosmic-400" />
+        <label className="block text-sm font-medium text-gray-600 mb-1.5">
           {t.form_birthplace || 'Place of Birth'}
         </label>
-        <input
-          type="text"
-          required
+        <CityAutocomplete
           value={form.birthplace}
-          onChange={(e) => update('birthplace', e.target.value)}
-          className="input-field"
-          placeholder="e.g. Hyderabad, India"
+          onChange={(v) => update('birthplace', v)}
+          placeholder="e.g. Vijayawada"
         />
       </div>
 
       {/* Gender */}
       <div>
-        <label className="block text-sm font-medium text-white/70 mb-1.5">
+        <label className="block text-sm font-medium text-gray-600 mb-1.5">
           {t.form_gender || 'Gender'}
         </label>
         <div className="flex gap-3">
@@ -146,13 +158,13 @@ export default function IntakeForm({ t, locale, onLocaleChange, onSubmit, loadin
               key={g}
               type="button"
               onClick={() => update('gender', g)}
-              className={`flex-1 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 border ${
+              className={`flex-1 py-2.5 rounded-xl text-sm font-medium transition-all border ${
                 form.gender === g
-                  ? 'bg-cosmic-600 border-cosmic-400 text-white shadow-lg shadow-cosmic-500/30'
-                  : 'bg-white/5 border-white/10 text-white/60 hover:bg-white/10'
+                  ? 'bg-teal-600 border-teal-600 text-white shadow-sm'
+                  : 'bg-white border-gray-200 text-gray-500 hover:border-teal-300'
               }`}
             >
-              {t[`form_gender_${g}`] || g.charAt(0).toUpperCase() + g.slice(1)}
+              {g.charAt(0).toUpperCase() + g.slice(1)}
             </button>
           ))}
         </div>
@@ -160,25 +172,20 @@ export default function IntakeForm({ t, locale, onLocaleChange, onSubmit, loadin
 
       {/* Current Location */}
       <div>
-        <label className="block text-sm font-medium text-white/70 mb-1.5">
-          <IoEarth className="inline mr-1.5 text-cosmic-400" />
+        <label className="block text-sm font-medium text-gray-600 mb-1.5">
           {t.form_location || 'Current Location'}
         </label>
-        <input
-          type="text"
-          required
+        <CityAutocomplete
           value={form.location}
-          onChange={(e) => update('location', e.target.value)}
-          className="input-field"
-          placeholder="e.g. San Francisco, USA"
+          onChange={(v) => update('location', v)}
+          placeholder="e.g. San Francisco"
         />
       </div>
 
       {/* Concern */}
       <div>
-        <label className="block text-sm font-medium text-white/70 mb-1.5">
-          <IoChatbubbles className="inline mr-1.5 text-cosmic-400" />
-          {t.form_concern || 'Your Primary Concern'}
+        <label className="block text-sm font-medium text-gray-600 mb-1.5">
+          {t.form_concern || 'Primary Concern'}
         </label>
         <textarea
           required
@@ -186,49 +193,33 @@ export default function IntakeForm({ t, locale, onLocaleChange, onSubmit, loadin
           value={form.concern}
           onChange={(e) => update('concern', e.target.value)}
           className="input-field resize-none"
-          placeholder={t.form_concern_placeholder || 'e.g. career, relationships, health, finances, spiritual growth...'}
+          placeholder="e.g. career, relationships, health..."
         />
       </div>
 
-      {/* Consent Checkbox */}
-      <div className="bg-amber-900/30 border border-amber-500/40 rounded-xl p-4">
+      {/* Consent */}
+      <div className="bg-saffron-50 border border-saffron-200 rounded-xl p-4">
         <label className="flex items-start gap-3 cursor-pointer">
           <input
             type="checkbox"
             checked={form.consent}
             onChange={(e) => update('consent', e.target.checked)}
-            className="mt-1 w-5 h-5 rounded accent-cosmic-500 flex-shrink-0"
+            className="mt-1 w-4 h-4 rounded accent-teal-600 flex-shrink-0"
           />
-          <span className="text-sm text-amber-200 leading-relaxed">
-            ⚠️ {t.consent_label || 'I understand this is for entertainment and informational purposes only, and I will consult a qualified astrologer for personal guidance.'}
+          <span className="text-sm text-gray-600 leading-relaxed">
+            I understand this is for entertainment and informational purposes only and will consult a qualified astrologer for personal guidance.
           </span>
         </label>
       </div>
 
-      {/* Mini Disclaimer inside form */}
-      <div className="text-center">
-        <p className="text-xs text-white/40 italic leading-relaxed">
-          🔴 This site is for information and entertainment purposes only. It should NOT be used as
-          guidance or a path for life decisions. Please consult a professional astrologer for true details.
-        </p>
-      </div>
-
       {/* Submit */}
-      <button
-        type="submit"
-        disabled={!form.consent || loading}
-        className="btn-gold w-full flex items-center justify-center gap-2 text-lg"
-      >
+      <button type="submit" disabled={!form.consent || loading} className="btn-primary w-full flex items-center justify-center gap-2">
         {loading ? (
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-            className="w-5 h-5 border-2 border-cosmic-900 border-t-transparent rounded-full"
-          />
+          <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
         ) : (
           <>
             <IoSparkles />
-            {t.form_submit || 'Reveal My Stars'}
+            {t.form_submit || 'Generate Reading'}
           </>
         )}
       </button>

@@ -305,18 +305,18 @@ export default function CelestialScene({
       <div ref={mountRef} className="w-full h-[350px] sm:h-[420px] md:h-[500px]" />
       {/* Overlay info badges */}
       <div className="absolute top-3 left-3 flex flex-col gap-1.5">
-        <span className="inline-block bg-black/50 backdrop-blur-sm text-saffron-300 text-[11px] font-medium px-2.5 py-1 rounded-full">
+        <span className="inline-block bg-black/50 backdrop-blur-sm text-saffron-200 text-[11px] font-medium px-2.5 py-1 rounded-full">
           ☉ {sunSign}
         </span>
-        <span className="inline-block bg-black/50 backdrop-blur-sm text-blue-300 text-[11px] font-medium px-2.5 py-1 rounded-full">
+        <span className="inline-block bg-black/50 backdrop-blur-sm text-teal-200 text-[11px] font-medium px-2.5 py-1 rounded-full">
           ☽ {moonSign}
         </span>
       </div>
       <div className="absolute top-3 right-3 flex flex-col gap-1.5 text-right">
-        <span className="inline-block bg-black/50 backdrop-blur-sm text-vedic-200 text-[11px] font-medium px-2.5 py-1 rounded-full">
+        <span className="inline-block bg-black/50 backdrop-blur-sm text-copper-200 text-[11px] font-medium px-2.5 py-1 rounded-full">
           🕉️ {rashi}
         </span>
-        <span className="inline-block bg-black/50 backdrop-blur-sm text-yellow-200 text-[11px] font-medium px-2.5 py-1 rounded-full">
+        <span className="inline-block bg-black/50 backdrop-blur-sm text-warm-200 text-[11px] font-medium px-2.5 py-1 rounded-full">
           ✦ {nakshatra}
         </span>
       </div>

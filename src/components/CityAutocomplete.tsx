@@ -7,7 +7,7 @@ interface CityAutocompleteProps {
   value: string;
   onChange: (value: string, entry?: CityEntry) => void;
   placeholder?: string;
-  label: string;
+  label?: string;
   icon?: React.ReactNode;
 }
 
@@ -41,10 +41,12 @@ export default function CityAutocomplete({ value, onChange, placeholder, label, 
 
   return (
     <div ref={wrapperRef} className="relative">
-      <label className="block text-sm font-medium text-gray-600 mb-1.5">
-        {icon && <span className="inline mr-1.5">{icon}</span>}
-        {label}
-      </label>
+      {label && (
+        <label className="block text-sm font-medium text-gray-600 mb-1.5">
+          {icon && <span className="inline mr-1.5">{icon}</span>}
+          {label}
+        </label>
+      )}
       <input
         type="text"
         value={value}
