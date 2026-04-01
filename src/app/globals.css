@@ -3,40 +3,57 @@
 @tailwind utilities;
 
 @layer base {
-  body { @apply bg-[#0a0014] text-white font-body antialiased; }
-  ::selection { @apply bg-cosmic-500/40 text-white; }
+  body { @apply bg-cream-50 text-gray-800 font-body antialiased; }
+  ::selection { @apply bg-saffron-200 text-gray-900; }
 }
 
 @layer components {
-  .btn-cosmic {
+  .btn-primary {
     @apply px-8 py-3 rounded-xl font-semibold text-white
-           bg-gradient-to-r from-cosmic-600 to-cosmic-500
-           hover:from-cosmic-500 hover:to-cosmic-400
-           shadow-lg hover:shadow-cosmic-500/40
+           bg-gradient-to-r from-saffron-500 to-terra-500
+           hover:from-saffron-400 hover:to-terra-400
+           shadow-lg hover:shadow-saffron-500/30
            transition-all duration-300 transform hover:scale-105
            disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100;
   }
-  .btn-gold {
-    @apply px-8 py-3 rounded-xl font-semibold text-cosmic-950
-           bg-gradient-to-r from-gold-400 to-gold-500
-           hover:from-gold-300 hover:to-gold-400
-           shadow-lg hover:shadow-gold-500/40 transition-all duration-300 transform hover:scale-105;
+  .btn-secondary {
+    @apply px-8 py-3 rounded-xl font-semibold text-saffron-700
+           bg-cream-200 border-2 border-saffron-300
+           hover:bg-saffron-50 hover:border-saffron-400
+           shadow-sm hover:shadow-md transition-all duration-300 transform hover:scale-105;
   }
-  .card-glass {
-    @apply bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6 shadow-2xl;
+  .btn-vedic {
+    @apply px-8 py-3 rounded-xl font-semibold text-white
+           bg-gradient-to-r from-vedic-500 to-vedic-600
+           hover:from-vedic-400 hover:to-vedic-500
+           shadow-lg hover:shadow-vedic-500/30
+           transition-all duration-300 transform hover:scale-105;
+  }
+  .card-warm {
+    @apply bg-white/80 backdrop-blur-sm border border-saffron-200/60 rounded-2xl p-6 shadow-lg shadow-saffron-100/50;
+  }
+  .card-vedic {
+    @apply bg-vedic-50/80 backdrop-blur-sm border-2 border-vedic-200 rounded-2xl p-6 shadow-lg;
   }
   .input-field {
-    @apply w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10
-           text-white placeholder-white/30 focus:border-cosmic-500 focus:ring-2
-           focus:ring-cosmic-500/30 transition-all duration-200 outline-none;
+    @apply w-full px-4 py-3 rounded-xl bg-white border border-gray-200
+           text-gray-800 placeholder-gray-400 
+           focus:border-saffron-400 focus:ring-2 focus:ring-saffron-300/40
+           transition-all duration-200 outline-none;
   }
   .select-field {
-    @apply w-full px-4 py-3 rounded-xl appearance-none bg-white/5 border border-white/10
-           text-white focus:border-cosmic-500 focus:ring-2 focus:ring-cosmic-500/30
-           transition-all duration-200 outline-none;
+    @apply w-full px-4 py-3 rounded-xl appearance-none bg-white border border-gray-200
+           text-gray-800 focus:border-saffron-400 focus:ring-2 focus:ring-saffron-300/40
+           transition-all duration-200 outline-none cursor-pointer;
+  }
+  .section-heading {
+    @apply text-xl font-display font-semibold text-vedic-600 flex items-center gap-2;
+  }
+  .chart-cell {
+    @apply border border-vedic-300 p-2 text-xs text-center text-vedic-600 bg-cream-100/50 min-h-[60px] flex items-center justify-center;
   }
 }
 
 ::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: #0a0014; }
-::-webkit-scrollbar-thumb { background: #6d28d9; border-radius: 3px; }
+::-webkit-scrollbar-track { background: #FFF9E8; }
+::-webkit-scrollbar-thumb { background: #FDBA74; border-radius: 3px; }
