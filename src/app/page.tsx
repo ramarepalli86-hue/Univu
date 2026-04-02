@@ -14,7 +14,6 @@ export default function HomePage() {
   const [t, setT] = useState<Record<string, string>>({});
   const [reading, setReading] = useState<ReadingResult | null>(null);
   const [loading, setLoading] = useState(false);
-  const [showUnderage, setShowUnderage] = useState(false);
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -39,10 +38,6 @@ export default function HomePage() {
       });
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || 'Something went wrong');
-
-      if (json.reading.isUnderage) {
-        setShowUnderage(true);
-      }
       setReading(json.reading);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Something went wrong. Please try again.');
@@ -55,7 +50,7 @@ export default function HomePage() {
     <div className="relative min-h-screen bg-warm-50">
       <StarField />
       <DisclaimerBanner t={t} />
-      <AgeGate t={t} underage={showUnderage && !reading?.isUnderage === false} />
+      <AgeGate t={t} underage={false} />
 
       <div className="relative z-10 max-w-5xl mx-auto px-4 py-8 sm:py-12">
         {/* Header — consistent color, no rainbow */}
@@ -95,7 +90,7 @@ export default function HomePage() {
           ) : (
             <motion.div key="report" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
               <button
-                onClick={() => { setReading(null); setShowUnderage(false); }}
+                onClick={() => { setReading(null); }}
                 className="mb-6 text-sm text-gray-400 hover:text-gray-600 transition-colors"
               >
                 ← Back to Home
