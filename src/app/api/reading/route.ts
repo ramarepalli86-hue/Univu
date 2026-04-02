@@ -1,16 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { generateFullReading } from '@/lib/astrology';
+import { generateFullReading, ReadingInput } from '@/lib/astrology';
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
 
-    const { name, dob, birthplace, gender, location, concern } = body;
+    const {
+      name, dob, timeOfBirth, birthLat, birthLng, birthCity,
+      currentLat, currentLng, currentCity,
+      gender, maritalStatus, employment, concern, chartType, language,
+    } = body;
 
     // Validate required fields
-    if (!name || !dob || !birthplace || !gender || !location || !concern) {
+    if (!name || !dob || !birthCity || !gender) {
       return NextResponse.json(
-        { error: 'All fields are required.' },
+        { error: 'Name, date of birth, birth city, and gender are required.' },
         { status: 400 }
       );
     }
@@ -24,15 +28,26 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Generate reading
-    const reading = generateFullReading({
+    const input: ReadingInput = {
       name: name.trim(),
       dob,
-      birthplace: birthplace.trim(),
+      timeOfBirth: timeOfBirth || '12:00',
+      birthLat: parseFloat(birthLat) || 28.6139,
+      birthLng: parseFloat(birthLng) || 77.2090,
+      birthCity: birthCity.trim(),
+      currentLat: parseFloat(currentLat) || parseFloat(birthLat) || 28.6139,
+      currentLng: parseFloat(currentLng) || parseFloat(birthLng) || 77.2090,
+      currentCity: (currentCity || birthCity || '').trim(),
       gender,
-      location: location.trim(),
-      concern: concern.trim(),
-    });
+      maritalStatus: maritalStatus || 'single',
+      employment: employment || 'employed',
+      concern: (concern || '').trim(),
+      chartType: chartType || 'north',
+      language: language || 'en',
+    };
+
+    // Generate reading
+    const reading = generateFullReading(input);
 
     // Add disclaimer to response
     return NextResponse.json({
