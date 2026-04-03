@@ -126,6 +126,14 @@ Give a year. If ${ctx.name} is in a health-challenging dasha (Saturn, Rahu, Mars
 **3 specific daily habits for ${ctx.name}'s chart**
 One for body (${ctx.lagnaSign} Lagna), one for mind (Moon in ${ctx.moonSign}), one for current dasha energy. Not generic — genuinely chart-specific.
 
+**🥗 Food, Exercise & Lifestyle prescription for ${ctx.name}**
+Based on ${ctx.lagnaSign} Ascendant, Moon in ${ctx.moonSign}, and current ${ctx.currentDasha} dasha, give a specific, practical prescription:
+- **Best foods to eat daily**: Name 5-7 specific foods that balance ${ctx.name}'s constitution. Be concrete (e.g. "ghee, pomegranate, soaked almonds, bitter gourd" — not just "eat well").
+- **Foods to limit or avoid**: 3-4 specific foods that aggravate their dosha or dasha energy.
+- **Best exercise style**: Name the EXACT type (e.g. "slow yoga and swimming — NOT high-intensity cardio which overheats your Mars in ${ctx.marsSign}"). Include how many days/week and duration.
+- **Sleep & daily rhythm**: What time to wake, rest, and wind down based on their Lagna energy pattern.
+- **One Ayurvedic or herbal remedy**: Specific to their constitution and current dasha (e.g. Ashwagandha for Saturn dasha exhaustion, Brahmi for Mercury mind stress, Triphala for digestive Moon signs).
+
 End with: "⚠️ For entertainment & informational purposes only. NOT medical advice."`,
 
   timeline: (ctx) => `You are speaking to ${ctx.name} about their life's timeline — past, present, future.

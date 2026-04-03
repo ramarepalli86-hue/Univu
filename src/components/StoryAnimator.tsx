@@ -59,105 +59,187 @@ function getPronouns(gender?: string) {
   return { sub: 'he', obj: 'him', pos: 'his', ref: 'himself' };
 }
 
-// ─── Animated SVG Characters ──────────────────────────────────────────────────
+// ─── Animated SVG Characters — 3D-shaded, gender-aware ──────────────────────
 
-function NewbornFigure({ color }: { color: string }) {
+function NewbornFigure({ color, gender }: { color: string; gender?: string }) {
+  const isFemale = gender === 'female';
   return (
-    <svg viewBox="0 0 120 140" className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+    <svg viewBox="0 0 140 160" className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="nb-body" cx="40%" cy="35%" r="60%">
+          <stop offset="0%" stopColor="#fff" stopOpacity="0.4"/>
+          <stop offset="100%" stopColor={color} stopOpacity="0.9"/>
+        </radialGradient>
+        <radialGradient id="nb-glow" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor={color} stopOpacity="0.3"/>
+          <stop offset="100%" stopColor={color} stopOpacity="0"/>
+        </radialGradient>
+        <filter id="nb-shadow">
+          <feDropShadow dx="2" dy="4" stdDeviation="4" floodColor={color} floodOpacity="0.4"/>
+        </filter>
+      </defs>
+      {/* Cosmic glow */}
+      <circle cx="70" cy="80" r="60" fill="url(#nb-glow)" />
+      {/* Orbital rings */}
       {[0, 45, 90, 135, 180, 225, 270, 315].map((angle, i) => (
         <motion.circle key={i}
-          cx={60 + 50 * Math.cos((angle * Math.PI) / 180)}
-          cy={70 + 50 * Math.sin((angle * Math.PI) / 180)}
-          r="2" fill={color}
-          animate={{ opacity: [0.2, 1, 0.2], scale: [0.8, 1.4, 0.8] }}
+          cx={70 + 54 * Math.cos((angle * Math.PI) / 180)}
+          cy={80 + 54 * Math.sin((angle * Math.PI) / 180)}
+          r="2.5" fill={color} opacity="0.7"
+          animate={{ opacity: [0.2, 1, 0.2], scale: [0.8, 1.5, 0.8] }}
           transition={{ duration: 2, repeat: Infinity, delay: i * 0.25 }}
         />
       ))}
-      <motion.ellipse cx="60" cy="70" rx="35" ry="45"
-        fill="none" stroke={color} strokeWidth="1.5" strokeDasharray="4 4"
-        animate={{ rotate: 360 }}
-        transition={{ duration: 12, repeat: Infinity, ease: 'linear' }}
-        style={{ transformOrigin: '60px 70px' }}
-      />
-      <motion.g animate={{ y: [-3, 3, -3] }} transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}>
-        <ellipse cx="60" cy="85" rx="22" ry="28" fill={color} opacity="0.25" />
-        <ellipse cx="60" cy="85" rx="18" ry="24" fill={color} opacity="0.35" />
-        <circle cx="60" cy="55" r="16" fill={color} opacity="0.8" />
-        <path d="M54 54 Q57 52 60 54" stroke="#000" strokeWidth="1.5" fill="none" strokeLinecap="round" />
-        <path d="M60 54 Q63 52 66 54" stroke="#000" strokeWidth="1.5" fill="none" strokeLinecap="round" />
-        <path d="M56 60 Q60 64 64 60" stroke="#000" strokeWidth="1.5" fill="none" strokeLinecap="round" />
-        <motion.circle cx="60" cy="55" r="22" fill="none" stroke={color} strokeWidth="2" opacity="0.5"
-          animate={{ r: [22, 28, 22], opacity: [0.5, 0.1, 0.5] }}
-          transition={{ duration: 2.5, repeat: Infinity }}
-        />
+      <motion.g animate={{ y: [-4, 4, -4] }} transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}>
+        {/* Body — 3D swaddled */}
+        <ellipse cx="70" cy="100" rx="28" ry="36" fill="url(#nb-body)" filter="url(#nb-shadow)" />
+        <ellipse cx="70" cy="100" rx="28" ry="36" fill="none" stroke={color} strokeWidth="1" opacity="0.5" />
+        {/* Shading fold */}
+        <ellipse cx="58" cy="95" rx="8" ry="14" fill="white" opacity="0.12" />
+        {/* Head */}
+        <circle cx="70" cy="62" r="22" fill="url(#nb-body)" filter="url(#nb-shadow)" />
+        <circle cx="70" cy="62" r="22" fill="none" stroke={color} strokeWidth="1" opacity="0.4" />
+        {/* Face highlight */}
+        <ellipse cx="63" cy="57" rx="7" ry="9" fill="white" opacity="0.18" />
+        {/* Eyes */}
+        <circle cx="63" cy="62" r="3.5" fill="#1a1a2e" />
+        <circle cx="77" cy="62" r="3.5" fill="#1a1a2e" />
+        <circle cx="64.2" cy="60.8" r="1.2" fill="white" opacity="0.9" />
+        <circle cx="78.2" cy="60.8" r="1.2" fill="white" opacity="0.9" />
+        {/* Smile */}
+        <path d="M64 68 Q70 73 76 68" stroke="#1a1a2e" strokeWidth="1.5" fill="none" strokeLinecap="round" />
+        {/* Halo for newborn */}
+        <motion.ellipse cx="70" cy="42" rx="22" ry="6" fill="none" stroke={color} strokeWidth="1.5"
+          animate={{ opacity: [0.4, 0.9, 0.4] }} transition={{ duration: 2, repeat: Infinity }} />
+        {/* Star on forehead */}
+        <circle cx="70" cy="52" r="2.5" fill={color} opacity="0.9" />
       </motion.g>
       {[0, 60, 120, 180, 240, 300].map((angle, i) => (
         <motion.line key={i}
-          x1={60 + 20 * Math.cos((angle * Math.PI) / 180)}
-          y1={55 + 20 * Math.sin((angle * Math.PI) / 180)}
-          x2={60 + 38 * Math.cos((angle * Math.PI) / 180)}
-          y2={55 + 38 * Math.sin((angle * Math.PI) / 180)}
+          x1={70 + 22 * Math.cos((angle * Math.PI) / 180)}
+          y1={62 + 22 * Math.sin((angle * Math.PI) / 180)}
+          x2={70 + 40 * Math.cos((angle * Math.PI) / 180)}
+          y2={62 + 40 * Math.sin((angle * Math.PI) / 180)}
           stroke={color} strokeWidth="1.5" strokeLinecap="round"
           animate={{ opacity: [0, 0.8, 0] }}
-          transition={{ duration: 2, repeat: Infinity, delay: i * 0.3 }}
+          transition={{ duration: 2, repeat: Infinity, delay: i * 0.33 }}
         />
       ))}
     </svg>
   );
 }
 
-function ChildFigure({ color }: { color: string }) {
+function ChildFigure({ color, gender }: { color: string; gender?: string }) {
+  const isFemale = gender === 'female';
   return (
-    <svg viewBox="0 0 120 160" className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
-      <motion.g animate={{ rotate: [-5, 5, -5] }}
+    <svg viewBox="0 0 140 180" className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="ch-skin" cx="38%" cy="30%" r="65%">
+          <stop offset="0%" stopColor="#ffe0c0" stopOpacity="0.95"/>
+          <stop offset="100%" stopColor="#d4956a" stopOpacity="0.85"/>
+        </radialGradient>
+        <radialGradient id="ch-cloth" cx="35%" cy="30%" r="65%">
+          <stop offset="0%" stopColor="#fff" stopOpacity="0.35"/>
+          <stop offset="100%" stopColor={color} stopOpacity="0.9"/>
+        </radialGradient>
+        <filter id="ch-shadow"><feDropShadow dx="2" dy="5" stdDeviation="5" floodColor={color} floodOpacity="0.35"/></filter>
+      </defs>
+      <motion.g animate={{ rotate: [-4, 4, -4] }}
         transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
-        style={{ transformOrigin: '60px 90px' }}>
-        <ellipse cx="60" cy="148" rx="30" ry="6" fill={color} opacity="0.15" />
-        <rect x="48" y="88" width="24" height="40" rx="8" fill={color} opacity="0.6" />
-        <circle cx="60" cy="78" r="18" fill={color} opacity="0.8" />
-        <circle cx="54" cy="76" r="3.5" fill="#fff" /><circle cx="66" cy="76" r="3.5" fill="#fff" />
-        <circle cx="55" cy="77" r="2" fill="#222" /><circle cx="67" cy="77" r="2" fill="#222" />
-        <path d="M54 84 Q60 89 66 84" stroke="#222" strokeWidth="1.5" fill="none" strokeLinecap="round" />
-        <motion.line x1="48" y1="98" x2="32" y2="82" stroke={color} strokeWidth="6" strokeLinecap="round"
-          animate={{ x2: [32, 28, 32], y2: [82, 76, 82] }}
+        style={{ transformOrigin: '70px 100px' }}>
+        {/* Shadow on floor */}
+        <ellipse cx="70" cy="168" rx="28" ry="6" fill={color} opacity="0.18" />
+        {/* Legs */}
+        <rect x="55" y="132" width="12" height="34" rx="6" fill="url(#ch-cloth)" />
+        <rect x="73" y="132" width="12" height="34" rx="6" fill="url(#ch-cloth)" />
+        {/* Shoes */}
+        <ellipse cx="61" cy="166" rx="10" ry="5" fill={color} opacity="0.7" />
+        <ellipse cx="79" cy="166" rx="10" ry="5" fill={color} opacity="0.7" />
+        {/* Body */}
+        <rect x="50" y="90" width="40" height="46" rx="14" fill="url(#ch-cloth)" filter="url(#ch-shadow)" />
+        {/* Body highlight */}
+        <ellipse cx="61" cy="100" rx="8" ry="14" fill="white" opacity="0.15" />
+        {isFemale && <path d="M50 120 Q70 128 90 120" fill={color} opacity="0.35" />}
+        {/* Arms */}
+        <motion.line x1="50" y1="102" x2="30" y2="90" stroke="url(#ch-cloth)" strokeWidth="12" strokeLinecap="round"
+          animate={{ x2: [30, 25, 30], y2: [90, 82, 90] }}
           transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
         />
-        <motion.line x1="72" y1="98" x2="88" y2="82" stroke={color} strokeWidth="6" strokeLinecap="round"
-          animate={{ x2: [88, 92, 88], y2: [82, 76, 82] }}
+        <motion.line x1="90" y1="102" x2="110" y2="90" stroke="url(#ch-cloth)" strokeWidth="12" strokeLinecap="round"
+          animate={{ x2: [110, 115, 110], y2: [90, 82, 90] }}
           transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
         />
-        <line x1="54" y1="128" x2="50" y2="148" stroke={color} strokeWidth="7" strokeLinecap="round" />
-        <line x1="66" y1="128" x2="70" y2="148" stroke={color} strokeWidth="7" strokeLinecap="round" />
+        {/* Head */}
+        <circle cx="70" cy="76" r="22" fill="url(#ch-skin)" filter="url(#ch-shadow)" />
+        {/* Head highlight */}
+        <ellipse cx="63" cy="70" rx="8" ry="10" fill="white" opacity="0.2" />
+        {/* Hair */}
+        {isFemale
+          ? <><path d="M48 70 Q70 48 92 70" fill="#3d2010" opacity="0.85" /><path d="M48 70 Q42 85 46 100" stroke="#3d2010" strokeWidth="5" fill="none" /><path d="M92 70 Q98 85 94 100" stroke="#3d2010" strokeWidth="5" fill="none" /></>
+          : <path d="M48 72 Q70 50 92 72 Q88 58 70 54 Q52 58 48 72Z" fill="#3d2010" opacity="0.85" />
+        }
+        {/* Eyes */}
+        <circle cx="63" cy="76" r="4" fill="#1a1a2e" /><circle cx="77" cy="76" r="4" fill="#1a1a2e" />
+        <circle cx="64.3" cy="74.7" r="1.5" fill="white" opacity="0.9" /><circle cx="78.3" cy="74.7" r="1.5" fill="white" opacity="0.9" />
+        {/* Smile */}
+        <path d="M63 84 Q70 90 77 84" stroke="#c07040" strokeWidth="1.8" fill="none" strokeLinecap="round" />
       </motion.g>
       {[0, 1, 2].map(i => (
-        <motion.text key={i} x={30 + i * 25} y="30" fontSize="18" textAnchor="middle"
-          animate={{ y: [30, 20, 30], opacity: [0.6, 1, 0.6] }}
+        <motion.text key={i} x={28 + i * 32} y="28" fontSize="18" textAnchor="middle"
+          animate={{ y: [28, 16, 28], opacity: [0.6, 1, 0.6] }}
           transition={{ duration: 2, repeat: Infinity, delay: i * 0.6 }}>⭐</motion.text>
       ))}
     </svg>
   );
 }
 
-function YouthFigure({ color }: { color: string }) {
+function YouthFigure({ color, gender }: { color: string; gender?: string }) {
+  const isFemale = gender === 'female';
   return (
-    <svg viewBox="0 0 120 180" className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
-      <motion.g animate={{ y: [0, -6, 0] }} transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}>
-        <motion.ellipse cx="60" cy="172" rx="25" ry="5" fill={color} opacity="0.2"
-          animate={{ rx: [25, 20, 25] }} transition={{ duration: 3, repeat: Infinity }} />
-        <rect x="47" y="95" width="26" height="55" rx="10" fill={color} opacity="0.6" />
-        <circle cx="60" cy="82" r="20" fill={color} opacity="0.8" />
-        <path d="M51 80 L57 80" stroke="#222" strokeWidth="2.5" strokeLinecap="round" />
-        <path d="M63 80 L69 80" stroke="#222" strokeWidth="2.5" strokeLinecap="round" />
-        <path d="M54 88 Q60 93 66 88" stroke="#222" strokeWidth="1.5" fill="none" strokeLinecap="round" />
-        <line x1="47" y1="108" x2="30" y2="118" stroke={color} strokeWidth="7" strokeLinecap="round" />
-        <line x1="73" y1="108" x2="90" y2="118" stroke={color} strokeWidth="7" strokeLinecap="round" />
-        <rect x="22" y="115" width="16" height="20" rx="2" fill={color} opacity="0.9" />
-        <line x1="30" y1="115" x2="30" y2="135" stroke="#fff" strokeWidth="1" />
-        <line x1="54" y1="150" x2="50" y2="172" stroke={color} strokeWidth="8" strokeLinecap="round" />
-        <line x1="66" y1="150" x2="70" y2="172" stroke={color} strokeWidth="8" strokeLinecap="round" />
+    <svg viewBox="0 0 140 200" className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="yu-skin" cx="38%" cy="28%" r="65%">
+          <stop offset="0%" stopColor="#ffe0c0" stopOpacity="0.95"/>
+          <stop offset="100%" stopColor="#c4845a" stopOpacity="0.85"/>
+        </radialGradient>
+        <radialGradient id="yu-cloth" cx="35%" cy="30%" r="65%">
+          <stop offset="0%" stopColor="#fff" stopOpacity="0.35"/>
+          <stop offset="100%" stopColor={color} stopOpacity="0.92"/>
+        </radialGradient>
+        <filter id="yu-shadow"><feDropShadow dx="3" dy="6" stdDeviation="6" floodColor={color} floodOpacity="0.35"/></filter>
+      </defs>
+      <motion.g animate={{ y: [0, -7, 0] }} transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}>
+        <ellipse cx="70" cy="192" rx="22" ry="5" fill={color} opacity="0.2" />
+        {/* Legs */}
+        <rect x="55" y="148" width="14" height="42" rx="7" fill="url(#yu-cloth)" />
+        <rect x="71" y="148" width="14" height="42" rx="7" fill="url(#yu-cloth)" />
+        <ellipse cx="62" cy="190" rx="12" ry="5" fill={color} opacity="0.65" />
+        <ellipse cx="78" cy="190" rx="12" ry="5" fill={color} opacity="0.65" />
+        {/* Body */}
+        <rect x="48" y="98" width="44" height="55" rx="14" fill="url(#yu-cloth)" filter="url(#yu-shadow)" />
+        <ellipse cx="61" cy="110" rx="9" ry="16" fill="white" opacity="0.14" />
+        {isFemale && <path d="M48 138 Q70 148 92 138" fill={color} opacity="0.3" />}
+        {/* Arms */}
+        <line x1="48" y1="112" x2="26" y2="124" stroke="url(#yu-cloth)" strokeWidth="13" strokeLinecap="round" />
+        <line x1="92" y1="112" x2="114" y2="124" stroke="url(#yu-cloth)" strokeWidth="13" strokeLinecap="round" />
+        {/* Book in hand */}
+        <rect x="14" y="116" width="18" height="22" rx="2" fill={color} opacity="0.85" />
+        <line x1="23" y1="116" x2="23" y2="138" stroke="white" strokeWidth="1.2" opacity="0.5" />
+        {/* Head */}
+        <circle cx="70" cy="82" r="24" fill="url(#yu-skin)" filter="url(#yu-shadow)" />
+        <ellipse cx="62" cy="74" rx="9" ry="11" fill="white" opacity="0.18" />
+        {/* Hair */}
+        {isFemale
+          ? <><path d="M46 78 Q70 54 94 78" fill="#2d1a08" opacity="0.9" /><path d="M46 78 Q40 96 44 116" stroke="#2d1a08" strokeWidth="6" fill="none"/><path d="M94 78 Q100 96 96 116" stroke="#2d1a08" strokeWidth="6" fill="none"/></>
+          : <path d="M47 80 Q70 56 93 80 Q89 63 70 59 Q51 63 47 80Z" fill="#2d1a08" opacity="0.9" />
+        }
+        {/* Eyes */}
+        <circle cx="62" cy="82" r="4.5" fill="#1a1a2e" /><circle cx="78" cy="82" r="4.5" fill="#1a1a2e" />
+        <circle cx="63.5" cy="80.5" r="1.6" fill="white" opacity="0.9" /><circle cx="79.5" cy="80.5" r="1.6" fill="white" opacity="0.9" />
+        <path d="M63 90 Q70 95 77 90" stroke="#b07050" strokeWidth="1.8" fill="none" strokeLinecap="round" />
       </motion.g>
       {[0, 1, 2, 3].map(i => (
-        <motion.circle key={i} cx={85 + (i % 2) * 20} cy={60 + Math.floor(i / 2) * 25}
+        <motion.circle key={i} cx={100 + (i % 2) * 22} cy={65 + Math.floor(i / 2) * 26}
           r="4" fill={color}
           animate={{ opacity: [0, 1, 0], scale: [0.5, 1.5, 0.5] }}
           transition={{ duration: 2, repeat: Infinity, delay: i * 0.5 }}
@@ -167,96 +249,195 @@ function YouthFigure({ color }: { color: string }) {
   );
 }
 
-function AdultFigure({ color }: { color: string }) {
+function AdultFigure({ color, gender }: { color: string; gender?: string }) {
+  const isFemale = gender === 'female';
   return (
-    <svg viewBox="0 0 120 200" className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+    <svg viewBox="0 0 140 220" className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="ad-skin" cx="38%" cy="28%" r="65%">
+          <stop offset="0%" stopColor="#ffe0c0" stopOpacity="0.95"/>
+          <stop offset="100%" stopColor="#b87045" stopOpacity="0.85"/>
+        </radialGradient>
+        <radialGradient id="ad-cloth" cx="32%" cy="28%" r="68%">
+          <stop offset="0%" stopColor="#fff" stopOpacity="0.3"/>
+          <stop offset="100%" stopColor={color} stopOpacity="0.92"/>
+        </radialGradient>
+        <filter id="ad-shadow"><feDropShadow dx="3" dy="7" stdDeviation="7" floodColor={color} floodOpacity="0.4"/></filter>
+      </defs>
+      {/* Confidence aura rings */}
       {[0, 1, 2, 3].map(i => (
-        <motion.rect key={i} x={10 + i * 22} y={165 - i * 20} width="22" height="5"
-          rx="2" fill={color} opacity="0.3"
-          animate={{ opacity: [0.2, 0.5, 0.2] }}
-          transition={{ duration: 2, repeat: Infinity, delay: i * 0.3 }}
+        <motion.rect key={i} x={14 + i * 22} y={176 - i * 18} width="22" height="5"
+          rx="2" fill={color} opacity="0.22"
+          animate={{ opacity: [0.12, 0.35, 0.12] }}
+          transition={{ duration: 2, repeat: Infinity, delay: i * 0.35 }}
         />
       ))}
-      <motion.g animate={{ y: [0, -4, 0] }} transition={{ duration: 2.5, repeat: Infinity }}>
-        <rect x="46" y="100" width="28" height="60" rx="12" fill={color} opacity="0.65" />
-        <circle cx="60" cy="86" r="20" fill={color} opacity="0.85" />
-        <path d="M51 84 Q54 81 57 84" stroke="#222" strokeWidth="2" fill="none" />
-        <path d="M63 84 Q66 81 69 84" stroke="#222" strokeWidth="2" fill="none" />
-        <path d="M54 92 Q60 96 66 92" stroke="#222" strokeWidth="1.5" fill="none" strokeLinecap="round" />
-        <motion.line x1="46" y1="115" x2="26" y2="100" stroke={color} strokeWidth="8" strokeLinecap="round"
-          animate={{ x2: [26, 22, 26], y2: [100, 88, 100] }}
+      <motion.g animate={{ y: [0, -5, 0] }} transition={{ duration: 2.5, repeat: Infinity }}>
+        <ellipse cx="70" cy="210" rx="24" ry="6" fill={color} opacity="0.2" />
+        {/* Legs */}
+        <rect x="54" y="158" width="15" height="48" rx="7" fill="url(#ad-cloth)" />
+        <rect x="71" y="158" width="15" height="48" rx="7" fill="url(#ad-cloth)" />
+        <ellipse cx="62" cy="206" rx="13" ry="6" fill={color} opacity="0.7" />
+        <ellipse cx="79" cy="206" rx="13" ry="6" fill={color} opacity="0.7" />
+        {/* Body — isFemale gets slight hourglass */}
+        {isFemale
+          ? <path d="M48 105 Q48 148 52 162 Q70 168 88 162 Q92 148 92 105 Q80 98 70 100 Q60 98 48 105Z" fill="url(#ad-cloth)" filter="url(#ad-shadow)" />
+          : <rect x="46" y="102" width="48" height="62" rx="14" fill="url(#ad-cloth)" filter="url(#ad-shadow)" />
+        }
+        <ellipse cx="59" cy="116" rx="10" ry="18" fill="white" opacity="0.13" />
+        {/* Arms */}
+        <motion.line x1="46" y1="118" x2="24" y2="104" stroke="url(#ad-cloth)" strokeWidth="14" strokeLinecap="round"
+          animate={{ x2: [24, 20, 24], y2: [104, 92, 104] }}
           transition={{ duration: 2.5, repeat: Infinity }} />
-        <line x1="74" y1="115" x2="92" y2="128" stroke={color} strokeWidth="8" strokeLinecap="round" />
-        <motion.text x="18" y="92" fontSize="20"
+        <line x1="94" y1="118" x2="116" y2="130" stroke="url(#ad-cloth)" strokeWidth="14" strokeLinecap="round" />
+        {/* Star badge */}
+        <motion.text x="14" y="100" fontSize="22"
           animate={{ opacity: [0.5, 1, 0.5], scale: [0.9, 1.2, 0.9] }}
           transition={{ duration: 2, repeat: Infinity }}
-          style={{ transformOrigin: '28px 90px' }}>⭐</motion.text>
-        <line x1="54" y1="160" x2="50" y2="188" stroke={color} strokeWidth="9" strokeLinecap="round" />
-        <line x1="66" y1="160" x2="70" y2="188" stroke={color} strokeWidth="9" strokeLinecap="round" />
+          style={{ transformOrigin: '25px 96px' }}>⭐</motion.text>
+        {/* Head */}
+        <circle cx="70" cy="86" r="25" fill="url(#ad-skin)" filter="url(#ad-shadow)" />
+        <ellipse cx="61" cy="78" rx="9" ry="12" fill="white" opacity="0.2" />
+        {/* Hair */}
+        {isFemale
+          ? <><path d="M45 82 Q70 56 95 82" fill="#2d1a08" opacity="0.9"/><path d="M45 82 Q38 103 42 126" stroke="#2d1a08" strokeWidth="7" fill="none"/><path d="M95 82 Q102 103 98 126" stroke="#2d1a08" strokeWidth="7" fill="none"/></>
+          : <path d="M46 84 Q70 60 94 84 Q90 66 70 62 Q50 66 46 84Z" fill="#2d1a08" opacity="0.9" />
+        }
+        {/* Eyes + brows */}
+        <path d="M59 78 Q63 75 67 78" stroke="#2d1a08" strokeWidth="2" fill="none" />
+        <path d="M73 78 Q77 75 81 78" stroke="#2d1a08" strokeWidth="2" fill="none" />
+        <circle cx="63" cy="85" r="4.5" fill="#1a1a2e" /><circle cx="77" cy="85" r="4.5" fill="#1a1a2e" />
+        <circle cx="64.5" cy="83.5" r="1.6" fill="white" opacity="0.9" /><circle cx="78.5" cy="83.5" r="1.6" fill="white" opacity="0.9" />
+        <path d="M64 93 Q70 98 76 93" stroke="#b07050" strokeWidth="1.8" fill="none" strokeLinecap="round" />
       </motion.g>
     </svg>
   );
 }
 
-function CoupleFigure({ color }: { color: string }) {
+function CoupleFigure({ color, gender }: { color: string; gender?: string }) {
   return (
-    <svg viewBox="0 0 160 180" className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+    <svg viewBox="0 0 180 200" className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="cp-skin" cx="38%" cy="30%" r="65%">
+          <stop offset="0%" stopColor="#ffe0c0" stopOpacity="0.95"/>
+          <stop offset="100%" stopColor="#c4845a" stopOpacity="0.85"/>
+        </radialGradient>
+        <radialGradient id="cp-m" cx="35%" cy="28%" r="65%">
+          <stop offset="0%" stopColor="#fff" stopOpacity="0.3"/>
+          <stop offset="100%" stopColor={color} stopOpacity="0.9"/>
+        </radialGradient>
+        <radialGradient id="cp-f" cx="35%" cy="28%" r="65%">
+          <stop offset="0%" stopColor="#fff" stopOpacity="0.3"/>
+          <stop offset="100%" stopColor="#e879a0" stopOpacity="0.9"/>
+        </radialGradient>
+        <filter id="cp-shadow"><feDropShadow dx="2" dy="5" stdDeviation="5" floodColor={color} floodOpacity="0.35"/></filter>
+      </defs>
+      {/* Floating hearts */}
       {[0, 1, 2].map(i => (
-        <motion.text key={i} x={55 + i * 20} y="30" fontSize="16" textAnchor="middle"
-          animate={{ y: [30, 10, 30], opacity: [0.4, 1, 0.4] }}
+        <motion.text key={i} x={62 + i * 22} y="28" fontSize="16" textAnchor="middle"
+          animate={{ y: [28, 10, 28], opacity: [0.4, 1, 0.4] }}
           transition={{ duration: 2.5, repeat: Infinity, delay: i * 0.7 }}>💗</motion.text>
       ))}
-      <motion.line x1="50" y1="100" x2="110" y2="100"
-        stroke={color} strokeWidth="2" strokeDasharray="4 3"
-        animate={{ strokeDashoffset: [0, -14] }}
-        transition={{ duration: 1, repeat: Infinity, ease: 'linear' }} />
+      {/* Connecting dashed line */}
+      <motion.line x1="55" y1="108" x2="125" y2="108"
+        stroke={color} strokeWidth="2" strokeDasharray="5 4"
+        animate={{ strokeDashoffset: [0, -18] }}
+        transition={{ duration: 1.2, repeat: Infinity, ease: 'linear' }} />
+      {/* Male figure */}
       <motion.g animate={{ x: [0, 3, 0] }} transition={{ duration: 3, repeat: Infinity }}>
-        <circle cx="44" cy="72" r="18" fill={color} opacity="0.75" />
-        <circle cx="38" cy="70" r="3" fill="#222" /><circle cx="50" cy="70" r="3" fill="#222" />
-        <path d="M39 78 Q44 83 49 78" stroke="#222" strokeWidth="1.5" fill="none" />
-        <rect x="33" y="90" width="22" height="45" rx="9" fill={color} opacity="0.6" />
-        <line x1="33" y1="105" x2="18" y2="118" stroke={color} strokeWidth="6" strokeLinecap="round" />
-        <line x1="55" y1="105" x2="70" y2="118" stroke={color} strokeWidth="6" strokeLinecap="round" />
-        <line x1="38" y1="135" x2="34" y2="158" stroke={color} strokeWidth="7" strokeLinecap="round" />
-        <line x1="50" y1="135" x2="54" y2="158" stroke={color} strokeWidth="7" strokeLinecap="round" />
+        <ellipse cx="45" cy="192" rx="22" ry="5" fill={color} opacity="0.2"/>
+        <rect x="33" y="150" width="12" height="38" rx="6" fill="url(#cp-m)"/>
+        <rect x="49" y="150" width="12" height="38" rx="6" fill="url(#cp-m)"/>
+        <rect x="28" y="98" width="38" height="56" rx="12" fill="url(#cp-m)" filter="url(#cp-shadow)"/>
+        <ellipse cx="37" cy="108" rx="7" ry="13" fill="white" opacity="0.15"/>
+        <circle cx="47" cy="82" r="20" fill="url(#cp-skin)" filter="url(#cp-shadow)"/>
+        <ellipse cx="40" cy="76" rx="7" ry="9" fill="white" opacity="0.2"/>
+        <path d="M27 98 Q22 84 28 77" stroke="#2d1a08" strokeWidth="6" fill="none" />
+        <path d="M27 79 Q22 70 28 63" fill="#2d1a08" opacity="0.9"/>
+        <path d="M28 76 Q47 56 66 76 Q62 62 47 58 Q32 62 28 76Z" fill="#2d1a08" opacity="0.9"/>
+        <circle cx="41" cy="82" r="3.5" fill="#1a1a2e"/><circle cx="53" cy="82" r="3.5" fill="#1a1a2e"/>
+        <circle cx="42.2" cy="80.8" r="1.2" fill="white" opacity="0.9"/><circle cx="54.2" cy="80.8" r="1.2" fill="white" opacity="0.9"/>
+        <path d="M42 89 Q47 93 52 89" stroke="#b07050" strokeWidth="1.5" fill="none" strokeLinecap="round"/>
+        <line x1="28" y1="112" x2="10" y2="126" stroke="url(#cp-m)" strokeWidth="10" strokeLinecap="round"/>
+        <line x1="66" y1="112" x2="84" y2="126" stroke="url(#cp-m)" strokeWidth="10" strokeLinecap="round"/>
       </motion.g>
+      {/* Female figure */}
       <motion.g animate={{ x: [0, -3, 0] }} transition={{ duration: 3, repeat: Infinity }}>
-        <circle cx="116" cy="72" r="18" fill={color} opacity="0.75" />
-        <circle cx="110" cy="70" r="3" fill="#222" /><circle cx="122" cy="70" r="3" fill="#222" />
-        <path d="M111 78 Q116 83 121 78" stroke="#222" strokeWidth="1.5" fill="none" />
-        <rect x="105" y="90" width="22" height="45" rx="9" fill={color} opacity="0.6" />
-        <line x1="105" y1="105" x2="90" y2="118" stroke={color} strokeWidth="6" strokeLinecap="round" />
-        <line x1="127" y1="105" x2="142" y2="118" stroke={color} strokeWidth="6" strokeLinecap="round" />
-        <line x1="110" y1="135" x2="106" y2="158" stroke={color} strokeWidth="7" strokeLinecap="round" />
-        <line x1="122" y1="135" x2="126" y2="158" stroke={color} strokeWidth="7" strokeLinecap="round" />
+        <ellipse cx="135" cy="192" rx="22" ry="5" fill="#e879a0" opacity="0.2"/>
+        {/* Dress */}
+        <path d="M110 150 Q112 185 120 190 Q135 195 150 190 Q158 185 160 150 Q148 155 135 154 Q122 155 110 150Z" fill="url(#cp-f)" opacity="0.85"/>
+        <rect x="118" y="98" width="34" height="56" rx="12" fill="url(#cp-f)" filter="url(#cp-shadow)"/>
+        <ellipse cx="126" cy="108" rx="7" ry="13" fill="white" opacity="0.15"/>
+        <circle cx="135" cy="82" r="20" fill="url(#cp-skin)" filter="url(#cp-shadow)"/>
+        <ellipse cx="128" cy="76" rx="7" ry="9" fill="white" opacity="0.2"/>
+        {/* Long hair */}
+        <path d="M115 78 Q135 56 155 78" fill="#2d1a08" opacity="0.9"/>
+        <path d="M115 78 Q108 98 112 126" stroke="#2d1a08" strokeWidth="7" fill="none"/>
+        <path d="M155 78 Q162 98 158 126" stroke="#2d1a08" strokeWidth="7" fill="none"/>
+        <circle cx="129" cy="82" r="3.5" fill="#1a1a2e"/><circle cx="141" cy="82" r="3.5" fill="#1a1a2e"/>
+        <circle cx="130.2" cy="80.8" r="1.2" fill="white" opacity="0.9"/><circle cx="142.2" cy="80.8" r="1.2" fill="white" opacity="0.9"/>
+        <path d="M130 89 Q135 93 140 89" stroke="#b07050" strokeWidth="1.5" fill="none" strokeLinecap="round"/>
+        <line x1="118" y1="112" x2="96" y2="126" stroke="url(#cp-f)" strokeWidth="10" strokeLinecap="round"/>
+        <line x1="152" y1="112" x2="170" y2="126" stroke="url(#cp-f)" strokeWidth="10" strokeLinecap="round"/>
+        {/* Bindi */}
+        <circle cx="135" cy="74" r="2.5" fill="#e879a0" opacity="0.9"/>
       </motion.g>
     </svg>
   );
 }
 
-function ElderFigure({ color }: { color: string }) {
+function ElderFigure({ color, gender }: { color: string; gender?: string }) {
+  const isFemale = gender === 'female';
   return (
-    <svg viewBox="0 0 120 190" className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
-      <motion.circle cx="60" cy="82" r="50" fill="none" stroke={color} strokeWidth="1.5" strokeDasharray="6 4"
-        animate={{ r: [50, 58, 50], opacity: [0.3, 0.6, 0.3] }}
+    <svg viewBox="0 0 140 210" className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="el-skin" cx="38%" cy="28%" r="65%">
+          <stop offset="0%" stopColor="#f0d0a0" stopOpacity="0.95"/>
+          <stop offset="100%" stopColor="#a07040" stopOpacity="0.85"/>
+        </radialGradient>
+        <radialGradient id="el-cloth" cx="32%" cy="28%" r="68%">
+          <stop offset="0%" stopColor="#fff" stopOpacity="0.3"/>
+          <stop offset="100%" stopColor={color} stopOpacity="0.88"/>
+        </radialGradient>
+        <filter id="el-shadow"><feDropShadow dx="3" dy="6" stdDeviation="6" floodColor={color} floodOpacity="0.35"/></filter>
+      </defs>
+      <motion.circle cx="70" cy="90" r="55" fill="none" stroke={color} strokeWidth="1.5" strokeDasharray="6 5"
+        animate={{ r: [55, 64, 55], opacity: [0.3, 0.6, 0.3] }}
         transition={{ duration: 4, repeat: Infinity }} />
       <motion.g animate={{ y: [0, -3, 0] }} transition={{ duration: 4, repeat: Infinity }}>
-        <path d="M35 105 Q40 95 60 92 Q80 95 85 105 L88 165 Q60 170 32 165 Z" fill={color} opacity="0.5" />
-        <circle cx="60" cy="78" r="22" fill={color} opacity="0.8" />
-        <path d="M50 76 Q54 73 58 76" stroke="#222" strokeWidth="2" fill="none" />
-        <path d="M62 76 Q66 73 70 76" stroke="#222" strokeWidth="2" fill="none" />
-        <path d="M52 85 Q60 91 68 85" stroke="#222" strokeWidth="1.5" fill="none" strokeLinecap="round" />
-        <line x1="88" y1="100" x2="88" y2="170" stroke={color} strokeWidth="4" strokeLinecap="round" />
-        <circle cx="88" cy="96" r="5" fill={color} opacity="0.9" />
-        <ellipse cx="50" cy="168" rx="10" ry="5" fill={color} opacity="0.6" />
-        <ellipse cx="70" cy="168" rx="10" ry="5" fill={color} opacity="0.6" />
+        <ellipse cx="70" cy="200" rx="22" ry="5" fill={color} opacity="0.18"/>
+        {/* Robe / dhoti body */}
+        {isFemale
+          ? <path d="M42 110 Q44 155 50 165 Q70 172 90 165 Q96 155 98 110 Q84 105 70 108 Q56 105 42 110Z" fill="url(#el-cloth)" filter="url(#el-shadow)" />
+          : <path d="M45 110 Q46 158 52 168 Q70 174 88 168 Q94 158 95 110 Q82 103 70 106 Q58 103 45 110Z" fill="url(#el-cloth)" filter="url(#el-shadow)" />
+        }
+        <ellipse cx="58" cy="122" rx="9" ry="18" fill="white" opacity="0.12"/>
+        {/* Head */}
+        <circle cx="70" cy="86" r="24" fill="url(#el-skin)" filter="url(#el-shadow)" />
+        <ellipse cx="62" cy="79" rx="8" ry="10" fill="white" opacity="0.18"/>
+        {/* White / grey hair */}
+        {isFemale
+          ? <><path d="M46 82 Q70 58 94 82" fill="#d0d0c8" opacity="0.92"/><path d="M46 82 Q40 104 44 130" stroke="#d0d0c8" strokeWidth="7" fill="none"/><path d="M94 82 Q100 104 96 130" stroke="#d0d0c8" strokeWidth="7" fill="none"/></>
+          : <path d="M47 84 Q70 60 93 84 Q89 67 70 63 Q51 67 47 84Z" fill="#d0d0c8" opacity="0.92" />
+        }
+        {/* Beard for male elder */}
+        {!isFemale && <path d="M57 96 Q70 108 83 96 Q78 118 70 120 Q62 118 57 96Z" fill="#d0d0c8" opacity="0.7" />}
+        {/* Eyes — wise/squinting */}
+        <path d="M60 86 Q63 83 66 86" stroke="#1a1a2e" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+        <path d="M74 86 Q77 83 80 86" stroke="#1a1a2e" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+        <path d="M62 93 Q70 99 78 93" stroke="#8a6040" strokeWidth="1.8" fill="none" strokeLinecap="round" />
+        {/* Tilak / bindi */}
+        <circle cx="70" cy="74" r="2.5" fill={color} opacity="0.9" />
+        {/* Walking staff */}
+        <line x1="96" y1="104" x2="96" y2="195" stroke={color} strokeWidth="5" strokeLinecap="round" />
+        <circle cx="96" cy="100" r="6" fill={color} opacity="0.85" />
       </motion.g>
       {[0, 72, 144, 216, 288].map((angle, i) => (
         <motion.circle key={i}
-          cx={60 + 48 * Math.cos((angle * Math.PI) / 180)}
-          cy={82 + 48 * Math.sin((angle * Math.PI) / 180)}
-          r="5" fill={color} opacity="0.7"
-          animate={{ scale: [1, 1.4, 1], opacity: [0.5, 1, 0.5] }}
+          cx={70 + 52 * Math.cos((angle * Math.PI) / 180)}
+          cy={90 + 52 * Math.sin((angle * Math.PI) / 180)}
+          r="5" fill={color} opacity="0.65"
+          animate={{ scale: [1, 1.5, 1], opacity: [0.4, 1, 0.4] }}
           transition={{ duration: 3, repeat: Infinity, delay: i * 0.5 }}
         />
       ))}
@@ -264,9 +445,16 @@ function ElderFigure({ color }: { color: string }) {
   );
 }
 
-function CosmicFigure({ color }: { color: string }) {
+function CosmicFigure({ color, gender }: { color: string; gender?: string }) {
   return (
     <svg viewBox="0 0 160 160" className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="cos-glow" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor={color} stopOpacity="0.5"/>
+          <stop offset="100%" stopColor={color} stopOpacity="0"/>
+        </radialGradient>
+      </defs>
+      <circle cx="80" cy="80" r="72" fill="url(#cos-glow)" />
       <motion.circle cx="80" cy="80" r="70" fill="none" stroke={color} strokeWidth="1" strokeDasharray="3 6"
         animate={{ rotate: 360 }} transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
         style={{ transformOrigin: '80px 80px' }} />
@@ -279,11 +467,11 @@ function CosmicFigure({ color }: { color: string }) {
           cy={80 + 30 * Math.sin((angle * Math.PI) / 180)}
           rx="10" ry="18" fill={color} opacity="0.2"
           transform={`rotate(${angle}, ${80 + 30 * Math.cos((angle * Math.PI) / 180)}, ${80 + 30 * Math.sin((angle * Math.PI) / 180)})`}
-          animate={{ opacity: [0.15, 0.4, 0.15] }}
+          animate={{ opacity: [0.12, 0.4, 0.12] }}
           transition={{ duration: 3, repeat: Infinity, delay: i * 0.3 }}
         />
       ))}
-      <motion.circle cx="80" cy="80" r="18" fill={color} opacity="0.9"
+      <motion.circle cx="80" cy="80" r="18" fill={color} opacity="0.88"
         animate={{ r: [18, 22, 18], opacity: [0.8, 1, 0.8] }}
         transition={{ duration: 2.5, repeat: Infinity }} />
       <motion.circle cx="80" cy="80" r="10" fill="#fff" opacity="0.9"
@@ -294,16 +482,8 @@ function CosmicFigure({ color }: { color: string }) {
           cy={80 + radius * Math.sin((i * 120 * Math.PI) / 180)}
           r="6" fill={color} opacity="0.8"
           animate={{
-            cx: [
-              80 + radius * Math.cos((i * 120 * Math.PI) / 180),
-              80 + radius * Math.cos(((i * 120 + 180) * Math.PI) / 180),
-              80 + radius * Math.cos((i * 120 * Math.PI) / 180),
-            ],
-            cy: [
-              80 + radius * Math.sin((i * 120 * Math.PI) / 180),
-              80 + radius * Math.sin(((i * 120 + 180) * Math.PI) / 180),
-              80 + radius * Math.sin((i * 120 * Math.PI) / 180),
-            ],
+            cx: [80 + radius * Math.cos((i * 120 * Math.PI) / 180), 80 + radius * Math.cos(((i * 120 + 180) * Math.PI) / 180), 80 + radius * Math.cos((i * 120 * Math.PI) / 180)],
+            cy: [80 + radius * Math.sin((i * 120 * Math.PI) / 180), 80 + radius * Math.sin(((i * 120 + 180) * Math.PI) / 180), 80 + radius * Math.sin((i * 120 * Math.PI) / 180)],
           }}
           transition={{ duration: 5 + i * 2, repeat: Infinity, ease: 'linear' }}
         />
@@ -311,7 +491,6 @@ function CosmicFigure({ color }: { color: string }) {
     </svg>
   );
 }
-
 // ─── Star Field Background ─────────────────────────────────────────────────────
 
 function StarField({ count, color }: { count: number; color: string }) {
@@ -356,16 +535,16 @@ function PlanetOrb({ planet, x, y, delay }: { planet: string; x: string; y: stri
 
 // ─── Character Renderer ───────────────────────────────────────────────────────
 
-function CharacterFigure({ pose, color }: { pose: StoryScene['characterPose']; color: string }) {
+function CharacterFigure({ pose, color, gender }: { pose: StoryScene['characterPose']; color: string; gender?: string }) {
   switch (pose) {
-    case 'newborn': return <NewbornFigure color={color} />;
-    case 'child':   return <ChildFigure color={color} />;
-    case 'youth':   return <YouthFigure color={color} />;
-    case 'adult':   return <AdultFigure color={color} />;
-    case 'couple':  return <CoupleFigure color={color} />;
-    case 'elder':   return <ElderFigure color={color} />;
-    case 'cosmic':  return <CosmicFigure color={color} />;
-    default:        return <CosmicFigure color={color} />;
+    case 'newborn': return <NewbornFigure color={color} gender={gender} />;
+    case 'child':   return <ChildFigure color={color} gender={gender} />;
+    case 'youth':   return <YouthFigure color={color} gender={gender} />;
+    case 'adult':   return <AdultFigure color={color} gender={gender} />;
+    case 'couple':  return <CoupleFigure color={color} gender={gender} />;
+    case 'elder':   return <ElderFigure color={color} gender={gender} />;
+    case 'cosmic':  return <CosmicFigure color={color} gender={gender} />;
+    default:        return <CosmicFigure color={color} gender={gender} />;
   }
 }
 
@@ -419,8 +598,8 @@ function buildScenesFromData(
 
 // ─── Single Scene Component ───────────────────────────────────────────────────
 
-function CinematicScene({ scene, name, planets }: {
-  scene: StoryScene; name: string;
+function CinematicScene({ scene, name, gender, planets }: {
+  scene: StoryScene; name: string; gender?: string;
   planets: Array<{ name: string; rashi: string; house: number }>;
 }) {
   const orbPlanets = planets.filter(p => p.name !== 'Rahu' && p.name !== 'Ketu').slice(0, 3);
@@ -461,7 +640,7 @@ function CinematicScene({ scene, name, planets }: {
       ))}
 
       {/* Scrollable content area */}
-      <div className="relative z-10 w-full max-w-2xl mx-auto px-5 pt-14 pb-28 flex flex-col items-center gap-4 overflow-y-auto h-full">
+      <div className="relative z-10 w-full max-w-2xl mx-auto px-5 pt-14 pb-28 flex flex-col items-center gap-4 overflow-y-auto h-full scroll-smooth">
         {/* Chapter badge */}
         <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3, duration: 0.8 }}
           className="px-4 py-1.5 rounded-full border text-xs font-semibold tracking-widest uppercase"
@@ -473,7 +652,7 @@ function CinematicScene({ scene, name, planets }: {
         <motion.div initial={{ opacity: 0, scale: 0.6 }} animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.5, duration: 1, type: 'spring', stiffness: 80 }}
           className="w-28 h-28 md:w-36 md:h-36">
-          <CharacterFigure pose={scene.characterPose} color={scene.accentColor} />
+          <CharacterFigure pose={scene.characterPose} color={scene.accentColor} gender={gender} />
         </motion.div>
 
         {/* Title */}
@@ -636,13 +815,16 @@ export default function StoryAnimator({
     const text = (enrichedTexts[currentScene] || scene.narrativeText)
       .replace(/\*\*/g, '').replace(/\*/g, '').replace(/#+\s/g, '').split('⚠️')[0].trim();
     const utterance = new SpeechSynthesisUtterance(text);
-    utterance.rate = 0.88;
-    utterance.pitch = 1.0;
+    utterance.rate = 0.72;
+    utterance.pitch = 0.82;
     utterance.volume = 1.0;
-    // Prefer a calm English voice if available
+    // Prefer a deep, calm male voice — temple saint style
     const voices = window.speechSynthesis.getVoices();
-    const preferred = voices.find(v => v.lang.startsWith('en') && v.name.toLowerCase().includes('samantha'))
-      || voices.find(v => v.lang === 'en-US' && !v.name.toLowerCase().includes('compact'))
+    const preferred = voices.find(v => v.name.toLowerCase().includes('daniel'))
+      || voices.find(v => v.name.toLowerCase().includes('alex'))
+      || voices.find(v => v.lang === 'en-IN' && !v.name.toLowerCase().includes('compact'))
+      || voices.find(v => v.lang === 'en-GB' && !v.name.toLowerCase().includes('compact'))
+      || voices.find(v => v.lang.startsWith('en') && !v.name.toLowerCase().includes('compact'))
       || voices.find(v => v.lang.startsWith('en'));
     if (preferred) utterance.voice = preferred;
     utterance.onend = () => setIsSpeaking(false);
@@ -694,12 +876,12 @@ export default function StoryAnimator({
           <span className="text-[10px] text-emerald-400">✨ AI-enhanced</span>
         </div>
       )}
-      <div className={`relative ${isFullscreen ? 'h-screen' : 'h-[78vh] min-h-[560px]'}`}>
+      <div className={`relative ${isFullscreen ? 'h-screen' : 'h-[90vh] min-h-[660px]'}`}>
         <AnimatePresence mode="wait">
           <motion.div key={currentScene} className="absolute inset-0"
             initial={{ opacity: 0, x: 60 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -60 }}
             transition={{ duration: 0.8, ease: 'easeInOut' }}>
-            <CinematicScene scene={displayScene} name={name} planets={planets} />
+            <CinematicScene scene={displayScene} name={name} gender={gender} planets={planets} />
           </motion.div>
         </AnimatePresence>
       </div>
