@@ -80,8 +80,8 @@ function DOBPicker({
 
   const selectClass =
     'flex-1 rounded-xl border px-3 py-2.5 text-sm appearance-none cursor-pointer outline-none transition-all duration-200' +
-    ' bg-[rgba(20,17,9,0.9)] border-[rgba(156,122,26,0.22)] text-[#E8D4A8]' +
-    ' focus:ring-2 focus:ring-[rgba(156,122,26,0.15)] focus:border-[rgba(156,122,26,0.5)]';
+    ' bg-[#FDFCF9] border-[#D4CEC4] text-[#1E1B17]' +
+    ' focus:ring-2 focus:ring-[rgba(17,74,74,0.12)] focus:border-[#114A4A]';
 
   return (
     <div className="flex gap-2">
@@ -98,7 +98,7 @@ function DOBPicker({
             <option key={d} value={d}>{pad2(d)}</option>
           ))}
         </select>
-        <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 text-xs">▾</span>
+        <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-xs" style={{color:"#114A4A"}}>▾</span>
       </div>
 
       {/* Month */}
@@ -114,7 +114,7 @@ function DOBPicker({
             <option key={i + 1} value={i + 1}>{m}</option>
           ))}
         </select>
-        <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 text-xs">▾</span>
+        <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-xs" style={{color:"#114A4A"}}>▾</span>
       </div>
 
       {/* Year */}
@@ -130,7 +130,7 @@ function DOBPicker({
             <option key={y} value={y}>{y}</option>
           ))}
         </select>
-        <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 text-xs">▾</span>
+        <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-xs" style={{color:"#114A4A"}}>▾</span>
       </div>
     </div>
   );
@@ -155,8 +155,8 @@ function TimePicker({
 
   const selectClass =
     'flex-1 rounded-xl border px-3 py-2.5 text-sm appearance-none cursor-pointer outline-none transition-all duration-200' +
-    ' bg-[rgba(20,17,9,0.9)] border-[rgba(156,122,26,0.22)] text-[#E8D4A8]' +
-    ' focus:ring-2 focus:ring-[rgba(156,122,26,0.15)] focus:border-[rgba(156,122,26,0.5)]';
+    ' bg-[#FDFCF9] border-[#D4CEC4] text-[#1E1B17]' +
+    ' focus:ring-2 focus:ring-[rgba(17,74,74,0.12)] focus:border-[#114A4A]';
 
   return (
     <div className="flex gap-2">
@@ -174,7 +174,7 @@ function TimePicker({
             </option>
           ))}
         </select>
-        <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 text-xs">▾</span>
+        <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-xs" style={{color:"#114A4A"}}>▾</span>
       </div>
 
       {/* Minute — every 5 min for easy selection */}
@@ -189,7 +189,7 @@ function TimePicker({
             <option key={m} value={m}>{pad2(m)}</option>
           ))}
         </select>
-        <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 text-xs">▾</span>
+        <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-xs" style={{color:"#114A4A"}}>▾</span>
       </div>
     </div>
   );
@@ -255,8 +255,8 @@ export default function IntakeForm({ t, locale, onLocaleChange, onSubmit, loadin
   const btnClass = (active: boolean) =>
     `flex-1 py-2.5 rounded-xl text-sm font-medium transition-all border ${
       active
-        ? 'bg-[rgba(156,122,26,0.25)] border-[rgba(156,122,26,0.5)] text-[#E8D4A8] shadow-sm'
-        : 'bg-[rgba(20,17,9,0.7)] border-[rgba(156,122,26,0.15)] text-[#7A6448] hover:border-[rgba(156,122,26,0.35)] hover:text-[#C4A87A]'
+        ? 'bg-gradient-to-r from-[rgba(139,26,26,0.10)] to-[rgba(196,130,10,0.08)] border-[#8B1A1A] text-[#6B1414] font-semibold'
+        : 'bg-white border-[#D4CEC4] text-[#5E584F] hover:border-[#114A4A] hover:text-[#0A3535] hover:bg-[#F0F8F8]'
     }`;
 
   return (
@@ -269,7 +269,7 @@ export default function IntakeForm({ t, locale, onLocaleChange, onSubmit, loadin
     >
       {/* Header + Language */}
       <div className="flex items-center justify-between flex-wrap gap-3">
-        <h2 className="text-xl font-display font-semibold text-[#E8D4A8]">
+        <h2 className="text-xl font-display font-semibold" style={{ color: '#6B1414' }}>
           {t.start_reading || 'Begin Your Reading'}
         </h2>
         <LanguageSelector current={locale} onChange={onLocaleChange} />
@@ -277,7 +277,7 @@ export default function IntakeForm({ t, locale, onLocaleChange, onSubmit, loadin
 
       {/* Name */}
       <div>
-        <label className="block text-sm font-medium text-[#A08B6E] mb-1.5">
+        <label className="block text-sm font-medium text-[#5E584F] mb-1.5">
           {t.form_name || 'Full Name'}
         </label>
         <input type="text" required value={form.name} onChange={(e) => update('name', e.target.value)} className="input-field" placeholder="e.g. Rama Krishna" />
@@ -286,34 +286,34 @@ export default function IntakeForm({ t, locale, onLocaleChange, onSubmit, loadin
       {/* DOB + Time side by side */}
       <div className="grid sm:grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-[#A08B6E] mb-1.5">
+          <label className="block text-sm font-medium text-[#5E584F] mb-1.5">
             {t.form_dob || 'Date of Birth'}
           </label>
           <DOBPicker value={form.dob} onChange={v => update('dob', v)} />
           {form.dob && (
-            <p className="text-xs text-[#B8922A] mt-1.5 font-medium">
+            <p className="text-xs mt-1.5 font-semibold" style={{ color: '#C4820A' }}>
               📅 {new Date(form.dob + 'T12:00:00').toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' })}
               {age !== null && ` · Age ${age}`}
             </p>
           )}
           {isUnderage && age !== null && (
-            <p className="text-sm text-[#C4A87A] mt-1">
+            <p className="text-sm mt-1" style={{ color: '#8B1A1A' }}>
               ✨ You&apos;ll receive encouraging guidance. Full readings are for 21+.
             </p>
           )}
         </div>
         <div>
-          <label className="block text-sm font-medium text-[#A08B6E] mb-1.5">
+          <label className="block text-sm font-medium text-[#5E584F] mb-1.5">
             {t.form_time || 'Time of Birth'}
           </label>
           <TimePicker value={form.timeOfBirth} onChange={v => update('timeOfBirth', v)} />
-          <p className="text-xs text-[#6B5840] mt-1">Optional — improves Lagna precision</p>
+          <p className="text-xs text-[#8A8278] mt-1">Optional — improves Lagna precision</p>
         </div>
       </div>
 
       {/* Chart Type: North Indian vs South Indian */}
       <div>
-        <label className="block text-sm font-medium text-[#A08B6E] mb-1.5">
+        <label className="block text-sm font-medium text-[#5E584F] mb-1.5">
           {t.form_chart_type || 'Chart Style'}
         </label>
         <div className="flex gap-3">
@@ -335,7 +335,7 @@ export default function IntakeForm({ t, locale, onLocaleChange, onSubmit, loadin
 
       {/* Birthplace */}
       <div>
-        <label className="block text-sm font-medium text-[#A08B6E] mb-1.5">
+        <label className="block text-sm font-medium text-[#5E584F] mb-1.5">
           {t.form_birthplace || 'Place of Birth'}
         </label>
         <CityAutocomplete
@@ -347,7 +347,7 @@ export default function IntakeForm({ t, locale, onLocaleChange, onSubmit, loadin
 
       {/* Gender */}
       <div>
-        <label className="block text-sm font-medium text-[#A08B6E] mb-1.5">
+        <label className="block text-sm font-medium text-[#5E584F] mb-1.5">
           {t.form_gender || 'Gender'}
         </label>
         <div className="flex gap-3">
@@ -366,7 +366,7 @@ export default function IntakeForm({ t, locale, onLocaleChange, onSubmit, loadin
 
       {/* Marital Status */}
       <div>
-        <label className="block text-sm font-medium text-[#A08B6E] mb-1.5">
+        <label className="block text-sm font-medium text-[#5E584F] mb-1.5">
           {t.form_marital || 'Marital Status'}
         </label>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
@@ -390,7 +390,7 @@ export default function IntakeForm({ t, locale, onLocaleChange, onSubmit, loadin
 
       {/* Employment Status */}
       <div>
-        <label className="block text-sm font-medium text-[#A08B6E] mb-1.5">
+        <label className="block text-sm font-medium text-[#5E584F] mb-1.5">
           {t.form_employment || 'Employment Status'}
         </label>
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
@@ -415,7 +415,7 @@ export default function IntakeForm({ t, locale, onLocaleChange, onSubmit, loadin
 
       {/* Current Location */}
       <div>
-        <label className="block text-sm font-medium text-[#A08B6E] mb-1.5">
+        <label className="block text-sm font-medium text-[#5E584F] mb-1.5">
           {t.form_location || 'Current Location'}
         </label>
         <CityAutocomplete
@@ -427,7 +427,7 @@ export default function IntakeForm({ t, locale, onLocaleChange, onSubmit, loadin
 
       {/* Concern */}
       <div>
-        <label className="block text-sm font-medium text-[#A08B6E] mb-1.5">
+        <label className="block text-sm font-medium text-[#5E584F] mb-1.5">
           {t.form_concern || 'Primary Concern'}
         </label>
         <textarea
@@ -441,16 +441,16 @@ export default function IntakeForm({ t, locale, onLocaleChange, onSubmit, loadin
       </div>
 
       {/* Consent */}
-      <div style={{ background: 'rgba(156,122,26,0.07)', border: '1px solid rgba(156,122,26,0.18)', borderRadius: '0.75rem', padding: '1rem' }}>
+      <div style={{ background: 'rgba(17,74,74,0.05)', border: '1px solid rgba(17,74,74,0.15)', borderRadius: '0.75rem', padding: '1rem' }}>
         <label className="flex items-start gap-3 cursor-pointer">
           <input
             type="checkbox"
             checked={form.consent}
             onChange={(e) => update('consent', e.target.checked)}
             className="mt-1 w-4 h-4 rounded flex-shrink-0"
-            style={{ accentColor: '#B8922A' }}
+            style={{ accentColor: '#114A4A' }}
           />
-          <span className="text-sm text-[#9A8468] leading-relaxed">
+          <span className="text-sm leading-relaxed" style={{ color: '#3A3530' }}>
             I understand this is for entertainment and informational purposes only and will consult a qualified astrologer for personal guidance.
           </span>
         </label>

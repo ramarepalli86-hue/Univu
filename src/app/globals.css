@@ -3,183 +3,189 @@
 @tailwind utilities;
 
 @layer base {
-  /* Deep warm charcoal — not black, not white, like an ancient temple at dusk */
+  /* Warm pearl off-white — like fine parchment, not stark white */
   body {
     @apply antialiased font-body;
-    background-color: #0E0C09;
-    color: #C4A87A;
+    background-color: #F5F2EC;
+    color: #3A3530;
     min-height: 100vh;
   }
 
-  /* Subtle cosmic radial gradient on the page background */
+  /* Luxury subtle gradient overlays — very soft, barely visible */
   body::before {
     content: '';
     position: fixed;
     inset: 0;
     background:
-      radial-gradient(ellipse at 20% 0%, rgba(156,122,26,0.06) 0%, transparent 55%),
-      radial-gradient(ellipse at 80% 100%, rgba(46,112,112,0.05) 0%, transparent 50%),
-      radial-gradient(ellipse at 50% 50%, rgba(30,26,15,0.8) 0%, #0E0C09 100%);
+      radial-gradient(ellipse at 15% 0%,   rgba(196,130,10,0.05) 0%, transparent 50%),
+      radial-gradient(ellipse at 85% 100%, rgba(17,74,74,0.06)   0%, transparent 50%),
+      radial-gradient(ellipse at 50% 50%,  rgba(139,26,26,0.02)  0%, transparent 70%);
     pointer-events: none;
     z-index: 0;
   }
 
-  /* All content sits above the background */
   #__next, main, [data-nextjs-scroll-focus-boundary] { position: relative; z-index: 1; }
 
-  ::selection { background: rgba(156,122,26,0.3); color: #F5EDD8; }
+  ::selection { background: rgba(196,130,10,0.2); color: #4A0A0A; }
 
   h1, h2, h3, h4, h5 {
-    color: #E8D4A8;
     font-family: 'Noto Serif Devanagari', Georgia, serif;
+    color: #1E1B17;
   }
 
-  a { color: #B8922A; }
-  a:hover { color: #CCA84A; }
+  a { color: #8B1A1A; }
+  a:hover { color: #C4820A; }
 }
 
 @layer components {
 
-  /* ── Buttons ──────────────────────────────────────────────────────────── */
+  /* ── Primary button — maroon-to-gold gradient, luxury brand feel ─────── */
   .btn-primary {
     @apply px-8 py-3 rounded-xl font-semibold transition-all duration-200
            disabled:opacity-40 disabled:cursor-not-allowed;
-    background: linear-gradient(135deg, #9C7A1A 0%, #B8922A 50%, #9C7A1A 100%);
-    color: #0E0C09;
-    box-shadow: 0 0 0 1px rgba(156,122,26,0.4), 0 4px 20px rgba(156,122,26,0.15);
+    background: linear-gradient(135deg, #8B1A1A 0%, #B84A00 45%, #C4820A 100%);
+    color: #FFFDF8;
+    letter-spacing: 0.02em;
+    box-shadow: 0 2px 12px rgba(139,26,26,0.25), 0 1px 3px rgba(0,0,0,0.12);
   }
   .btn-primary:hover:not(:disabled) {
-    background: linear-gradient(135deg, #B8922A 0%, #CCA84A 50%, #B8922A 100%);
-    box-shadow: 0 0 0 1px rgba(156,122,26,0.6), 0 4px 28px rgba(156,122,26,0.25);
+    background: linear-gradient(135deg, #A32020 0%, #C45800 45%, #D49820 100%);
+    box-shadow: 0 4px 20px rgba(139,26,26,0.30), 0 2px 6px rgba(0,0,0,0.14);
     transform: translateY(-1px);
   }
+  .btn-primary:active:not(:disabled) { transform: translateY(0); }
 
+  /* ── Secondary button — teal-bordered, light fill ───────────────────── */
   .btn-secondary {
     @apply px-6 py-2.5 rounded-xl font-medium transition-all duration-200;
-    background: rgba(34,29,20,0.8);
-    border: 1px solid rgba(156,122,26,0.25);
-    color: #C4A87A;
+    background: #FFFFFF;
+    border: 1.5px solid #114A4A;
+    color: #114A4A;
   }
   .btn-secondary:hover {
-    background: rgba(42,36,24,1);
-    border-color: rgba(156,122,26,0.45);
-    color: #E8D4A8;
+    background: #F0F8F8;
+    border-color: #1A6060;
+    color: #0A3535;
   }
 
-  /* ── Cards ────────────────────────────────────────────────────────────── */
+  /* ── Cards — white with a warm shadow and teal-left accent ──────────── */
   .card-main {
-    background: rgba(26,22,16,0.95);
-    border: 1px solid rgba(156,122,26,0.18);
+    background: #FFFFFF;
+    border: 1px solid #E0DDD6;
+    border-top: 3px solid #8B1A1A;
     border-radius: 1rem;
-    padding: 1.5rem;
-    box-shadow: 0 4px 32px rgba(0,0,0,0.5), 0 0 0 1px rgba(156,122,26,0.08);
-    backdrop-filter: blur(8px);
+    padding: 1.75rem;
+    box-shadow: 0 4px 24px rgba(139,26,26,0.07), 0 1px 4px rgba(0,0,0,0.05);
   }
 
   .card-accent {
-    background: rgba(34,29,20,0.8);
-    border: 1px solid rgba(156,122,26,0.15);
-    border-radius: 1rem;
-    padding: 1.5rem;
+    background: #FAF8F4;
+    border: 1px solid #E6E1D9;
+    border-left: 3px solid #114A4A;
+    border-radius: 0.875rem;
+    padding: 1.25rem;
   }
 
-  /* ── Inputs ───────────────────────────────────────────────────────────── */
+  /* ── Inputs — off-white with teal focus ring ─────────────────────────── */
   .input-field {
     @apply w-full px-4 py-3 rounded-xl transition-all duration-200 outline-none;
-    background: rgba(20,17,9,0.9);
-    border: 1px solid rgba(156,122,26,0.2);
-    color: #E8D4A8;
-    caret-color: #B8922A;
+    background: #FDFCF9;
+    border: 1.5px solid #D4CEC4;
+    color: #1E1B17;
+    caret-color: #C4820A;
   }
-  .input-field::placeholder { color: #6B5840; }
+  .input-field::placeholder { color: #8A8278; }
   .input-field:focus {
-    border-color: rgba(156,122,26,0.5);
-    box-shadow: 0 0 0 3px rgba(156,122,26,0.08), 0 0 12px rgba(156,122,26,0.05);
+    border-color: #114A4A;
+    box-shadow: 0 0 0 3px rgba(17,74,74,0.12);
   }
 
   .select-field {
     @apply w-full px-4 py-3 rounded-xl appearance-none transition-all duration-200 outline-none cursor-pointer;
-    background: rgba(20,17,9,0.9);
-    border: 1px solid rgba(156,122,26,0.2);
-    color: #E8D4A8;
+    background: #FDFCF9;
+    border: 1.5px solid #D4CEC4;
+    color: #1E1B17;
   }
   .select-field:focus {
-    border-color: rgba(156,122,26,0.5);
-    box-shadow: 0 0 0 3px rgba(156,122,26,0.08);
+    border-color: #114A4A;
+    box-shadow: 0 0 0 3px rgba(17,74,74,0.12);
   }
 
-  /* ── Tab / Toggle Buttons ─────────────────────────────────────────────── */
+  /* ── Toggle / option buttons ─────────────────────────────────────────── */
   .tab-active {
-    background: rgba(156,122,26,0.2);
-    border: 1px solid rgba(156,122,26,0.4);
-    color: #E8D4A8;
+    background: linear-gradient(135deg, rgba(139,26,26,0.10) 0%, rgba(196,130,10,0.08) 100%);
+    border: 1.5px solid #8B1A1A;
+    color: #6B1414;
+    font-weight: 600;
   }
   .tab-inactive {
-    background: rgba(20,17,9,0.6);
-    border: 1px solid rgba(156,122,26,0.1);
-    color: #6B5840;
+    background: #FFFFFF;
+    border: 1.5px solid #D4CEC4;
+    color: #5E584F;
   }
   .tab-inactive:hover {
-    border-color: rgba(156,122,26,0.25);
-    color: #C4A87A;
+    border-color: #114A4A;
+    color: #0A3535;
+    background: #F0F8F8;
   }
 
-  /* ── Section heading ──────────────────────────────────────────────────── */
+  /* ── Section headings ────────────────────────────────────────────────── */
   .section-heading {
     @apply text-lg font-display font-semibold flex items-center gap-2;
-    color: #E8D4A8;
+    color: #6B1414;
   }
 
-  /* ── Gold divider ─────────────────────────────────────────────────────── */
+  /* ── Luxury divider — maroon-to-gold fade ────────────────────────────── */
   .gold-divider {
     border: none;
-    height: 1px;
-    background: linear-gradient(90deg, transparent 0%, rgba(156,122,26,0.3) 50%, transparent 100%);
+    height: 1.5px;
+    background: linear-gradient(90deg, transparent 0%, #8B1A1A 30%, #C4820A 70%, transparent 100%);
+    opacity: 0.25;
   }
 
-  /* ── Chart cell ───────────────────────────────────────────────────────── */
+  /* ── Chart cell ──────────────────────────────────────────────────────── */
   .chart-cell {
-    border: 1px solid rgba(156,122,26,0.2);
+    border: 1px solid #D4CEC4;
     padding: 0.5rem;
     font-size: 0.75rem;
     text-align: center;
-    color: #C4A87A;
-    background: rgba(20,17,9,0.6);
+    color: #5E584F;
+    background: #FDFCF9;
     min-height: 60px;
     display: flex;
     align-items: center;
     justify-content: center;
   }
 
-  /* ── Disclaimer banner ────────────────────────────────────────────────── */
+  /* ── Disclaimer bar ──────────────────────────────────────────────────── */
   .disclaimer-bar {
-    background: rgba(156,122,26,0.08);
-    border-bottom: 1px solid rgba(156,122,26,0.15);
-    color: #9A8468;
+    background: rgba(17,74,74,0.05);
+    border-bottom: 1px solid rgba(17,74,74,0.12);
+    color: #5E584F;
   }
 
-  /* ── Gold badge ───────────────────────────────────────────────────────── */
+  /* ── Luxury badge — maroon-gold ──────────────────────────────────────── */
   .badge-gold {
-    background: rgba(156,122,26,0.15);
-    border: 1px solid rgba(156,122,26,0.3);
-    color: #D4B86A;
+    background: linear-gradient(135deg, rgba(139,26,26,0.10) 0%, rgba(196,130,10,0.08) 100%);
+    border: 1px solid rgba(196,130,10,0.35);
+    color: #8B1A1A;
     border-radius: 9999px;
     padding: 0.2rem 0.75rem;
     font-size: 0.7rem;
-    font-weight: 600;
-    letter-spacing: 0.08em;
+    font-weight: 700;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
   }
 }
 
-/* ── Scrollbar ──────────────────────────────────────────────────────────── */
+/* ── Scrollbar — teal thin ───────────────────────────────────────────────── */
 ::-webkit-scrollbar { width: 5px; }
-::-webkit-scrollbar-track { background: #0E0C09; }
-::-webkit-scrollbar-thumb { background: rgba(156,122,26,0.3); border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: rgba(156,122,26,0.5); }
+::-webkit-scrollbar-track { background: #F0EDE7; }
+::-webkit-scrollbar-thumb { background: rgba(17,74,74,0.3); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(17,74,74,0.5); }
 
-/* ── Form select dark style override ───────────────────────────────────── */
+/* ── Select option light override ────────────────────────────────────────── */
 select option {
-  background: #1A1610;
-  color: #E8D4A8;
+  background: #FDFCF9;
+  color: #1E1B17;
 }

@@ -14,7 +14,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Devanagari:wght@400;600;700&display=swap" rel="stylesheet" />
       </head>
-      <body className="min-h-screen" style={{ background: '#0E0C09' }}>{children}</body>
+      <body className="min-h-screen" style={{ background: '#F5F2EC' }}>{children}</body>
     </html>
   );
 }
