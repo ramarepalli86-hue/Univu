@@ -132,12 +132,20 @@ Planets: ${planetContext}`;
     });
 
     const enrichedText = completion.choices[0]?.message?.content || '';
+    const tokensUsed = completion.usage?.total_tokens || 0;
+
+    // Log usage for cost tracking (fire-and-forget, don't block response)
+    fetch(`${req.nextUrl.origin}/api/usage-alert`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ tokensUsed }),
+    }).catch(() => {}); // silent — never block the story response
 
     return NextResponse.json({
       enriched: enrichedText,
       sceneIndex,
       model: 'groq/llama-3.3-70b-versatile (free)',
-      tokensUsed: completion.usage?.total_tokens || 0,
+      tokensUsed,
     });
 
   } catch (error: unknown) {
