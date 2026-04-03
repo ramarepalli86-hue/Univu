@@ -245,7 +245,7 @@ export default function IntakeForm({ t, locale, onLocaleChange, onSubmit, loadin
                 📅 {new Date(form.dob + 'T12:00:00').toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' })} · Age {age}
               </p>
             )}
-            {age !== null && age < 21 && <p className="text-xs mt-1" style={{ color: TEAL }}>✨ Guidance tailored for younger seekers</p>}
+            {age !== null && age < 18 && <p className="text-xs mt-1" style={{ color: TEAL }}>👨‍👩‍👧 Entering on behalf of a child? That&apos;s fine — full birth chart still generated.</p>}
           </div>
           <div>
             <Lbl>Time of Birth <span style={{ color: TEXT_MUTED, textTransform: 'none', fontWeight: 400, letterSpacing: 0 }}>(optional)</span></Lbl>
@@ -331,13 +331,13 @@ export default function IntakeForm({ t, locale, onLocaleChange, onSubmit, loadin
           </ul>
         </div>
 
-        {/* Consent */}
+        {/* Consent / Age acknowledgment */}
         <div className="rounded-xl p-4" style={{ background: TEAL_BG, border: `1px solid ${TEAL_BR}` }}>
           <label className="flex items-start gap-3 cursor-pointer">
             <input type="checkbox" checked={form.consent} onChange={e => upd('consent', e.target.checked)}
               className="mt-0.5 w-4 h-4 flex-shrink-0 rounded" style={{ accentColor: TEAL }} />
             <span className="text-sm leading-relaxed" style={{ color: TEXT_MID }}>
-              I understand this reading is for entertainment and informational purposes only. I have read the privacy notice above and consent to my birth data being used solely to compute this reading.
+              I am 18 years or older, <strong>or I am a parent / guardian</strong> entering on behalf of a child. I understand this reading is for entertainment and informational purposes only, and I have read the privacy notice above.
             </span>
           </label>
         </div>

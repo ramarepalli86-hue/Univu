@@ -1846,6 +1846,7 @@ export interface FullReading {
   currentCity: string;
   gender: string;
   tradition: 'vedic' | 'western' | 'chinese' | 'egyptian' | 'mayan' | 'all';
+  language: string;
   lagnaRashi: number;
   lagnaSign: string;
   moonRashi: number;
@@ -2015,6 +2016,7 @@ export function generateFullReading(input: ReadingInput): FullReading {
     currentCity: input.currentCity,
     gender: input.gender,
     tradition: input.tradition ?? 'all',
+    language: input.language ?? 'en',
     lagnaRashi,
     lagnaSign,
     moonRashi,

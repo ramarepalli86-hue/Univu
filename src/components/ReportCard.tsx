@@ -293,6 +293,109 @@ function AISection({ sectionId, reading }: { sectionId: string; reading: FullRea
   );
 }
 
+// ─── Panchanga localisation ──────────────────────────────────────────────────
+// Maps English Panchanga term names → their native-script equivalents per locale.
+// Only include locales where the script is non-Latin. English/European locales fall through to the English name.
+
+const PANCH_LABELS: Record<string, Record<string, string>> = {
+  Tithi:       { hi:'तिथि', te:'తిథి', ta:'திதி', ml:'തിഥി', kn:'ತಿಥಿ', mr:'तिथी', bn:'তিথি', pa:'ਤਿਥੀ', gu:'તિથિ', or:'ତିଥି', as:'তিথি' },
+  Nakshatra:   { hi:'नक्षत्र', te:'నక్షత్రం', ta:'நட்சத்திரம்', ml:'നക്ഷത്രം', kn:'ನಕ್ಷತ್ರ', mr:'नक्षत्र', bn:'নক্ষত্র', pa:'ਨਕਸ਼ਤਰ', gu:'નક્ષત્ર', or:'ନକ୍ଷତ୍ର', as:'নক্ষত্ৰ' },
+  Yoga:        { hi:'योग', te:'యోగం', ta:'யோகம்', ml:'യോഗം', kn:'ಯೋಗ', mr:'योग', bn:'যোগ', pa:'ਯੋਗ', gu:'યોગ', or:'ଯୋଗ', as:'যোগ' },
+  Karana:      { hi:'करण', te:'కరణం', ta:'கரணம்', ml:'കരണം', kn:'ಕರಣ', mr:'करण', bn:'করণ', pa:'ਕਰਣ', gu:'કરણ', or:'କରଣ', as:'কৰণ' },
+  'Day (Vara)':{ hi:'वार', te:'వారం', ta:'வாரம்', ml:'വാരം', kn:'ವಾರ', mr:'वार', bn:'বার', pa:'ਵਾਰ', gu:'વાર', or:'ବାର', as:'বাৰ' },
+  Atmakaraka:  { hi:'आत्मकारक', te:'ఆత్మకారక', ta:'ஆத்மகாரக', ml:'ആത്മകാരകൻ', kn:'ಆತ್ಮಕಾರಕ', mr:'आत्मकारक', bn:'আত্মকারক', pa:'ਆਤਮਕਾਰਕ', gu:'આત્મકારક', or:'ଆତ୍ମକାରକ', as:'আত্মকাৰক' },
+};
+
+// Tithi names in native scripts
+const TITHI_NAMES: Record<string, Record<string, string>> = {
+  Pratipada:   { hi:'प्रतिपदा', te:'పాడ్యమి', ta:'பிரதமை', ml:'പ്രതിപദ', kn:'ಪ್ರತಿಪದ', mr:'प्रतिपदा', bn:'প্রতিপদা' },
+  Dwitiya:     { hi:'द्वितीया', te:'విదియ', ta:'துவிதியை', ml:'ദ്വിതീയ', kn:'ದ್ವಿತೀಯ', mr:'द्वितीया', bn:'দ্বিতীয়া' },
+  Tritiya:     { hi:'तृतीया', te:'తదియ', ta:'திருதியை', ml:'തൃതീയ', kn:'ತೃತೀಯ', mr:'तृतीया', bn:'তৃতীয়া' },
+  Chaturthi:   { hi:'चतुर्थी', te:'చవితి', ta:'சதுர்த்தி', ml:'ചതുർഥി', kn:'ಚತುರ್ಥಿ', mr:'चतुर्थी', bn:'চতুর্থী' },
+  Panchami:    { hi:'पंचमी', te:'పంచమి', ta:'பஞ்சமி', ml:'പഞ്ചമി', kn:'ಪಂಚಮಿ', mr:'पंचमी', bn:'পঞ্চমী' },
+  Shashthi:    { hi:'षष्ठी', te:'షష్ఠి', ta:'சஷ்டி', ml:'ഷഷ്ഠി', kn:'ಷಷ್ಠಿ', mr:'षष्ठी', bn:'ষষ্ঠী' },
+  Saptami:     { hi:'सप्तमी', te:'సప్తమి', ta:'சப்தமி', ml:'സപ്തമി', kn:'ಸಪ್ತಮಿ', mr:'सप्तमी', bn:'সপ্তমী' },
+  Ashtami:     { hi:'अष्टमी', te:'అష్టమి', ta:'அஷ்டமி', ml:'അഷ്ടമി', kn:'ಅಷ್ಟಮಿ', mr:'अष्टमी', bn:'অষ্টমী' },
+  Navami:      { hi:'नवमी', te:'నవమి', ta:'நவமி', ml:'നവമി', kn:'ನವಮಿ', mr:'नवमी', bn:'নবমী' },
+  Dashami:     { hi:'दशमी', te:'దశమి', ta:'தசமி', ml:'ദശമി', kn:'ದಶಮಿ', mr:'दशमी', bn:'দশমী' },
+  Ekadashi:    { hi:'एकादशी', te:'ఏకాదశి', ta:'ஏகாதசி', ml:'ഏകാദശി', kn:'ಏಕಾದಶಿ', mr:'एकादशी', bn:'একাদশী' },
+  Dwadashi:    { hi:'द्वादशी', te:'ద్వాదశి', ta:'துவாதசி', ml:'ദ്വാദശി', kn:'ದ್ವಾದಶಿ', mr:'द्वादशी', bn:'দ্বাদশী' },
+  Trayodashi:  { hi:'त्रयोदशी', te:'త్రయోదశి', ta:'திரயோதசி', ml:'ത്രയോദശി', kn:'ತ್ರಯೋದಶಿ', mr:'त्रयोदशी', bn:'ত্রয়োদশী' },
+  Chaturdashi: { hi:'चतुर्दशी', te:'చతుర్దశి', ta:'சதுர்தசி', ml:'ചതുർദശി', kn:'ಚತುರ್ದಶಿ', mr:'चतुर्दशी', bn:'চতুর্দশী' },
+  Purnima:     { hi:'पूर्णिमा', te:'పూర్ణిమ', ta:'பௌர்ணமி', ml:'പൂർണ്ണിമ', kn:'ಪೂರ್ಣಿಮ', mr:'पूर्णिमा', bn:'পূর্ণিমা' },
+  Amavasya:    { hi:'अमावस्या', te:'అమావాస్య', ta:'அமாவாசை', ml:'അമാവാസ്യ', kn:'ಅಮಾವಾಸ್ಯ', mr:'अमावस्या', bn:'অমাবস্যা' },
+};
+
+// Nakshatra names in native scripts
+const NAKSHATRA_NAMES_I18N: Record<string, Record<string, string>> = {
+  Ashwini:           { hi:'अश्विनी', te:'అశ్విని', ta:'அசுவினி', ml:'അശ്വതി', kn:'ಅಶ್ವಿನಿ', mr:'अश्विनी', bn:'অশ্বিনী' },
+  Bharani:           { hi:'भरणी', te:'భరణి', ta:'பரணி', ml:'ഭരണി', kn:'ಭರಣಿ', mr:'भरणी', bn:'ভরণী' },
+  Krittika:          { hi:'कृत्तिका', te:'కృత్తిక', ta:'கார்த்திகை', ml:'കാർത്തിക', kn:'ಕೃತ್ತಿಕ', mr:'कृत्तिका', bn:'কৃত্তিকা' },
+  Rohini:            { hi:'रोहिणी', te:'రోహిణి', ta:'ரோகிணி', ml:'രോഹിണി', kn:'ರೋಹಿಣಿ', mr:'रोहिणी', bn:'রোহিণী' },
+  Mrigashira:        { hi:'मृगशिरा', te:'మృగశిర', ta:'மிருகசீரிஷம்', ml:'മകയിരം', kn:'ಮೃಗಶಿರ', mr:'मृगशीर्ष', bn:'মৃগশিরা' },
+  Ardra:             { hi:'आर्द्रा', te:'ఆర్ద్ర', ta:'திருவாதிரை', ml:'തിരുവാതിര', kn:'ಆರ್ದ್ರ', mr:'आर्द्रा', bn:'আর্দ্রা' },
+  Punarvasu:         { hi:'पुनर्वसु', te:'పునర్వసు', ta:'புனர்பூசம்', ml:'പുണർതം', kn:'ಪುನರ್ವಸು', mr:'पुनर्वसु', bn:'পুনর্বসু' },
+  Pushya:            { hi:'पुष्य', te:'పుష్యమి', ta:'பூசம்', ml:'പൂയം', kn:'ಪುಷ್ಯ', mr:'पुष्य', bn:'পুষ্যা' },
+  Ashlesha:          { hi:'आश्लेषा', te:'ఆశ్లేష', ta:'ஆயில்யம்', ml:'ആയില്യം', kn:'ಆಶ್ಲೇಷ', mr:'आश्लेषा', bn:'আশ্লেষা' },
+  Magha:             { hi:'मघा', te:'మఘ', ta:'மகம்', ml:'മകം', kn:'ಮಘ', mr:'मघा', bn:'মঘা' },
+  'Purva Phalguni':  { hi:'पूर्व फाल्गुनी', te:'పూర్వ ఫల్గుణి', ta:'பூரம்', ml:'പൂരം', kn:'ಪೂರ್ವ ಫಲ್ಗುಣಿ', mr:'पूर्व फाल्गुनी', bn:'পূর্বফাল্গুনী' },
+  'Uttara Phalguni': { hi:'उत्तर फाल्गुनी', te:'ఉత్తర ఫల్గుణి', ta:'உத்திரம்', ml:'ഉത്രം', kn:'ಉತ್ತರ ಫಲ್ಗುಣಿ', mr:'उत्तर फाल्गुनी', bn:'উত্তরফাল্গুনী' },
+  Hasta:             { hi:'हस्त', te:'హస్త', ta:'அஸ்தம்', ml:'അത്തം', kn:'ಹಸ್ತ', mr:'हस्त', bn:'হস্তা' },
+  Chitra:            { hi:'चित्रा', te:'చిత్ర', ta:'சித்திரை', ml:'ചിത്തിര', kn:'ಚಿತ್ರ', mr:'चित्रा', bn:'চিত্রা' },
+  Swati:             { hi:'स्वाती', te:'స్వాతి', ta:'சுவாதி', ml:'ചോതി', kn:'ಸ್ವಾತಿ', mr:'स्वाती', bn:'স্বাতী' },
+  Vishakha:          { hi:'विशाखा', te:'విశాఖ', ta:'விசாகம்', ml:'വിശാഖം', kn:'ವಿಶಾಖ', mr:'विशाखा', bn:'বিশাখা' },
+  Anuradha:          { hi:'अनुराधा', te:'అనురాధ', ta:'அனுஷம்', ml:'അനിഴം', kn:'ಅನುರಾಧ', mr:'अनुराधा', bn:'অনুরাধা' },
+  Jyeshtha:          { hi:'ज्येष्ठा', te:'జ్యేష్ఠ', ta:'கேட்டை', ml:'തൃക്കേട്ട', kn:'ಜ್ಯೇಷ್ಠ', mr:'ज्येष्ठा', bn:'জ্যেষ্ঠা' },
+  Mula:              { hi:'मूल', te:'మూల', ta:'மூலம்', ml:'മൂലം', kn:'ಮೂಲ', mr:'मूळ', bn:'মূলা' },
+  'Purva Ashadha':   { hi:'पूर्वाषाढ़ा', te:'పూర్వాషాఢ', ta:'பூராடம்', ml:'പൂരാടം', kn:'ಪೂರ್ವಾಷಾಢ', mr:'पूर्वाषाढा', bn:'পূর্বাষাঢ়া' },
+  'Uttara Ashadha':  { hi:'उत्तराषाढ़ा', te:'ఉత్తరాషాఢ', ta:'உத்திராடம்', ml:'ഉത്രാടം', kn:'ಉತ್ತರಾಷಾಢ', mr:'उत्तराषाढा', bn:'উত্তরাষাঢ়া' },
+  Shravana:          { hi:'श्रवण', te:'శ్రవణం', ta:'திருவோணம்', ml:'തിരുവോണം', kn:'ಶ್ರವಣ', mr:'श्रवण', bn:'শ্রবণা' },
+  Dhanishta:         { hi:'धनिष्ठा', te:'ధనిష్ఠ', ta:'அவிட்டம்', ml:'അവിട്ടം', kn:'ಧನಿಷ್ಠ', mr:'धनिष्ठा', bn:'ধনিষ্ঠা' },
+  Shatabhisha:       { hi:'शतभिषा', te:'శతభిషం', ta:'சதயம்', ml:'ചതയം', kn:'ಶತಭಿಷ', mr:'शततारका', bn:'শতভিষা' },
+  'Purva Bhadrapada':{ hi:'पूर्वभाद्रपद', te:'పూర్వభాద్ర', ta:'பூரட்டாதி', ml:'പൂരുരുട്ടാതി', kn:'ಪೂರ್ವಭಾದ್ರಪದ', mr:'पूर्वभाद्रपद', bn:'পূর্বভাদ্রপদ' },
+  'Uttara Bhadrapada':{ hi:'उत्तरभाद्रपद', te:'ఉత్తరభాద్ర', ta:'உத்திரட்டாதி', ml:'ഉത്രട്ടാതി', kn:'ಉತ್ತರಭಾದ್ರಪದ', mr:'उत्तरभाद्रपद', bn:'উত্তরভাদ্রপদ' },
+  Revati:            { hi:'रेवती', te:'రేవతి', ta:'ரேவதி', ml:'രേവതി', kn:'ರೇವತಿ', mr:'रेवती', bn:'রেবতী' },
+};
+
+// Vara (day) names
+const VARA_NAMES_I18N: Record<string, Record<string, string>> = {
+  Sunday:    { hi:'रविवार', te:'ఆదివారం', ta:'ஞாயிற்றுக்கிழமை', ml:'ഞായർ', kn:'ಭಾನುವಾರ', mr:'रविवार', bn:'রবিবার' },
+  Monday:    { hi:'सोमवार', te:'సోమవారం', ta:'திங்கட்கிழமை', ml:'തിങ്കൾ', kn:'ಸೋಮವಾರ', mr:'सोमवार', bn:'সোমবার' },
+  Tuesday:   { hi:'मंगलवार', te:'మంగళవారం', ta:'செவ்வாய்கிழமை', ml:'ചൊവ്വ', kn:'ಮಂಗಳವಾರ', mr:'मंगळवार', bn:'মঙ্গলবার' },
+  Wednesday: { hi:'बुधवार', te:'బుధవారం', ta:'புதன்கிழமை', ml:'ബുധൻ', kn:'ಬುಧವಾರ', mr:'बुधवार', bn:'বুধবার' },
+  Thursday:  { hi:'गुरुवार', te:'గురువారం', ta:'வியாழக்கிழமை', ml:'വ്യാഴം', kn:'ಗುರುವಾರ', mr:'गुरुवार', bn:'বৃহস্পতিবার' },
+  Friday:    { hi:'शुक्रवार', te:'శుక్రవారం', ta:'வெள்ளிக்கிழமை', ml:'വെള്ളി', kn:'ಶುಕ್ರವಾರ', mr:'शुक्रवार', bn:'শুক্রবার' },
+  Saturday:  { hi:'शनिवार', te:'శనివారం', ta:'சனிக்கிழமை', ml:'ശനി', kn:'ಶನಿವಾರ', mr:'शनिवार', bn:'শনিবার' },
+};
+
+// Planet names in native scripts (for Atmakaraka)
+const PLANET_NAMES_I18N: Record<string, Record<string, string>> = {
+  Sun:     { hi:'सूर्य', te:'సూర్యుడు', ta:'சூரியன்', ml:'സൂര്യൻ', kn:'ಸೂರ್ಯ', mr:'सूर्य', bn:'সূর্য' },
+  Moon:    { hi:'चंद्र', te:'చంద్రుడు', ta:'சந்திரன்', ml:'ചന്ദ്രൻ', kn:'ಚಂದ್ರ', mr:'चंद्र', bn:'চন্দ্র' },
+  Mars:    { hi:'मंगल', te:'అంగారకుడు', ta:'செவ்வாய்', ml:'ചൊവ്വ', kn:'ಮಂಗಳ', mr:'मंगळ', bn:'মঙ্গল' },
+  Mercury: { hi:'बुध', te:'బుధుడు', ta:'புதன்', ml:'ബുധൻ', kn:'ಬುಧ', mr:'बुध', bn:'বুধ' },
+  Jupiter: { hi:'गुरु', te:'గురువు', ta:'குரு', ml:'ഗുരു', kn:'ಗುರು', mr:'गुरू', bn:'গুরু' },
+  Venus:   { hi:'शुक्र', te:'శుక్రుడు', ta:'சுக்கிரன்', ml:'ശുക്രൻ', kn:'ಶುಕ್ರ', mr:'शुक्र', bn:'শুক্র' },
+  Saturn:  { hi:'शनि', te:'శని', ta:'சனி', ml:'ശനി', kn:'ಶನಿ', mr:'शनी', bn:'শনি' },
+  Rahu:    { hi:'राहु', te:'రాహువు', ta:'ராகு', ml:'രാഹു', kn:'ರಾಹು', mr:'राहू', bn:'রাহু' },
+  Ketu:    { hi:'केतु', te:'కేతువు', ta:'கேது', ml:'കേതു', kn:'ಕೇತು', mr:'केतू', bn:'কেতু' },
+};
+
+/** Return the localised version of a Panchanga term, falling back to English */
+function localisePanch(
+  type: 'label' | 'tithi' | 'nakshatra' | 'vara' | 'planet',
+  key: string,
+  lang: string
+): string {
+  const locale = lang?.split('-')[0] ?? 'en';
+  if (type === 'label')    return PANCH_LABELS[key]?.[locale] ?? key;
+  if (type === 'tithi')    return TITHI_NAMES[key]?.[locale] ?? key;
+  if (type === 'nakshatra')return NAKSHATRA_NAMES_I18N[key]?.[locale] ?? key;
+  if (type === 'vara')     return VARA_NAMES_I18N[key]?.[locale] ?? key;
+  if (type === 'planet')   return PLANET_NAMES_I18N[key]?.[locale] ?? key;
+  return key;
+}
+
 function StatBadge({ label, value, accent }: { label: string; value: string; accent?: boolean }) {
   return (
     <div className="rounded-xl p-3 border" style={{ background: accent ? 'rgba(26,107,107,0.06)' : '#FAFAF8', borderColor: accent ? 'rgba(26,107,107,0.2)' : '#E5E7EB' }}>
@@ -616,11 +719,16 @@ export default function ReportCard({ t: _t, reading }: ReportCardProps) {
               </div>
 
               <div>
-                <h3 className="text-base font-bold mb-3" style={{ color:TEAL }}>🪷 Panchanga at Birth</h3>
+                <h3 className="text-base font-bold mb-3" style={{ color:TEAL }}>🪷 {reading.language && ['hi','te','ta','ml','kn','mr','bn','pa','gu','or','as'].includes(reading.language) ? localisePanch('label','Tithi',reading.language).replace(/तिथि|తిథి|திதி|തിഥി|ತಿಥಿ|तिथी|তিথি|ਤਿਥੀ|તિથિ|ତିଥି|তিথি/, '') : '' }Panchanga at Birth</h3>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                  {[['Tithi',reading.panchanga.tithi.name],['Nakshatra',reading.panchanga.nakshatra],['Yoga',reading.panchanga.yoga],
-                    ['Karana',reading.panchanga.karana],['Day (Vara)',reading.panchanga.vara],['Atmakaraka',reading.atmakaraka.planet]
-                  ].map(([k,v]) => <StatBadge key={k} label={k} value={v} />)}
+                  {([
+                    [localisePanch('label','Tithi',reading.language??'en'),           localisePanch('tithi',    reading.panchanga.tithi.name,    reading.language??'en')],
+                    [localisePanch('label','Nakshatra',reading.language??'en'),        localisePanch('nakshatra',reading.panchanga.nakshatra,      reading.language??'en')],
+                    [localisePanch('label','Yoga',reading.language??'en'),             reading.panchanga.yoga],
+                    [localisePanch('label','Karana',reading.language??'en'),           reading.panchanga.karana],
+                    [localisePanch('label','Day (Vara)',reading.language??'en'),        localisePanch('vara',     reading.panchanga.vara,           reading.language??'en')],
+                    [localisePanch('label','Atmakaraka',reading.language??'en'),       localisePanch('planet',   reading.atmakaraka.planet,        reading.language??'en')],
+                  ] as [string,string][]).map(([k,v]) => <StatBadge key={k} label={k} value={v} />)}
                 </div>
               </div>
 
