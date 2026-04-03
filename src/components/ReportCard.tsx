@@ -308,6 +308,12 @@ export default function ReportCard({ t: _t, reading }: ReportCardProps) {
   const [tab, setTab] = useState<TabId>('overview');
   const birthYear = parseInt(reading.dob?.split('-')[0] || '1990', 10);
   const AI_TABS: TabId[] = ['overview','love','career','health','timeline','spiritual'];
+  const trad = reading.tradition ?? 'all';
+  const isVedic    = trad === 'vedic'    || trad === 'all';
+  const isWestern  = trad === 'western'  || trad === 'all';
+  const isChinese  = trad === 'chinese'  || trad === 'all';
+  const isEgyptian = trad === 'egyptian' || trad === 'all';
+  const isMayan    = trad === 'mayan'    || trad === 'all';
 
   return (
     <motion.div initial={{ opacity:0 }} animate={{ opacity:1 }} className="max-w-4xl mx-auto space-y-5">
@@ -318,20 +324,53 @@ export default function ReportCard({ t: _t, reading }: ReportCardProps) {
           {reading.name}&apos;s Cosmic Blueprint
         </h1>
         <p className="text-sm mt-1" style={{ color:'#6B7280' }}>Born {reading.dob} · {reading.birthCity}</p>
+        {/* Tradition pill */}
+        <span className="inline-block mt-2 text-xs font-semibold px-3 py-1 rounded-full" style={{ background:'rgba(26,107,107,0.1)', color: TEAL, border:'1px solid rgba(26,107,107,0.2)' }}>
+          {trad === 'all' ? '🌍 All Traditions' : trad === 'vedic' ? '🕉️ Vedic' : trad === 'western' ? '♈ Western' : trad === 'chinese' ? '☯️ Chinese' : trad === 'egyptian' ? '𓂀 Egyptian' : '☀️ Mayan'}
+        </span>
       </div>
 
-      <NakshatraBanner reading={reading} />
+      {/* Show nakshatra banner only for Vedic-aware traditions */}
+      {isVedic && <NakshatraBanner reading={reading} />}
 
-      {/* Quick stats */}
+      {/* Quick stats — vary by tradition */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-        <StatBadge label="Ascendant (Lagna)" value={reading.lagnaSign} accent />
-        <StatBadge label="Moon Sign" value={reading.moonSign} accent />
-        <StatBadge label="Birth Star (Nakshatra)" value={`${reading.moonNakshatraName} Pada ${reading.moonNakshatraPada}`} />
-        <StatBadge label="Active Dasha Period" value={`${reading.currentDasha} › ${reading.currentAntardasha}`} />
-        <StatBadge label="Western Sun Sign" value={reading.westernSunSign} />
-        <StatBadge label="Vedic Sun" value={reading.sunSign} />
-        <StatBadge label="Manglik Dosha" value={reading.manglik?.isManglik ? '🔴 Yes' : '🟢 No'} />
-        <StatBadge label="Sade Sati" value={reading.sadeSati?.isActive ? '⚠️ Active now' : '✓ Not active'} />
+        {isWestern && !isVedic && <>
+          {/* Pure Western: show tropical sun sign prominently */}
+          <StatBadge label="☀️ Sun Sign"       value={reading.westernSunSign} accent />
+          <StatBadge label="🌙 Moon Sign"       value={reading.moonSign} accent />
+          <StatBadge label="⬆️ Ascendant"       value={reading.lagnaSign} />
+          <StatBadge label="🪐 Active Period"   value={`${reading.currentDasha} › ${reading.currentAntardasha}`} />
+        </>}
+        {isVedic && <>
+          {/* Vedic: lagna + moon rashi + nakshatra + dasha */}
+          <StatBadge label="Ascendant (Lagna)"     value={reading.lagnaSign} accent />
+          <StatBadge label="Moon Sign (Rashi)"     value={reading.moonSign} accent />
+          <StatBadge label="Birth Star (Nakshatra)" value={`${reading.moonNakshatraName} Pada ${reading.moonNakshatraPada}`} />
+          <StatBadge label="Active Dasha Period"   value={`${reading.currentDasha} › ${reading.currentAntardasha}`} />
+          {isWestern && <StatBadge label="Western Sun Sign" value={reading.westernSunSign} />}
+          <StatBadge label="Vedic Sun"    value={reading.sunSign} />
+          <StatBadge label="Manglik Dosha" value={reading.manglik?.isManglik ? '🔴 Yes' : '🟢 No'} />
+          <StatBadge label="Sade Sati"    value={reading.sadeSati?.isActive ? '⚠️ Active now' : '✓ Not active'} />
+        </>}
+        {isEgyptian && !isVedic && !isWestern && <>
+          <StatBadge label="𓂀 Egyptian Decan" value={`${reading.egyptianDecan?.sign} · Decan ${reading.egyptianDecan?.decanNumber}`} accent />
+          <StatBadge label="Decan Ruler"       value={reading.egyptianDecan?.ruler ?? ''} accent />
+          <StatBadge label="Associated Deity"  value={reading.egyptianDecan?.deity ?? ''} />
+          <StatBadge label="Core Traits"       value={reading.egyptianDecan?.traits?.split(',')[0] ?? ''} />
+        </>}
+        {isMayan && !isVedic && !isWestern && !isEgyptian && <>
+          <StatBadge label="☀️ Day Sign (Nahual)" value={reading.mayanTzolkin?.daySign ?? ''} accent />
+          <StatBadge label="Galactic Tone"         value={`${reading.mayanTzolkin?.tone} / 13`} accent />
+          <StatBadge label="Sacred Calendar"       value="Tzolkin 260-day" />
+          <StatBadge label="Current Cycle"         value={`${reading.currentDasha} energy active`} />
+        </>}
+        {isChinese && !isVedic && !isWestern && !isEgyptian && !isMayan && <>
+          <StatBadge label="☯️ Animal Sign"  value={`${reading.chineseZodiac?.animal}`} accent />
+          <StatBadge label="🔥 Element"       value={`${reading.chineseZodiac?.yinYang} ${reading.chineseZodiac?.element}`} accent />
+          <StatBadge label="🌙 Heavenly Stem" value={`${reading.chineseZodiac?.heavenlyStem} (${reading.chineseZodiac?.earthlyBranch})`} />
+          <StatBadge label="🍀 Best Match"    value={reading.chineseZodiac?.compatibility ?? ''} />
+        </>}
       </div>
 
       {/* Tabs */}
@@ -620,8 +659,8 @@ export default function ReportCard({ t: _t, reading }: ReportCardProps) {
         </motion.div>
       </AnimatePresence>
 
-      {/* Dasha timeline bar */}
-      {reading.dashaTimeline?.length > 0 && (
+      {/* Dasha timeline bar — only for Vedic-aware traditions */}
+      {isVedic && reading.dashaTimeline?.length > 0 && (
         <div className="rounded-2xl p-4 border space-y-3" style={{ background:'#FFFDF8', borderColor:'#E5E7EB' }}>
           <h3 className="text-sm font-bold" style={{ color:TEAL }}>📅 Your Life&apos;s Planetary Timeline</h3>
           <div className="flex gap-1 overflow-x-auto pb-1">
@@ -652,8 +691,65 @@ export default function ReportCard({ t: _t, reading }: ReportCardProps) {
       {/* Tradition deep-dive cards */}
       <div className="space-y-3">
 
-        {/* ── Egyptian Decan ── */}
-        <div className="rounded-2xl border overflow-hidden" style={{ background: '#FFFDF8', borderColor: '#E5E7EB' }}>
+      {/* ── Chinese Zodiac — only for Chinese or All ── */}
+        {isChinese && <div className="rounded-2xl border overflow-hidden" style={{ background: '#FFFDF8', borderColor: '#E5E7EB' }}>
+          {/* Header */}
+          <div className="flex items-center gap-3 px-5 py-4" style={{ background: 'linear-gradient(135deg, rgba(220,38,38,0.08), rgba(212,136,10,0.06))' }}>
+            <span className="text-3xl">☯️</span>
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: AMBER }}>Chinese Zodiac Reading</p>
+              <p className="text-lg font-bold" style={{ color: '#1F2937' }}>{reading.chineseZodiac?.yinYang} {reading.chineseZodiac?.element} {reading.chineseZodiac?.animal}</p>
+              <p className="text-xs" style={{ color: '#6B7280' }}>Stem {reading.chineseZodiac?.heavenlyStem} · Branch {reading.chineseZodiac?.earthlyBranch}</p>
+            </div>
+          </div>
+
+          <div className="px-5 py-4 space-y-4">
+            {/* Animal meaning */}
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-widest mb-1.5" style={{ color: TEAL }}>🐉 Your Animal Sign — The Ancient Mirror</p>
+              <p className="text-sm leading-relaxed" style={{ color: '#374151' }}>
+                The Chinese zodiac is a 12-year cycle, each year presided over by an animal whose qualities imprint on every person born under it. You were born in the Year of the <strong>{reading.chineseZodiac?.animal}</strong>. {reading.chineseZodiac?.meaning}
+              </p>
+            </div>
+
+            {/* Element + Yin/Yang */}
+            <div className="rounded-xl p-3 border-l-4" style={{ background: 'rgba(212,136,10,0.05)', borderLeftColor: AMBER }}>
+              <p className="text-[10px] font-bold uppercase tracking-widest mb-1.5" style={{ color: AMBER }}>
+                🔥 Your Element: {reading.chineseZodiac?.yinYang} {reading.chineseZodiac?.element}
+              </p>
+              <p className="text-sm leading-relaxed" style={{ color: '#374151' }}>
+                The Chinese system overlays a 10-year cycle of Five Elements (Wood, Fire, Earth, Metal, Water) on the 12 animal signs — creating 60 unique combinations that repeat every 60 years, called a <em>Jiǎzǐ</em> cycle. Your element is <strong>{reading.chineseZodiac?.element}</strong>, with a <strong>{reading.chineseZodiac?.yinYang}</strong> polarity. {reading.chineseZodiac?.elementMeaning} {reading.chineseZodiac?.yinYang === 'Yin' ? 'The Yin quality softens and deepens your animal\'s energy — you express its traits in a more receptive, nuanced, and inward way. Where Yang years are outwardly expressive, Yin years are quietly powerful.' : 'The Yang quality amplifies and externalizes your animal\'s energy — you express its traits in a more active, assertive, and outward-facing way. Yang years tend toward initiative and visible action.'}
+              </p>
+            </div>
+
+            {/* Heavenly Stem & Earthly Branch */}
+            <div className="rounded-xl p-3 border-l-4" style={{ background: 'rgba(26,107,107,0.05)', borderLeftColor: TEAL }}>
+              <p className="text-[10px] font-bold uppercase tracking-widest mb-1.5" style={{ color: TEAL }}>
+                🌿 Heavenly Stem ({reading.chineseZodiac?.heavenlyStem}) & Earthly Branch ({reading.chineseZodiac?.earthlyBranch})
+              </p>
+              <p className="text-sm leading-relaxed" style={{ color: '#374151' }}>
+                Traditional Chinese cosmology defines each year by a pair: a <em>Heavenly Stem</em> (天干, <em>Tiāngān</em>) representing the celestial quality, and an <em>Earthly Branch</em> (地支, <em>Dìzhī</em>) representing the terrestrial dimension. Your Heavenly Stem is <strong>{reading.chineseZodiac?.heavenlyStem}</strong> and your Earthly Branch is <strong>{reading.chineseZodiac?.earthlyBranch}</strong>. In the Ba Zi (Four Pillars of Destiny) system — the deeper Chinese natal astrology — the stem and branch of your birth year form the first pillar of your life chart, shaping your ancestral inheritance, social reputation, and long-term fortune. The <em>{reading.chineseZodiac?.heavenlyStem}</em> stem carries the heavens&apos; blessing into your character; the <em>{reading.chineseZodiac?.earthlyBranch}</em> branch roots that blessing into the practical world you inhabit.
+              </p>
+            </div>
+
+            {/* Compatibility + Lucky items */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="rounded-xl p-3 border" style={{ borderColor: '#E5E7EB', background: 'rgba(26,107,107,0.04)' }}>
+                <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: TEAL }}>💚 Most Compatible Signs</p>
+                <p className="text-sm font-medium" style={{ color: '#1F2937' }}>{reading.chineseZodiac?.compatibility}</p>
+                <p className="text-xs mt-1" style={{ color: '#9CA3AF' }}>Natural allies in love, friendship & business</p>
+              </div>
+              <div className="rounded-xl p-3 border" style={{ borderColor: '#E5E7EB', background: 'rgba(212,136,10,0.04)' }}>
+                <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: AMBER }}>🍀 Lucky Numbers & Colors</p>
+                <p className="text-sm font-medium" style={{ color: '#1F2937' }}>Numbers: {reading.chineseZodiac?.luckyNumbers}</p>
+                <p className="text-sm font-medium" style={{ color: '#1F2937' }}>Colors: {reading.chineseZodiac?.luckyColors}</p>
+              </div>
+            </div>
+          </div>
+        </div>}
+
+        {/* ── Egyptian Decan — only for Egyptian or All ── */}
+        {isEgyptian && <div className="rounded-2xl border overflow-hidden" style={{ background: '#FFFDF8', borderColor: '#E5E7EB' }}>
           {/* Header */}
           <div className="flex items-center gap-3 px-5 py-4" style={{ background: 'linear-gradient(135deg, rgba(212,136,10,0.1), rgba(26,107,107,0.06))' }}>
             <span className="text-3xl">𓂀</span>
@@ -713,10 +809,10 @@ export default function ReportCard({ t: _t, reading }: ReportCardProps) {
               </div>
             </div>
           </div>
-        </div>
+        </div>}
 
-        {/* ── Mayan Tzolkin ── */}
-        <div className="rounded-2xl border overflow-hidden" style={{ background: '#FFFDF8', borderColor: '#E5E7EB' }}>
+        {/* ── Mayan Tzolkin — only for Mayan or All ── */}
+        {isMayan && <div className="rounded-2xl border overflow-hidden" style={{ background: '#FFFDF8', borderColor: '#E5E7EB' }}>
           {/* Header */}
           <div className="flex items-center gap-3 px-5 py-4" style={{ background: 'linear-gradient(135deg, rgba(26,107,107,0.08), rgba(212,136,10,0.05))' }}>
             <span className="text-3xl">☀️</span>
@@ -765,10 +861,10 @@ export default function ReportCard({ t: _t, reading }: ReportCardProps) {
               </p>
             </div>
           </div>
-        </div>
+        </div>}
 
-        {/* ── Nakshatra Hall of Fame ── */}
-        <div className="rounded-2xl p-5 border" style={{ background: '#FFFDF8', borderColor: '#E5E7EB' }}>
+        {/* ── Nakshatra Hall of Fame — only for Vedic-aware traditions ── */}
+        {isVedic && <div className="rounded-2xl p-5 border" style={{ background: '#FFFDF8', borderColor: '#E5E7EB' }}>
           <div className="flex items-start gap-3 mb-3">
             <span className="text-2xl">{NAKSHATRA_SYMBOL[reading.moonNakshatraName] || '⭐'}</span>
             <div>
@@ -787,7 +883,7 @@ export default function ReportCard({ t: _t, reading }: ReportCardProps) {
           <p className="text-xs mt-3 italic" style={{ color: '#9CA3AF' }}>
             You share the {reading.moonNakshatraName} cosmic frequency — {NAKSHATRA_QUALITY[reading.moonNakshatraName] || 'ancient wisdom and unique potential'}.
           </p>
-        </div>
+        </div>}
       </div>
 
       <div className="text-center pb-6">

@@ -7,7 +7,7 @@ export async function POST(req: NextRequest) {
 
     const {
       name, dob, timeOfBirth, birthLat, birthLng, birthCity,
-      gender, maritalStatus, employment, concern, chartType, language,
+      gender, maritalStatus, employment, concern, chartType, tradition, language,
     } = body;
 
     // Validate required fields
@@ -43,6 +43,7 @@ export async function POST(req: NextRequest) {
       employment: employment || 'employed',
       concern: (concern || '').trim(),
       chartType: chartType || 'north',
+      tradition: tradition || 'all',
       language: language || 'en',
     };
 

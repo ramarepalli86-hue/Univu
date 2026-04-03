@@ -584,6 +584,105 @@ export function getMayanTzolkin(jd: number): { daySign: string; tone: number; me
   };
 }
 
+// ─── Chinese Zodiac ──────────────────────────────────────────
+
+const CHINESE_ANIMALS = ['Rat','Ox','Tiger','Rabbit','Dragon','Snake','Horse','Goat','Monkey','Rooster','Dog','Pig'] as const;
+const CHINESE_ELEMENTS = ['Wood','Fire','Earth','Metal','Water'] as const;
+const HEAVENLY_STEMS = ['Jia','Yi','Bing','Ding','Wu','Ji','Geng','Xin','Ren','Gui'] as const;
+const EARTHLY_BRANCHES = ['Zi','Chou','Yin','Mao','Chen','Si','Wu','Wei','Shen','You','Xu','Hai'] as const;
+
+const CHINESE_ANIMAL_MEANINGS: Record<string, string> = {
+  Rat:     'Resourceful, quick-witted, charming, and versatile. You are a natural strategist who can navigate complex situations with ease. Rats are the first sign — representing the pioneer\'s energy, adaptability, and the intelligence to seize opportunity when others are still sleeping.',
+  Ox:      'Dependable, methodical, and powerfully determined. You build slowly but permanently. The Ox is the backbone of civilization — patient, honest, and capable of bearing immense burdens without complaint. What you commit to, you complete.',
+  Tiger:   'Brave, competitive, unpredictable, and magnetic. You command attention without trying. The Tiger is the guardian of the forest — fierce in protection of what it loves, electric in presence, and incapable of boredom or mediocrity.',
+  Rabbit:  'Gracious, tactful, refined, and deeply intuitive. You create beauty and peace wherever you go. The Rabbit moves through life with elegance — avoiding unnecessary conflict while quietly achieving everything it sets out to do.',
+  Dragon:  'Visionary, charismatic, and larger-than-life. You are the only mythical creature in the Chinese zodiac — born to stand out. Dragons carry an innate sense of destiny and the force to manifest visions that others call impossible.',
+  Snake:   'Wise, intuitive, elegant, and intensely perceptive. You see beneath surfaces. The Snake is the zodiac\'s philosopher — processing the world through deep inner knowing rather than surface-level logic. Your insights arrive whole, like gifts.',
+  Horse:   'Energetic, free-spirited, and passionately independent. You are most alive in motion — new experiences, new landscapes, new connections. The Horse embodies the joy of being fully in the present moment.',
+  Goat:    'Creative, empathic, and deeply artistic. You bring beauty, gentleness, and healing into the world. The Goat is the zodiac\'s artist and healer — sensitive to everything, nourished by beauty, and powerfully kind.',
+  Monkey:  'Clever, innovative, and electric with creative intelligence. You love solving puzzles and transforming ideas into action. Monkeys are the zodiac\'s inventors — quick, adaptable, and impossible to put in a box.',
+  Rooster: 'Meticulous, honest, and brilliantly observant. You notice everything — and you are unafraid to speak what you see. The Rooster is the zodiac\'s truth-teller: precise, hardworking, and deeply committed to excellence.',
+  Dog:     'Loyal, just, and deeply protective of those you love. You have an innate moral compass and will stand for what is right even alone. Dogs are the zodiac\'s guardians — reliable, faithful, and filled with the rare integrity the world needs more of.',
+  Pig:     'Generous, sincere, and abundantly good-natured. You approach life with genuine joy and complete commitment. The Pig is the zodiac\'s benefactor — warm-hearted, fortunate, and capable of finding pleasure and meaning in every chapter.',
+};
+
+const ELEMENT_MEANINGS: Record<string, string> = {
+  Wood:  'Growth, flexibility, and the creative force of spring. Wood people are visionary, optimistic, and driven by the desire to create and expand. They are the planters of seeds — always looking forward.',
+  Fire:  'Passion, brilliance, and dynamic leadership. Fire people illuminate every room they enter. They lead through charisma and inspiration, and their enthusiasm is genuinely contagious.',
+  Earth: 'Stability, reliability, and the deep wisdom of accumulated experience. Earth people are the foundations of their families and communities — trustworthy, practical, and profoundly grounding.',
+  Metal: 'Precision, discipline, and the strength to cut through ambiguity. Metal people have clear values, strong wills, and an extraordinary capacity for focused effort. They finish what they start.',
+  Water: 'Wisdom, depth, and the flowing intelligence of the unconscious. Water people are perceptive, adaptable, and carry profound inner knowing. They navigate complexity with an almost effortless ease.',
+};
+
+const ANIMAL_LUCKY_COLORS: Record<string, string> = {
+  Rat: 'Blue, Gold, Green', Ox: 'White, Yellow, Green', Tiger: 'Blue, Grey, Orange',
+  Rabbit: 'Red, Pink, Purple, Blue', Dragon: 'Gold, Silver, Grey', Snake: 'Black, Red, Yellow',
+  Horse: 'Yellow, Green', Goat: 'Brown, Red, Purple', Monkey: 'White, Blue, Gold',
+  Rooster: 'Gold, Brown, Yellow', Dog: 'Red, Green, Purple', Pig: 'Yellow, Grey, Brown',
+};
+
+const ANIMAL_LUCKY_NUMBERS: Record<string, string> = {
+  Rat: '2, 3', Ox: '1, 4', Tiger: '1, 3, 4', Rabbit: '3, 4, 6',
+  Dragon: '1, 6, 7', Snake: '2, 8, 9', Horse: '2, 3, 7', Goat: '2, 7',
+  Monkey: '4, 9', Rooster: '5, 7, 8', Dog: '3, 4, 9', Pig: '2, 5, 8',
+};
+
+const ANIMAL_COMPATIBILITY: Record<string, string> = {
+  Rat: 'Ox, Dragon, Monkey', Ox: 'Rat, Snake, Rooster', Tiger: 'Dragon, Horse, Pig',
+  Rabbit: 'Goat, Monkey, Dog, Pig', Dragon: 'Rat, Tiger, Snake, Monkey', Snake: 'Ox, Rooster',
+  Horse: 'Tiger, Goat, Rabbit', Goat: 'Rabbit, Horse, Pig', Monkey: 'Rat, Dragon',
+  Rooster: 'Ox, Snake', Dog: 'Tiger, Rabbit, Horse', Pig: 'Tiger, Rabbit, Goat',
+};
+
+/**
+ * Chinese Lunar New Year starts between Jan 20–Feb 20 depending on the year.
+ * We use a simplified lookup for years 1900–2100 based on the Gregorian offset.
+ * The Chinese year cycle: 1924 is the Rat year (cycle base).
+ */
+export function getChineseZodiac(year: number, month: number, day: number): {
+  animal: string;
+  element: string;
+  yinYang: 'Yin' | 'Yang';
+  heavenlyStem: string;
+  earthlyBranch: string;
+  luckyColors: string;
+  luckyNumbers: string;
+  compatibility: string;
+  meaning: string;
+  elementMeaning: string;
+} {
+  // Chinese New Year is approximately Feb 4–20; use Feb 4 as simple cutoff
+  const chineseYear = (month < 2 || (month === 2 && day < 4)) ? year - 1 : year;
+
+  // Cycle base: 1924 = Rat, Wood, Yang
+  const offset = ((chineseYear - 1924) % 60 + 60) % 60;
+  const animalIdx = offset % 12;
+  const stemIdx = offset % 10;
+  const branchIdx = offset % 12;
+  // Element: each element governs 2 consecutive years
+  const elementIdx = Math.floor(stemIdx / 2);
+  // Yin/Yang: odd stems = Yin, even stems = Yang
+  const yinYang: 'Yin' | 'Yang' = stemIdx % 2 === 0 ? 'Yang' : 'Yin';
+
+  const animal = CHINESE_ANIMALS[animalIdx];
+  const element = CHINESE_ELEMENTS[elementIdx];
+  const heavenlyStem = HEAVENLY_STEMS[stemIdx];
+  const earthlyBranch = EARTHLY_BRANCHES[branchIdx];
+
+  return {
+    animal,
+    element,
+    yinYang,
+    heavenlyStem,
+    earthlyBranch,
+    luckyColors: ANIMAL_LUCKY_COLORS[animal],
+    luckyNumbers: ANIMAL_LUCKY_NUMBERS[animal],
+    compatibility: ANIMAL_COMPATIBILITY[animal],
+    meaning: CHINESE_ANIMAL_MEANINGS[animal] || 'A unique cosmic energy.',
+    elementMeaning: ELEMENT_MEANINGS[element] || 'A powerful elemental force.',
+  };
+}
+
 // ─── Atmakaraka ──────────────────────────────────────────────
 
 export function calculateAtmakaraka(planets: PlanetPosition[]): {
@@ -1736,6 +1835,7 @@ export interface ReadingInput {
   employment: string;
   concern: string;
   chartType: 'north' | 'south';
+  tradition: 'vedic' | 'western' | 'chinese' | 'egyptian' | 'mayan' | 'all';
   language: string;
 }
 
@@ -1745,6 +1845,7 @@ export interface FullReading {
   birthCity: string;
   currentCity: string;
   gender: string;
+  tradition: 'vedic' | 'western' | 'chinese' | 'egyptian' | 'mayan' | 'all';
   lagnaRashi: number;
   lagnaSign: string;
   moonRashi: number;
@@ -1766,6 +1867,7 @@ export interface FullReading {
   westernSunSign: string;
   egyptianDecan: { sign: string; decanNumber: number; ruler: string; deity: string; traits: string };
   mayanTzolkin: { daySign: string; tone: number; meaning: string };
+  chineseZodiac: { animal: string; element: string; yinYang: 'Yin' | 'Yang'; heavenlyStem: string; earthlyBranch: string; luckyColors: string; luckyNumbers: string; compatibility: string; meaning: string; elementMeaning: string };
   personalityReport: string;
   houseAnalysis: string;
   lifeTimeline: string;
@@ -1817,13 +1919,15 @@ export function generateFullReading(input: ReadingInput): FullReading {
   const sunTropical = sunTropicalLongitude(T);
   const sunSidereal = toSidereal(sunTropical, ayanamsa);
   const sunRashi = Math.floor(sunSidereal / 30) % 12;
-  const sunSign = VEDIC_RASHIS[sunRashi];
+  // Sign labels depend on tradition: western uses tropical zodiac names, vedic uses sidereal rashis
+  const isWestern = input.tradition === 'western';
+  const sunSign = isWestern ? WESTERN_SIGNS[sunRashi] : VEDIC_RASHIS[sunRashi];
 
   // Moon (moonTropicalLongitude takes T and sunTropLon)
   const moonTropical = moonTropicalLongitude(T, sunTropical);
   const moonSidereal = toSidereal(moonTropical, ayanamsa);
   const moonRashi = Math.floor(moonSidereal / 30) % 12;
-  const moonSign = VEDIC_RASHIS[moonRashi];
+  const moonSign = isWestern ? WESTERN_SIGNS[moonRashi] : VEDIC_RASHIS[moonRashi];
   const NAKSHATRA_SPAN = 360 / 27;
   const moonNakshatra = Math.floor(moonSidereal / NAKSHATRA_SPAN) % 27;
   const moonNakshatraName = NAKSHATRAS[moonNakshatra];
@@ -1833,7 +1937,7 @@ export function generateFullReading(input: ReadingInput): FullReading {
   // Lagna (calculateLagna takes jd, T, lat, lng, ayanamsa)
   const lagnaLong = calculateLagna(jd, T, input.birthLat, input.birthLng, ayanamsa);
   const lagnaRashi = Math.floor(lagnaLong / 30) % 12;
-  const lagnaSign = VEDIC_RASHIS[lagnaRashi];
+  const lagnaSign = isWestern ? WESTERN_SIGNS[lagnaRashi] : VEDIC_RASHIS[lagnaRashi];
 
   // Planets (calculatePlanetPositions takes T, sunTropical, ayanamsa, lagnaRashiIndex)
   const planets = calculatePlanetPositions(T, sunTropical, ayanamsa, lagnaRashi);
@@ -1878,6 +1982,8 @@ export function generateFullReading(input: ReadingInput): FullReading {
   const egyptianDecan = getEgyptianDecan(sunSidereal);
   // getMayanTzolkin takes jd
   const mayanTzolkin = getMayanTzolkin(jd);
+  // getChineseZodiac takes birth year/month/day
+  const chineseZodiac = getChineseZodiac(year, month, day);
 
   // Gana and Yoni
   const gana = NAKSHATRA_GANAS[moonNakshatra] || 'Manushya';
@@ -1908,6 +2014,7 @@ export function generateFullReading(input: ReadingInput): FullReading {
     birthCity: input.birthCity,
     currentCity: input.currentCity,
     gender: input.gender,
+    tradition: input.tradition ?? 'all',
     lagnaRashi,
     lagnaSign,
     moonRashi,
@@ -1929,6 +2036,7 @@ export function generateFullReading(input: ReadingInput): FullReading {
     westernSunSign,
     egyptianDecan,
     mayanTzolkin,
+    chineseZodiac,
     personalityReport,
     houseAnalysis,
     lifeTimeline,
