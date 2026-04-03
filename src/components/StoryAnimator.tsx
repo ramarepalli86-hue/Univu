@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { StoryEvent } from '@/lib/astrology';
 
@@ -497,10 +497,48 @@ export default function StoryAnimator({
   const [currentScene, setCurrentScene] = useState(0);
   const [autoPlay, setAutoPlay] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [enrichedTexts, setEnrichedTexts] = useState<Record<number, string>>({});
+  const [loadingScene, setLoadingScene] = useState<number | null>(null);
   const autoPlayRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const scenes = buildScenesFromData(name, storyText, storyEvents, lagnaSign, moonSign, sunSign, birthYear, planets, currentDasha);
 
+  // Enrich a scene with GPT-4o-mini
+  const enrichScene = useCallback(async (sceneIdx: number) => {
+    if (enrichedTexts[sceneIdx] || loadingScene === sceneIdx) return;
+    const scene = scenes[sceneIdx];
+    if (!scene) return;
+    setLoadingScene(sceneIdx);
+    try {
+      const res = await fetch('/api/enrich-story', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name, sceneIndex: sceneIdx, sceneTitle: scene.title,
+          lifeAge: scene.lifeAge, lagnaSign, moonSign, sunSign,
+          birthYear, birthCity: '', currentDasha, planet: scene.planet,
+          planets,
+        }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.enriched) {
+          setEnrichedTexts(prev => ({ ...prev, [sceneIdx]: data.enriched }));
+        }
+      }
+    } catch {
+      // Silently fail — fall back to local narrative text
+    } finally {
+      setLoadingScene(null);
+    }
+  }, [enrichedTexts, loadingScene, scenes, name, lagnaSign, moonSign, sunSign, birthYear, currentDasha, planets]);
+
+  // Auto-enrich current scene when it changes
+  useEffect(() => {
+    enrichScene(currentScene);
+  }, [currentScene, enrichScene]);
+
+  // Auto-play logic
   useEffect(() => {
     if (autoPlay) {
       autoPlayRef.current = setInterval(() => {
@@ -515,6 +553,13 @@ export default function StoryAnimator({
   const goNext = () => setCurrentScene(prev => Math.min(prev + 1, scenes.length - 1));
   const goPrev = () => setCurrentScene(prev => Math.max(prev - 1, 0));
   const scene = scenes[currentScene];
+
+  // Merge enriched text or show loading state
+  const displayScene = {
+    ...scene,
+    narrativeText: enrichedTexts[currentScene] || scene.narrativeText,
+  };
+  const isEnriching = loadingScene === currentScene;
 
   return (
     <div className={`relative ${isFullscreen ? 'fixed inset-0 z-50' : 'w-full rounded-2xl overflow-hidden'}`}>
@@ -531,12 +576,25 @@ export default function StoryAnimator({
           {isFullscreen ? '⊙ Exit' : '⛶ Full'}
         </button>
       </div>
+      {/* AI enrichment indicator */}
+      {isEnriching && (
+        <div className="absolute top-14 right-4 z-50 flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/50 backdrop-blur-md border border-white/10">
+          <motion.div className="w-2 h-2 rounded-full bg-emerald-400"
+            animate={{ opacity: [0.4, 1, 0.4] }} transition={{ duration: 0.8, repeat: Infinity }} />
+          <span className="text-[10px] text-white/60">AI enriching story…</span>
+        </div>
+      )}
+      {enrichedTexts[currentScene] && !isEnriching && (
+        <div className="absolute top-14 right-4 z-50 flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/50 backdrop-blur-md border border-emerald-500/30">
+          <span className="text-[10px] text-emerald-400">✨ AI-enhanced</span>
+        </div>
+      )}
       <div className={`relative ${isFullscreen ? 'h-screen' : 'h-[85vh] min-h-[600px]'}`}>
         <AnimatePresence mode="wait">
           <motion.div key={currentScene} className="absolute inset-0"
             initial={{ opacity: 0, x: 60 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -60 }}
             transition={{ duration: 0.8, ease: 'easeInOut' }}>
-            <CinematicScene scene={scene} name={name} planets={planets} />
+            <CinematicScene scene={displayScene} name={name} planets={planets} />
           </motion.div>
         </AnimatePresence>
       </div>
