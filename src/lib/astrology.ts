@@ -1779,6 +1779,10 @@ export interface FullReading {
   remedies: string;
   storyNarrative: string;
   storyEvents: StoryEvent[];
+  // User profile pass-through (for AI personalization)
+  maritalStatus: string;
+  employment: string;
+  concern: string;
 }
 
 // ─── Master Function ──────────────────
@@ -1937,5 +1941,8 @@ export function generateFullReading(input: ReadingInput): FullReading {
     remedies,
     storyNarrative,
     storyEvents,
+    maritalStatus: input.maritalStatus ?? '',
+    employment: input.employment ?? '',
+    concern: input.concern ?? '',
   };
 }
