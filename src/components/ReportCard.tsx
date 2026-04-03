@@ -299,7 +299,17 @@ export default function ReportCard({ t, reading }: ReportCardProps) {
         )}
 
         {tab === 'Story' && (
-          <StoryAnimator name={reading.name} storyText={reading.storyNarrative} />
+          <StoryAnimator
+            name={reading.name}
+            storyText={reading.storyNarrative}
+            storyEvents={reading.storyEvents}
+            lagnaSign={reading.lagnaSign}
+            moonSign={reading.moonSign}
+            sunSign={reading.sunSign}
+            birthYear={parseInt(reading.dob?.split('-')[0] || '1990', 10)}
+            planets={reading.planets}
+            currentDasha={reading.currentDasha}
+          />
         )}
       </motion.div>
 
