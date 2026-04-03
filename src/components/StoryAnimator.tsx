@@ -767,7 +767,12 @@ export default function StoryAnimator({
       if (res.ok) {
         const data = await res.json();
         if (data.enriched) {
-          setEnrichedTexts(prev => ({ ...prev, [sceneIdx]: data.enriched }));
+          // Replace anonymisation token with real first name
+          const firstName = name.trim().split(/\s+/)[0];
+          const corrected = data.enriched
+            .replace(/\bthe Seeker\b/g, firstName)
+            .replace(/\bThe Seeker\b/g, firstName);
+          setEnrichedTexts(prev => ({ ...prev, [sceneIdx]: corrected }));
         }
       }
     } catch {

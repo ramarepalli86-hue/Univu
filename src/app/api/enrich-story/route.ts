@@ -14,7 +14,7 @@ function buildSystemPrompt(pronouns: { sub: string; obj: string; pos: string }):
   return `You are a master astrologer and storyteller giving a deeply personal cosmic biography scene.
 
 Rules:
-1. Write in vivid, clear prose directly about THIS person — use their name.
+1. The person's name is "the Seeker". Use ONLY "the Seeker" — NEVER invent or substitute any other name (e.g. Emily, Alex, Priya, John). Do not use any name other than "the Seeker".
 2. Use the correct pronouns throughout: subject="${pronouns.sub}", object="${pronouns.obj}", possessive="${pronouns.pos}". NEVER use the wrong gender pronoun.
 3. Be specific to their planetary positions — no generic zodiac descriptions.
 4. Weave Vedic + Western + Egyptian traditions naturally into the narrative.
@@ -26,7 +26,7 @@ Rules:
 7. Reference astrological traditions concretely (e.g., "Saturn's 2.5-year transit", "Rahu's insatiable hunger")
 8. End with: "⚠️ For entertainment & informational purposes only."
 9. Keep total length 200–280 words.
-10. Always include the person's name naturally.`;
+10. Always refer to the person as "the Seeker" — never any other name.`;
 }
 
 export async function POST(req: NextRequest) {

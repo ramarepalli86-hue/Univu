@@ -259,7 +259,14 @@ function AISection({ sectionId, reading }: { sectionId: string; reading: FullRea
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ section: sectionId, context: ctx }),
       });
-      if (res.ok) { const d = await res.json(); if (d.text) setText(d.text); }
+      if (res.ok) { const d = await res.json(); if (d.text) {
+        // Replace the anonymisation token "the Seeker" with the user's real first name
+        const firstName = reading.name.trim().split(/\s+/)[0];
+        const corrected = d.text
+          .replace(/\bthe Seeker\b/g, firstName)
+          .replace(/\bThe Seeker\b/g, firstName);
+        setText(corrected);
+      } }
     } catch { /* silent */ } finally { setLoading(false); setFetched(true); }
   }, [sectionId, reading, fetched, loading]);
 
