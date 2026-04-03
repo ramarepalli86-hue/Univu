@@ -17,40 +17,40 @@
     position: fixed;
     inset: 0;
     background:
-      radial-gradient(ellipse at 15% 0%,   rgba(196,130,10,0.05) 0%, transparent 50%),
-      radial-gradient(ellipse at 85% 100%, rgba(17,74,74,0.06)   0%, transparent 50%),
-      radial-gradient(ellipse at 50% 50%,  rgba(139,26,26,0.02)  0%, transparent 70%);
+      radial-gradient(ellipse at 15% 0%,   rgba(26,107,107,0.06) 0%, transparent 50%),
+      radial-gradient(ellipse at 85% 100%, rgba(212,136,10,0.05)   0%, transparent 50%),
+      radial-gradient(ellipse at 50% 50%,  rgba(42,138,138,0.03)  0%, transparent 70%);
     pointer-events: none;
     z-index: 0;
   }
 
   #__next, main, [data-nextjs-scroll-focus-boundary] { position: relative; z-index: 1; }
 
-  ::selection { background: rgba(196,130,10,0.2); color: #4A0A0A; }
+  ::selection { background: rgba(26,107,107,0.18); color: #0A3535; }
 
   h1, h2, h3, h4, h5 {
     font-family: 'Noto Serif Devanagari', Georgia, serif;
     color: #1E1B17;
   }
 
-  a { color: #8B1A1A; }
-  a:hover { color: #C4820A; }
+  a { color: #1A6B6B; }
+  a:hover { color: #D4880A; }
 }
 
 @layer components {
 
-  /* ── Primary button — maroon-to-gold gradient, luxury brand feel ─────── */
+  /* ── Primary button — teal-to-amber gradient ─────── */
   .btn-primary {
     @apply px-8 py-3 rounded-xl font-semibold transition-all duration-200
            disabled:opacity-40 disabled:cursor-not-allowed;
-    background: linear-gradient(135deg, #8B1A1A 0%, #B84A00 45%, #C4820A 100%);
+    background: linear-gradient(135deg, #1A6B6B 0%, #1E8080 45%, #D4880A 100%);
     color: #FFFDF8;
     letter-spacing: 0.02em;
-    box-shadow: 0 2px 12px rgba(139,26,26,0.25), 0 1px 3px rgba(0,0,0,0.12);
+    box-shadow: 0 2px 12px rgba(26,107,107,0.25), 0 1px 3px rgba(0,0,0,0.12);
   }
   .btn-primary:hover:not(:disabled) {
-    background: linear-gradient(135deg, #A32020 0%, #C45800 45%, #D49820 100%);
-    box-shadow: 0 4px 20px rgba(139,26,26,0.30), 0 2px 6px rgba(0,0,0,0.14);
+    background: linear-gradient(135deg, #1E8080 0%, #2A9A9A 45%, #E69A20 100%);
+    box-shadow: 0 4px 20px rgba(26,107,107,0.30), 0 2px 6px rgba(0,0,0,0.14);
     transform: translateY(-1px);
   }
   .btn-primary:active:not(:disabled) { transform: translateY(0); }
@@ -72,10 +72,10 @@
   .card-main {
     background: #FFFFFF;
     border: 1px solid #E0DDD6;
-    border-top: 3px solid #8B1A1A;
+    border-top: 3px solid #1A6B6B;
     border-radius: 1rem;
     padding: 1.75rem;
-    box-shadow: 0 4px 24px rgba(139,26,26,0.07), 0 1px 4px rgba(0,0,0,0.05);
+    box-shadow: 0 4px 24px rgba(26,107,107,0.08), 0 1px 4px rgba(0,0,0,0.05);
   }
 
   .card-accent {
@@ -113,9 +113,9 @@
 
   /* ── Toggle / option buttons ─────────────────────────────────────────── */
   .tab-active {
-    background: linear-gradient(135deg, rgba(139,26,26,0.10) 0%, rgba(196,130,10,0.08) 100%);
-    border: 1.5px solid #8B1A1A;
-    color: #6B1414;
+    background: linear-gradient(135deg, rgba(26,107,107,0.10) 0%, rgba(212,136,10,0.08) 100%);
+    border: 1.5px solid #1A6B6B;
+    color: #1A4A4A;
     font-weight: 600;
   }
   .tab-inactive {
@@ -132,14 +132,14 @@
   /* ── Section headings ────────────────────────────────────────────────── */
   .section-heading {
     @apply text-lg font-display font-semibold flex items-center gap-2;
-    color: #6B1414;
+    color: #1A6B6B;
   }
 
-  /* ── Luxury divider — maroon-to-gold fade ────────────────────────────── */
+  /* ── Divider — teal-to-amber fade ────────────────────────────── */
   .gold-divider {
     border: none;
     height: 1.5px;
-    background: linear-gradient(90deg, transparent 0%, #8B1A1A 30%, #C4820A 70%, transparent 100%);
+    background: linear-gradient(90deg, transparent 0%, #1A6B6B 30%, #D4880A 70%, transparent 100%);
     opacity: 0.25;
   }
 
@@ -164,11 +164,11 @@
     color: #5E584F;
   }
 
-  /* ── Luxury badge — maroon-gold ──────────────────────────────────────── */
+  /* ── Luxury badge — teal-amber ──────────────────────────────────────── */
   .badge-gold {
-    background: linear-gradient(135deg, rgba(139,26,26,0.10) 0%, rgba(196,130,10,0.08) 100%);
-    border: 1px solid rgba(196,130,10,0.35);
-    color: #8B1A1A;
+    background: linear-gradient(135deg, rgba(26,107,107,0.10) 0%, rgba(212,136,10,0.08) 100%);
+    border: 1px solid rgba(212,136,10,0.35);
+    color: #1A6B6B;
     border-radius: 9999px;
     padding: 0.2rem 0.75rem;
     font-size: 0.7rem;

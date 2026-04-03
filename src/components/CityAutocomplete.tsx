@@ -57,15 +57,19 @@ export default function CityAutocomplete({ value, onChange, placeholder, label, 
         autoComplete="off"
       />
       {open && suggestions.length > 0 && (
-        <ul className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden max-h-60 overflow-y-auto">
+        <ul className="absolute z-50 w-full mt-1 bg-white rounded-xl shadow-lg overflow-hidden max-h-60 overflow-y-auto"
+          style={{ border: '1px solid rgba(26,107,107,0.18)' }}>
           {suggestions.map((entry, i) => (
             <li
               key={`${entry.city}-${entry.state}-${i}`}
               onClick={() => handleSelect(entry)}
-              className="px-4 py-3 hover:bg-saffron-50 cursor-pointer transition-colors border-b border-gray-100 last:border-0"
+              className="px-4 py-3 cursor-pointer transition-colors border-b last:border-0"
+              style={{ borderColor: 'rgba(26,107,107,0.08)' }}
+              onMouseEnter={e => { (e.currentTarget as HTMLLIElement).style.background = 'rgba(26,107,107,0.06)'; }}
+              onMouseLeave={e => { (e.currentTarget as HTMLLIElement).style.background = ''; }}
             >
-              <span className="font-medium text-gray-800">{entry.city}</span>
-              <span className="text-sm text-gray-500 ml-1">
+              <span className="font-medium" style={{ color: '#1E1B17' }}>{entry.city}</span>
+              <span className="text-sm ml-1" style={{ color: '#6A7A72' }}>
                 {entry.state}, {entry.country}
               </span>
             </li>

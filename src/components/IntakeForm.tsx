@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { IoSparkles } from 'react-icons/io5';
+import { IoSparkles, IoLocate } from 'react-icons/io5';
 import LanguageSelector from './LanguageSelector';
 import CityAutocomplete from './CityAutocomplete';
 import { Locale } from '@/i18n';
@@ -20,6 +20,7 @@ export interface IntakeFormData {
   currentLat: number;
   currentLng: number;
   chartType: 'north' | 'south';
+  tradition: 'vedic' | 'western' | 'chinese' | 'egyptian' | 'mayan' | 'all';
   maritalStatus: 'single' | 'married' | 'divorced' | 'widowed';
   employment: 'employed' | 'self-employed' | 'student' | 'unemployed' | 'retired';
   concern: string;
@@ -35,438 +36,343 @@ interface IntakeFormProps {
   loading?: boolean;
 }
 
-// ─── Date helpers ─────────────────────────────────────────────────────────────
-const MONTHS = [
-  'January','February','March','April','May','June',
-  'July','August','September','October','November','December',
-];
+const TEAL = '#1A6B6B';
+const TEAL_L = '#2A8A8A';
+const AMBER = '#D4880A';
+const TEXT = '#1E1B17';
+const TEXT_MID = '#4A4540';
+const TEXT_MUTED = '#7A7268';
+const LABEL_C = '#1A4A4A';
+const BG_WHITE = '#FFFFFF';
+const BORDER = '#DDD8CE';
+const TEAL_BG = 'rgba(26,107,107,0.07)';
+const TEAL_BR = 'rgba(26,107,107,0.22)';
+const AMBER_BG = 'rgba(212,136,10,0.08)';
 
-function daysInMonth(month: number, year: number): number {
-  if (!month || !year) return 31;
-  return new Date(year, month, 0).getDate();
-}
+const inputBase = 'w-full px-4 py-3 rounded-xl text-sm outline-none transition-all duration-200 appearance-none';
+const inputSt = { background: BG_WHITE, border: `1.5px solid ${BORDER}`, color: TEXT } as React.CSSProperties;
+const focusSt = { borderColor: TEAL, boxShadow: '0 0 0 3px rgba(26,107,107,0.12)' } as React.CSSProperties;
 
-function pad2(n: number | string): string {
-  return String(n).padStart(2, '0');
-}
+const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 
-// ─── DOB Picker Component ─────────────────────────────────────────────────────
-function DOBPicker({
-  value,
-  onChange,
-}: {
-  value: string; // "YYYY-MM-DD"
-  onChange: (v: string) => void;
+function daysInMonth(m: number, y: number) { if (!m || !y) return 31; return new Date(y, m, 0).getDate(); }
+function p2(n: number | string) { return String(n).padStart(2, '0'); }
+
+function Sel({ val, onChange, req, children, grow = '1' }: {
+  val: string | number; onChange: (v: string) => void; req?: boolean;
+  children: React.ReactNode; grow?: string;
 }) {
-  const currentYear = new Date().getFullYear();
-  const parts = value ? value.split('-') : ['', '', ''];
-  const selYear  = parts[0] ? parseInt(parts[0], 10) : 0;
-  const selMonth = parts[1] ? parseInt(parts[1], 10) : 0;
-  const selDay   = parts[2] ? parseInt(parts[2], 10) : 0;
-
-  const maxDays = daysInMonth(selMonth, selYear);
-  const years = Array.from({ length: currentYear - 1900 }, (_, i) => currentYear - i);
-
-  function emit(y: number, m: number, d: number) {
-    if (y && m && d) {
-      // Clamp day if month changes and day > maxDays
-      const max = daysInMonth(m, y);
-      const safeDay = Math.min(d, max);
-      onChange(`${y}-${pad2(m)}-${pad2(safeDay)}`);
-    } else {
-      onChange('');
-    }
-  }
-
-  const selectClass =
-    'flex-1 rounded-xl border px-3 py-2.5 text-sm appearance-none cursor-pointer outline-none transition-all duration-200' +
-    ' bg-[#FDFCF9] border-[#D4CEC4] text-[#1E1B17]' +
-    ' focus:ring-2 focus:ring-[rgba(17,74,74,0.12)] focus:border-[#114A4A]';
-
+  const [f, setF] = useState(false);
   return (
-    <div className="flex gap-2">
-      {/* Day */}
-      <div className="relative flex-1">
-        <select
-          value={selDay || ''}
-          onChange={e => emit(selYear, selMonth, parseInt(e.target.value, 10))}
-          className={selectClass}
-          required
-        >
-          <option value="">Day</option>
-          {Array.from({ length: maxDays }, (_, i) => i + 1).map(d => (
-            <option key={d} value={d}>{pad2(d)}</option>
-          ))}
-        </select>
-        <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-xs" style={{color:"#114A4A"}}>▾</span>
-      </div>
-
-      {/* Month */}
-      <div className="relative flex-[1.6]">
-        <select
-          value={selMonth || ''}
-          onChange={e => emit(selYear, parseInt(e.target.value, 10), selDay)}
-          className={selectClass}
-          required
-        >
-          <option value="">Month</option>
-          {MONTHS.map((m, i) => (
-            <option key={i + 1} value={i + 1}>{m}</option>
-          ))}
-        </select>
-        <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-xs" style={{color:"#114A4A"}}>▾</span>
-      </div>
-
-      {/* Year */}
-      <div className="relative flex-[1.4]">
-        <select
-          value={selYear || ''}
-          onChange={e => emit(parseInt(e.target.value, 10), selMonth, selDay)}
-          className={selectClass}
-          required
-        >
-          <option value="">Year</option>
-          {years.map(y => (
-            <option key={y} value={y}>{y}</option>
-          ))}
-        </select>
-        <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-xs" style={{color:"#114A4A"}}>▾</span>
-      </div>
+    <div className="relative min-w-0" style={{ flex: grow }}>
+      <select value={val} onChange={e => onChange(e.target.value)} required={req}
+        onFocus={() => setF(true)} onBlur={() => setF(false)}
+        className={`${inputBase} cursor-pointer pr-8`}
+        style={{ ...inputSt, ...(f ? focusSt : {}) }}>
+        {children}
+      </select>
+      <span className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-xs" style={{ color: TEAL }}>▾</span>
     </div>
   );
 }
 
-// ─── Time Picker Component ────────────────────────────────────────────────────
-function TimePicker({
-  value,
-  onChange,
-}: {
-  value: string; // "HH:MM"
-  onChange: (v: string) => void;
-}) {
-  const parts = value ? value.split(':') : ['', ''];
-  const selHour   = parts[0] !== '' ? parseInt(parts[0], 10) : -1;
-  const selMinute = parts[1] !== '' ? parseInt(parts[1], 10) : -1;
+function DOBPicker({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  const cy = new Date().getFullYear();
+  const [yr, mo, dy] = value ? value.split('-').map(Number) : [0, 0, 0];
+  const maxD = daysInMonth(mo, yr);
+  const years = Array.from({ length: cy - 1899 }, (_, i) => cy - i);
 
-  function emit(h: number, m: number) {
-    if (h >= 0 && m >= 0) onChange(`${pad2(h)}:${pad2(m)}`);
+  function emit(y: number, m: number, d: number) {
+    if (y && m && d) onChange(`${y}-${p2(m)}-${p2(Math.min(d, daysInMonth(m, y)))}`);
     else onChange('');
   }
 
-  const selectClass =
-    'flex-1 rounded-xl border px-3 py-2.5 text-sm appearance-none cursor-pointer outline-none transition-all duration-200' +
-    ' bg-[#FDFCF9] border-[#D4CEC4] text-[#1E1B17]' +
-    ' focus:ring-2 focus:ring-[rgba(17,74,74,0.12)] focus:border-[#114A4A]';
-
   return (
     <div className="flex gap-2">
-      {/* Hour */}
-      <div className="relative flex-1">
-        <select
-          value={selHour >= 0 ? selHour : ''}
-          onChange={e => emit(parseInt(e.target.value, 10), selMinute >= 0 ? selMinute : 0)}
-          className={selectClass}
-        >
-          <option value="">Hr</option>
-          {Array.from({ length: 24 }, (_, i) => i).map(h => (
-            <option key={h} value={h}>
-              {pad2(h)} {h < 12 ? 'AM' : 'PM'} ({h === 0 ? '12AM' : h <= 12 ? `${h}AM` : `${h - 12}PM`})
-            </option>
-          ))}
-        </select>
-        <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-xs" style={{color:"#114A4A"}}>▾</span>
-      </div>
-
-      {/* Minute — every 5 min for easy selection */}
-      <div className="relative flex-1">
-        <select
-          value={selMinute >= 0 ? selMinute : ''}
-          onChange={e => emit(selHour >= 0 ? selHour : 12, parseInt(e.target.value, 10))}
-          className={selectClass}
-        >
-          <option value="">Min</option>
-          {Array.from({ length: 60 }, (_, i) => i).map(m => (
-            <option key={m} value={m}>{pad2(m)}</option>
-          ))}
-        </select>
-        <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-xs" style={{color:"#114A4A"}}>▾</span>
-      </div>
+      <Sel val={dy || ''} onChange={v => emit(yr, mo, Number(v))} req grow="1">
+        <option value="">Day</option>
+        {Array.from({ length: maxD }, (_, i) => i + 1).map(d => <option key={d} value={d}>{p2(d)}</option>)}
+      </Sel>
+      <Sel val={mo || ''} onChange={v => emit(yr, Number(v), dy)} req grow="1.6">
+        <option value="">Month</option>
+        {MONTHS.map((m, i) => <option key={i+1} value={i+1}>{m}</option>)}
+      </Sel>
+      <Sel val={yr || ''} onChange={v => emit(Number(v), mo, dy)} req grow="1.4">
+        <option value="">Year</option>
+        {years.map(y => <option key={y} value={y}>{y}</option>)}
+      </Sel>
     </div>
   );
 }
 
+function TimePicker({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  const [h, m] = value ? value.split(':').map(Number) : [-1, -1];
+  function emit(hh: number, mm: number) { if (hh >= 0 && mm >= 0) onChange(`${p2(hh)}:${p2(mm)}`); else onChange(''); }
+  return (
+    <div className="flex gap-2">
+      <Sel val={h >= 0 ? h : ''} onChange={v => emit(Number(v), m >= 0 ? m : 0)} grow="1.2">
+        <option value="">Hour</option>
+        {Array.from({ length: 24 }, (_, i) => i).map(hh => (
+          <option key={hh} value={hh}>{p2(hh)} ({hh === 0 ? '12 AM' : hh < 12 ? `${hh} AM` : hh === 12 ? '12 PM' : `${hh-12} PM`})</option>
+        ))}
+      </Sel>
+      <Sel val={m >= 0 ? m : ''} onChange={v => emit(h >= 0 ? h : 0, Number(v))} grow="1">
+        <option value="">Min</option>
+        {Array.from({ length: 60 }, (_, i) => i).map(mm => <option key={mm} value={mm}>{p2(mm)}</option>)}
+      </Sel>
+    </div>
+  );
+}
+
+function Chip({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {
+  return (
+    <button type="button" onClick={onClick}
+      className="flex-1 py-2.5 px-2 rounded-xl text-sm font-medium transition-all duration-150 border"
+      style={active
+        ? { background: `linear-gradient(135deg,${TEAL_BG},${AMBER_BG})`, border: `1.5px solid ${TEAL}`, color: TEAL, fontWeight: 600 }
+        : { background: BG_WHITE, border: `1.5px solid ${BORDER}`, color: TEXT_MID }}>
+      {children}
+    </button>
+  );
+}
+
+function Lbl({ children }: { children: React.ReactNode }) {
+  return <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5" style={{ color: LABEL_C }}>{children}</label>;
+}
+
+const TRADITIONS = [
+  { v: 'all'      as const, icon: '🌍', name: 'All Systems',  desc: 'Vedic + Western + Chinese + Egyptian' },
+  { v: 'vedic'    as const, icon: '🕉️', name: 'Vedic',        desc: 'Jyotish, Nakshatras, Dashas' },
+  { v: 'western'  as const, icon: '♈', name: 'Western',       desc: 'Tropical zodiac & houses' },
+  { v: 'chinese'  as const, icon: '☯️', name: 'Chinese',       desc: 'Zodiac animal, elements' },
+  { v: 'egyptian' as const, icon: '𓂀', name: 'Egyptian',      desc: 'Decans, gods of hour' },
+  { v: 'mayan'    as const, icon: '☀️', name: 'Mayan',         desc: 'Tzolkin, day signs' },
+];
+
 export default function IntakeForm({ t, locale, onLocaleChange, onSubmit, loading }: IntakeFormProps) {
   const [form, setForm] = useState<IntakeFormData>({
-    name: '',
-    dob: '',
-    timeOfBirth: '',
-    birthCity: '',
-    birthLat: 0,
-    birthLng: 0,
+    name: '', dob: '', timeOfBirth: '',
+    birthCity: '', birthLat: 0, birthLng: 0,
     gender: 'male',
-    currentCity: '',
-    currentLat: 0,
-    currentLng: 0,
-    chartType: 'north',
-    maritalStatus: 'single',
-    employment: 'employed',
-    concern: '',
-    consent: false,
-    language: locale,
+    currentCity: '', currentLat: 0, currentLng: 0,
+    chartType: 'north', tradition: 'all',
+    maritalStatus: 'single', employment: 'employed',
+    concern: '', consent: false, language: locale,
   });
+  const [gpsLoading, setGpsLoading] = useState(false);
+  const [gpsError, setGpsError] = useState('');
 
-  function update(field: keyof IntakeFormData, value: string | boolean | number) {
-    setForm((prev) => ({ ...prev, [field]: value }));
+  const upd = useCallback((f: keyof IntakeFormData, v: string | boolean | number) =>
+    setForm(p => ({ ...p, [f]: v })), []);
+
+  function onBirth(val: string, e?: CityEntry) {
+    if (e) setForm(p => ({ ...p, birthCity: val, birthLat: e.lat, birthLng: e.lng }));
+    else upd('birthCity', val);
+  }
+  function onCurrent(val: string, e?: CityEntry) {
+    if (e) setForm(p => ({ ...p, currentCity: val, currentLat: e.lat, currentLng: e.lng }));
+    else upd('currentCity', val);
   }
 
-  function handleBirthCityChange(value: string, entry?: CityEntry) {
-    update('birthCity', value);
-    if (entry) {
-      setForm((prev) => ({ ...prev, birthCity: value, birthLat: entry.lat, birthLng: entry.lng }));
-    }
+  function detectGPS() {
+    if (!navigator.geolocation) { setGpsError('Geolocation not supported'); return; }
+    setGpsLoading(true); setGpsError('');
+    navigator.geolocation.getCurrentPosition(async pos => {
+      const { latitude: lat, longitude: lng } = pos.coords;
+      try {
+        const r = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`);
+        const d = await r.json();
+        const city = d.address?.city || d.address?.town || d.address?.village || d.address?.county || '';
+        const state = d.address?.state || '';
+        const cc = (d.address?.country_code || '').toUpperCase();
+        const label = [city, state, cc].filter(Boolean).join(', ');
+        setForm(p => ({ ...p, currentCity: label, currentLat: lat, currentLng: lng }));
+      } catch {
+        setForm(p => ({ ...p, currentCity: `${lat.toFixed(2)}, ${lng.toFixed(2)}`, currentLat: lat, currentLng: lng }));
+      }
+      setGpsLoading(false);
+    }, err => {
+      setGpsError(err.code === 1 ? 'Location permission denied' : 'Could not detect location');
+      setGpsLoading(false);
+    }, { timeout: 10000 });
   }
 
-  function handleCurrentCityChange(value: string, entry?: CityEntry) {
-    update('currentCity', value);
-    if (entry) {
-      setForm((prev) => ({ ...prev, currentCity: value, currentLat: entry.lat, currentLng: entry.lng }));
-    }
-  }
+  function handleSubmit(e: React.FormEvent) { e.preventDefault(); if (!form.consent) return; onSubmit({ ...form, language: locale }); }
 
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    if (!form.consent) return;
-    onSubmit({ ...form, language: locale });
-  }
+  const age = (() => {
+    if (!form.dob) return null;
+    const b = new Date(form.dob), now = new Date();
+    let a = now.getFullYear() - b.getFullYear();
+    if (now.getMonth() - b.getMonth() < 0 || (now.getMonth() === b.getMonth() && now.getDate() < b.getDate())) a--;
+    return a;
+  })();
 
-  function getAge(dob: string): number | null {
-    if (!dob) return null;
-    const birth = new Date(dob);
-    const today = new Date();
-    let age = today.getFullYear() - birth.getFullYear();
-    const m = today.getMonth() - birth.getMonth();
-    if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
-    return age;
-  }
-
-  const age = getAge(form.dob);
-  const isUnderage = age !== null && age < 21;
-
-  const btnClass = (active: boolean) =>
-    `flex-1 py-2.5 rounded-xl text-sm font-medium transition-all border ${
-      active
-        ? 'bg-gradient-to-r from-[rgba(139,26,26,0.10)] to-[rgba(196,130,10,0.08)] border-[#8B1A1A] text-[#6B1414] font-semibold'
-        : 'bg-white border-[#D4CEC4] text-[#5E584F] hover:border-[#114A4A] hover:text-[#0A3535] hover:bg-[#F0F8F8]'
-    }`;
+  const showVedicStyle = form.tradition === 'vedic' || form.tradition === 'all';
 
   return (
-    <motion.form
-      onSubmit={handleSubmit}
-      initial={{ opacity: 0, y: 30 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-      className="card-main max-w-2xl mx-auto space-y-5"
-    >
-      {/* Header + Language */}
-      <div className="flex items-center justify-between flex-wrap gap-3">
-        <h2 className="text-xl font-display font-semibold" style={{ color: '#6B1414' }}>
-          {t.start_reading || 'Begin Your Reading'}
-        </h2>
-        <LanguageSelector current={locale} onChange={onLocaleChange} />
-      </div>
+    <motion.form onSubmit={handleSubmit}
+      initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}
+      className="max-w-2xl mx-auto rounded-2xl overflow-hidden"
+      style={{ background: BG_WHITE, boxShadow: '0 8px 48px rgba(26,107,107,0.10), 0 2px 8px rgba(0,0,0,0.06)', border: `1px solid ${BORDER}` }}>
 
-      {/* Name */}
-      <div>
-        <label className="block text-sm font-medium text-[#5E584F] mb-1.5">
-          {t.form_name || 'Full Name'}
-        </label>
-        <input type="text" required value={form.name} onChange={(e) => update('name', e.target.value)} className="input-field" placeholder="e.g. Rama Krishna" />
-      </div>
+      {/* Rainbow top stripe */}
+      <div className="h-1.5 w-full" style={{ background: `linear-gradient(90deg, ${TEAL}, ${AMBER}, ${TEAL_L})` }} />
 
-      {/* DOB + Time side by side */}
-      <div className="grid sm:grid-cols-2 gap-4">
+      <div className="p-5 sm:p-7 space-y-6">
+
+        {/* Header row */}
+        <div className="flex items-center justify-between flex-wrap gap-3">
+          <div>
+            <h2 className="text-lg font-semibold" style={{ fontFamily: 'Cinzel, Georgia, serif', color: TEAL }}>Your Cosmic Blueprint</h2>
+            <p className="text-xs mt-0.5" style={{ color: TEXT_MUTED }}>Fill in your details for a personalised reading</p>
+          </div>
+          <LanguageSelector current={locale} onChange={onLocaleChange} />
+        </div>
+
+        {/* Tradition */}
         <div>
-          <label className="block text-sm font-medium text-[#5E584F] mb-1.5">
-            {t.form_dob || 'Date of Birth'}
-          </label>
-          <DOBPicker value={form.dob} onChange={v => update('dob', v)} />
-          {form.dob && (
-            <p className="text-xs mt-1.5 font-semibold" style={{ color: '#C4820A' }}>
-              📅 {new Date(form.dob + 'T12:00:00').toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' })}
-              {age !== null && ` · Age ${age}`}
-            </p>
-          )}
-          {isUnderage && age !== null && (
-            <p className="text-sm mt-1" style={{ color: '#8B1A1A' }}>
-              ✨ You&apos;ll receive encouraging guidance. Full readings are for 21+.
-            </p>
-          )}
+          <Lbl>Astrology Tradition</Lbl>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+            {TRADITIONS.map(tr => (
+              <button key={tr.v} type="button" onClick={() => upd('tradition', tr.v)}
+                className="rounded-xl p-2.5 text-left transition-all duration-150 border"
+                style={form.tradition === tr.v
+                  ? { background: `linear-gradient(135deg,${TEAL_BG},${AMBER_BG})`, border: `1.5px solid ${TEAL}` }
+                  : { background: '#FAFAF8', border: `1.5px solid ${BORDER}` }}>
+                <div className="text-sm font-semibold" style={{ color: form.tradition === tr.v ? TEAL : TEXT_MID }}>{tr.icon} {tr.name}</div>
+                <div className="text-[10px] mt-0.5 leading-tight" style={{ color: TEXT_MUTED }}>{tr.desc}</div>
+              </button>
+            ))}
+          </div>
         </div>
+
+        {/* Name */}
         <div>
-          <label className="block text-sm font-medium text-[#5E584F] mb-1.5">
-            {t.form_time || 'Time of Birth'}
-          </label>
-          <TimePicker value={form.timeOfBirth} onChange={v => update('timeOfBirth', v)} />
-          <p className="text-xs text-[#8A8278] mt-1">Optional — improves Lagna precision</p>
+          <Lbl>Full Name</Lbl>
+          <input type="text" required value={form.name} onChange={e => upd('name', e.target.value)}
+            className={inputBase} style={inputSt} placeholder="e.g. Arjun Mehta"
+            onFocus={e => Object.assign(e.target.style, focusSt)}
+            onBlur={e => { e.target.style.borderColor = BORDER; e.target.style.boxShadow = 'none'; }} />
         </div>
-      </div>
 
-      {/* Chart Type: North Indian vs South Indian */}
-      <div>
-        <label className="block text-sm font-medium text-[#5E584F] mb-1.5">
-          {t.form_chart_type || 'Chart Style'}
-        </label>
-        <div className="flex gap-3">
-          {([
-            { value: 'north' as const, label: '🕉️ North Indian' },
-            { value: 'south' as const, label: '🕉️ South Indian' },
-          ]).map((ct) => (
-            <button
-              key={ct.value}
-              type="button"
-              onClick={() => update('chartType', ct.value)}
-              className={btnClass(form.chartType === ct.value)}
-            >
-              {ct.label}
-            </button>
-          ))}
+        {/* DOB + Time */}
+        <div className="grid sm:grid-cols-2 gap-4">
+          <div>
+            <Lbl>Date of Birth</Lbl>
+            <DOBPicker value={form.dob} onChange={v => upd('dob', v)} />
+            {form.dob && age !== null && (
+              <p className="text-xs mt-1.5 font-medium" style={{ color: AMBER }}>
+                📅 {new Date(form.dob + 'T12:00:00').toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' })} · Age {age}
+              </p>
+            )}
+            {age !== null && age < 21 && <p className="text-xs mt-1" style={{ color: TEAL }}>✨ Guidance tailored for younger seekers</p>}
+          </div>
+          <div>
+            <Lbl>Time of Birth <span style={{ color: TEXT_MUTED, textTransform: 'none', fontWeight: 400, letterSpacing: 0 }}>(optional)</span></Lbl>
+            <TimePicker value={form.timeOfBirth} onChange={v => upd('timeOfBirth', v)} />
+            <p className="text-xs mt-1" style={{ color: TEXT_MUTED }}>Improves rising sign accuracy</p>
+          </div>
         </div>
-      </div>
 
-      {/* Birthplace */}
-      <div>
-        <label className="block text-sm font-medium text-[#5E584F] mb-1.5">
-          {t.form_birthplace || 'Place of Birth'}
-        </label>
-        <CityAutocomplete
-          value={form.birthCity}
-          onChange={handleBirthCityChange}
-          placeholder="e.g. Vijayawada"
-        />
-      </div>
-
-      {/* Gender */}
-      <div>
-        <label className="block text-sm font-medium text-[#5E584F] mb-1.5">
-          {t.form_gender || 'Gender'}
-        </label>
-        <div className="flex gap-3">
-          {(['male', 'female', 'other'] as const).map((g) => (
-            <button
-              key={g}
-              type="button"
-              onClick={() => update('gender', g)}
-              className={btnClass(form.gender === g)}
-            >
-              {g.charAt(0).toUpperCase() + g.slice(1)}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Marital Status */}
-      <div>
-        <label className="block text-sm font-medium text-[#5E584F] mb-1.5">
-          {t.form_marital || 'Marital Status'}
-        </label>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-          {([
-            { value: 'single' as const, label: 'Single' },
-            { value: 'married' as const, label: 'Married' },
-            { value: 'divorced' as const, label: 'Divorced' },
-            { value: 'widowed' as const, label: 'Widowed' },
-          ]).map((ms) => (
-            <button
-              key={ms.value}
-              type="button"
-              onClick={() => update('maritalStatus', ms.value)}
-              className={btnClass(form.maritalStatus === ms.value)}
-            >
-              {ms.label}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Employment Status */}
-      <div>
-        <label className="block text-sm font-medium text-[#5E584F] mb-1.5">
-          {t.form_employment || 'Employment Status'}
-        </label>
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-          {([
-            { value: 'employed' as const, label: 'Employed' },
-            { value: 'self-employed' as const, label: 'Self-Employed' },
-            { value: 'student' as const, label: 'Student' },
-            { value: 'unemployed' as const, label: 'Unemployed' },
-            { value: 'retired' as const, label: 'Retired' },
-          ]).map((emp) => (
-            <button
-              key={emp.value}
-              type="button"
-              onClick={() => update('employment', emp.value)}
-              className={btnClass(form.employment === emp.value)}
-            >
-              {emp.label}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Current Location */}
-      <div>
-        <label className="block text-sm font-medium text-[#5E584F] mb-1.5">
-          {t.form_location || 'Current Location'}
-        </label>
-        <CityAutocomplete
-          value={form.currentCity}
-          onChange={handleCurrentCityChange}
-          placeholder="e.g. San Francisco"
-        />
-      </div>
-
-      {/* Concern */}
-      <div>
-        <label className="block text-sm font-medium text-[#5E584F] mb-1.5">
-          {t.form_concern || 'Primary Concern'}
-        </label>
-        <textarea
-          required
-          rows={3}
-          value={form.concern}
-          onChange={(e) => update('concern', e.target.value)}
-          className="input-field resize-none"
-          placeholder="e.g. career, relationships, health..."
-        />
-      </div>
-
-      {/* Consent */}
-      <div style={{ background: 'rgba(17,74,74,0.05)', border: '1px solid rgba(17,74,74,0.15)', borderRadius: '0.75rem', padding: '1rem' }}>
-        <label className="flex items-start gap-3 cursor-pointer">
-          <input
-            type="checkbox"
-            checked={form.consent}
-            onChange={(e) => update('consent', e.target.checked)}
-            className="mt-1 w-4 h-4 rounded flex-shrink-0"
-            style={{ accentColor: '#114A4A' }}
-          />
-          <span className="text-sm leading-relaxed" style={{ color: '#3A3530' }}>
-            I understand this is for entertainment and informational purposes only and will consult a qualified astrologer for personal guidance.
-          </span>
-        </label>
-      </div>
-
-      {/* Submit */}
-      <button type="submit" disabled={!form.consent || loading} className="btn-primary w-full flex items-center justify-center gap-2">
-        {loading ? (
-          <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-        ) : (
-          <>
-            <IoSparkles />
-            {t.form_submit || 'Generate Reading'}
-          </>
+        {/* Vedic chart style */}
+        {showVedicStyle && (
+          <div>
+            <Lbl>Vedic Chart Style</Lbl>
+            <div className="flex gap-2">
+              <Chip active={form.chartType === 'north'} onClick={() => upd('chartType', 'north')}>🔷 North Indian</Chip>
+              <Chip active={form.chartType === 'south'} onClick={() => upd('chartType', 'south')}>🔶 South Indian</Chip>
+            </div>
+          </div>
         )}
-      </button>
+
+        {/* Birth place */}
+        <div>
+          <Lbl>Place of Birth</Lbl>
+          <CityAutocomplete value={form.birthCity} onChange={onBirth} placeholder="Start typing a city…" />
+        </div>
+
+        {/* Gender */}
+        <div>
+          <Lbl>Gender</Lbl>
+          <div className="flex gap-2">
+            <Chip active={form.gender === 'male'}   onClick={() => upd('gender', 'male')}>♂ Male</Chip>
+            <Chip active={form.gender === 'female'} onClick={() => upd('gender', 'female')}>♀ Female</Chip>
+            <Chip active={form.gender === 'other'}  onClick={() => upd('gender', 'other')}>⚥ Other</Chip>
+          </div>
+        </div>
+
+        {/* Marital + Employment */}
+        <div className="grid sm:grid-cols-2 gap-4">
+          <div>
+            <Lbl>Marital Status</Lbl>
+            <div className="grid grid-cols-2 gap-2">
+              {(['single','married','divorced','widowed'] as const).map(ms => (
+                <Chip key={ms} active={form.maritalStatus === ms} onClick={() => upd('maritalStatus', ms)}>
+                  {ms.charAt(0).toUpperCase() + ms.slice(1)}
+                </Chip>
+              ))}
+            </div>
+          </div>
+          <div>
+            <Lbl>Employment</Lbl>
+            <div className="grid grid-cols-2 gap-2">
+              {(['employed','self-employed','student','unemployed','retired'] as const).map(emp => (
+                <Chip key={emp} active={form.employment === emp} onClick={() => upd('employment', emp)}>
+                  {emp === 'self-employed' ? 'Self-Emp.' : emp.charAt(0).toUpperCase() + emp.slice(1)}
+                </Chip>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Current Location + GPS */}
+        <div>
+          <div className="flex items-center justify-between mb-1.5">
+            <Lbl>Current Location</Lbl>
+            <button type="button" onClick={detectGPS} disabled={gpsLoading}
+              className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg transition-all"
+              style={{ background: TEAL_BG, color: TEAL, border: `1px solid ${TEAL_BR}` }}>
+              {gpsLoading
+                ? <span className="w-3 h-3 border border-current border-t-transparent rounded-full animate-spin inline-block" />
+                : <IoLocate size={13} />}
+              {gpsLoading ? 'Detecting…' : 'Use My Location'}
+            </button>
+          </div>
+          <CityAutocomplete value={form.currentCity} onChange={onCurrent} placeholder="Search or use GPS ↑" />
+          {gpsError && <p className="text-xs mt-1" style={{ color: '#B84A00' }}>{gpsError}</p>}
+        </div>
+
+        {/* Concern */}
+        <div>
+          <Lbl>What would you like guidance on?</Lbl>
+          <textarea required rows={3} value={form.concern} onChange={e => upd('concern', e.target.value)}
+            className={`${inputBase} resize-none`} style={inputSt}
+            placeholder="e.g. career growth, relationships, health, finances, spiritual path…"
+            onFocus={e => Object.assign(e.target.style, focusSt)}
+            onBlur={e => { e.target.style.borderColor = BORDER; e.target.style.boxShadow = 'none'; }} />
+        </div>
+
+        {/* Consent */}
+        <div className="rounded-xl p-4" style={{ background: TEAL_BG, border: `1px solid ${TEAL_BR}` }}>
+          <label className="flex items-start gap-3 cursor-pointer">
+            <input type="checkbox" checked={form.consent} onChange={e => upd('consent', e.target.checked)}
+              className="mt-0.5 w-4 h-4 flex-shrink-0 rounded" style={{ accentColor: TEAL }} />
+            <span className="text-sm leading-relaxed" style={{ color: TEXT_MID }}>
+              I understand this reading is for entertainment and informational purposes only. I will consult a qualified astrologer for personal decisions.
+            </span>
+          </label>
+        </div>
+
+        {/* Submit */}
+        <button type="submit" disabled={!form.consent || loading}
+          className="w-full flex items-center justify-center gap-2.5 py-3.5 rounded-xl font-semibold text-base transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed"
+          style={{ background: `linear-gradient(135deg, ${TEAL} 0%, #1E8080 40%, ${AMBER} 100%)`, color: '#FFFFFF', letterSpacing: '0.03em', boxShadow: '0 4px 20px rgba(26,107,107,0.30)' }}>
+          {loading
+            ? <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+            : <><IoSparkles size={18} /> Reveal My Cosmic Blueprint</>}
+        </button>
+
+      </div>
     </motion.form>
   );
 }
