@@ -811,17 +811,17 @@ function getRashiTraitText(rashiIndex: number): string {
 
 function getDashaEffects(planet: string): string {
   const effects: Record<string, string> = {
-    Ketu: 'A period of spiritual awakening, detachment, sudden changes, and past-life karmic resolution.',
-    Venus: 'A period of love, beauty, luxury, marriage, artistic expression, and material comforts.',
-    Sun: 'A period of authority, recognition, government connections, father themes, and self-realization.',
-    Moon: 'A period of emotional growth, mother themes, public life, travel, and mental expansion.',
-    Mars: 'A period of courage, property, siblings, competition, surgery, and assertive action.',
-    Rahu: 'A period of worldly ambition, foreign connections, unconventional paths, and intense desires.',
-    Jupiter: 'A period of wisdom, expansion, children, education, dharma, and spiritual growth.',
-    Saturn: 'A period of discipline, hard work, delays, chronic challenges, service, and eventual mastery.',
-    Mercury: 'A period of communication, trade, intellect, education, writing, and nervous energy.',
+    Ketu: `A period of profound spiritual disruption and karmic reckoning. Ketu strips away the familiar — career stagnation, relationship detachment, a feeling of "what is the point?" are common. Past-life patterns surface painfully. You may lose interest in things that once excited you, feel isolated or misunderstood, and question your identity deeply. Health vulnerabilities around wounds, surgery, or mysterious ailments can arise. **However:** this is the most spiritually fertile period. Those who surrender to Ketu's lessons emerge with clarity, intuition, and psychic depth that no other planet gives. Siddhis (spiritual powers) are developed here. The key: don't resist the dissolution — let go and go within.`,
+    Venus: `A period of love, pleasure, and material abundance — but also the dangers of excess and indulgence. Relationships intensify; new romances bloom and existing bonds deepen. Financial gains through art, beauty, or partnerships are likely. **However:** Venus dasha can also bring over-attachment, jealousy, financial overspending, and relationship drama. If Venus is afflicted in your chart, this period may bring heartbreak, unrequited love, or conflict with women. Health vulnerabilities around kidneys, reproductive organs, and sugar metabolism arise. **Opportunity:** Channel Venus energy into creative output, genuine love, and beauty that serves others rather than merely consuming it.`,
+    Sun: `A period of authority, visibility, and ego confrontation. Career recognition, government dealings, and father-related themes dominate. Your willpower surges and leadership opportunities arrive. **However:** Sun dasha also brings ego clashes, conflict with authority figures, and health issues around the heart and eyes. Those with an afflicted Sun may face humiliation, political enemies, or a fall from grace. The father's health may be a concern. **Opportunity:** This is the time to step into your authentic leadership role — not through domination but through dharmic authority. The Sun asks: "Are you living your truth or just performing?"`,
+    Moon: `A period of heightened emotional sensitivity, public life, and maternal themes. The mind becomes more intuitive and psychic. Travel, popularity, and public exposure increase. **However:** Moon dasha brings emotional volatility, anxiety, sleep disturbances, and mental health challenges. If the Moon is afflicted, depression, fear, or paranoia can emerge. Relationships with women (especially the mother) become complicated. Water-related health issues, digestive problems, and fluctuating energy are common. **Opportunity:** Moon dasha is ideal for deepening emotional intelligence, healing childhood wounds, and building genuine public connection. The Moon asks you to feel — not escape — your emotional truth.`,
+    Mars: `A period of energy, courage, and assertive action — but also conflict, accidents, and inflammatory conditions. Property acquisition, sibling matters, and competitive endeavors come to the fore. **However:** Mars dasha is notorious for accidents, surgery, legal disputes, and relationship aggression. Temper flares lead to broken relationships. Manglik individuals experience this most intensely. Blood-related health issues, fevers, and injuries require caution — especially on roads and in physical confrontations. **Opportunity:** Mars energy, when channeled consciously, builds extraordinary physical and professional strength. Martial arts, athletics, surgery, real estate, and military pursuits all thrive. The key is redirecting aggression into disciplined action.`,
+    Rahu: `A period of obsessive ambition, worldly hunger, and karmic acceleration — one of the most volatile dashas. Rahu gives sudden rises but also sudden falls. Foreign opportunities, technology, unconventional relationships, and fame arrive. **However:** Rahu dasha brings confusion, deception (self-deception and from others), addictions, fear, anxiety, and an insatiable hunger that nothing satisfies. Relationships are unstable; unexpected betrayals occur. Health challenges are difficult to diagnose. The mind races with desires that feel urgent but lead nowhere. **Opportunity:** Rahu dasha is where worldly mastery is forged. Those who maintain clarity of dharma while riding Rahu's intensity can achieve what no other period allows. Ground yourself in daily ritual and clear values.`,
+    Jupiter: `A period of expansion, wisdom, and genuine good fortune — but also complacency and overextension. Children, education, legal matters, and spiritual guidance bring blessings. Wealth grows. Meaningful relationships deepen. **However:** Jupiter dasha can breed excess — weight gain, overconfidence, financial overextension, and self-righteousness. Those who take Jupiter's blessings for granted accumulate debts (material and karmic). Legal matters can also go wrong. **Opportunity:** Jupiter dasha is the period to invest in education, start meaningful ventures, deepen your spiritual practice, and give generously. The wealth and wisdom gained here, when shared, multiplies. The key: maintain humility and discipline even as doors open.`,
+    Saturn: `A period of profound testing, restructuring, and slow but permanent transformation — the most demanding mahadasha. Saturn strips away what is false, artificial, and comfortable. Career delays, relationship pressures, health challenges, and a sense of existential heaviness are common. This is where your karma arrives with receipts. **However:** Saturn dasha is NOT punishment — it is purification. The foundations built during Saturn's long tenure are the most durable of any dasha. Career breakthroughs come late but are permanent. Relationships that survive Saturn are for life. Health patterns are reshaped for long-term resilience. **Opportunity:** Embrace discipline, hard work, and radical honesty. Those who commit to their dharma during Saturn dasha emerge as the most solid, respected, and wise individuals. Saturn rewards patience and punishes shortcuts.`,
+    Mercury: `A period of intellectual sharpening, communication, trade, and education — but also anxiety, scattered focus, and nervous exhaustion. Writing, teaching, business, and technical skills all come alive. Social connections multiply. **However:** Mercury dasha brings overthinking, indecision, nervous system strain, skin issues, and communication misunderstandings. Those with an afflicted Mercury may face deception in business deals, exam failures, or reputation damage through wrong words. Respiratory and digestive sensitivity increases. **Opportunity:** Mercury dasha is ideal for learning new skills, launching communication businesses, writing, and building intellectual networks. The key is focus — Mercury's gift is wasted on scattered pursuits. Choose one direction and go deep.`,
   };
-  return effects[planet] || 'A period of unique karmic experiences.';
+  return effects[planet] || 'A period of unique karmic experiences that challenge and transform the soul in ways specific to this planetary energy.';
 }
 
 // ─── Report Generators (using correct PlanetPosition/DashaPeriod interfaces) ──
@@ -1597,64 +1597,94 @@ function generateStoryNarrative(
   manglik: ManglikStatus, sadeSati: SadeSatiStatus
 ): string {
   let s = '## Your Cosmic Life Story\n\n';
-  s += '*This narrative weaves together the threads of Vedic, Western, Egyptian, and Eastern astrological traditions into a single life tapestry. It is a poetic interpretation of your chart — for ENTERTAINMENT and INFORMATION only.*\n\n';
+  s += '*This narrative weaves Vedic, Western, Egyptian, and Mayan astrological traditions into one honest life tapestry — including real challenges, growth periods, and turning points. It is a poetic interpretation for ENTERTAINMENT and INFORMATION only.*\n\n';
 
   // Chapter 1: Birth
   const deity = NAKSHATRA_DEITIES[NAKSHATRAS.indexOf(moonNakshatraName)] || 'the cosmos';
   s += '### Chapter 1 — The Arrival\n\n';
-  s += 'In the year ' + birthYear + ', at a moment precisely ordained by the dance of celestial bodies, a soul chose to incarnate on Earth. The eastern horizon held the sign of **' + lagnaSign + '**, painting the world in its particular frequency of light. The Moon, that ancient mirror of the soul, rested in **' + moonSign + '**, within the sacred nakshatra of **' + moonNakshatraName + '** — the star governed by **' + deity + '**.\n\n';
-  s += name + ', this was not random. The ancient rishis of India, the priests of Heliopolis in Egypt, the stargazers of Babylon, and the daykeepers of the Maya all understood the same truth: the configuration of stars at birth is the soul\'s chosen curriculum for this lifetime.\n\n';
+  s += 'In the year ' + birthYear + ', at a moment ordained by the dance of celestial bodies, a soul entered the world. The eastern horizon held **' + lagnaSign + '** rising, shaping the body, instincts, and life approach. The Moon rested in **' + moonSign + '** within **' + moonNakshatraName + '** nakshatra, presided over by **' + deity + '** — the emotional blueprint for this lifetime.\n\n';
+  s += name + ', the ancient traditions are unanimous: the stars do not bring only ease. The same chart that shows your gifts maps your deepest struggles. Both are the curriculum. Both are sacred.\n\n';
 
-  // Chapter 2: Childhood
+  // Chapter 2: Childhood Dasha — real picture
   const firstDasha = dashaTimeline[0];
-  s += '### Chapter 2 — The Unfolding (Childhood)\n\n';
-  s += 'Your earliest years were colored by the **' + (firstDasha?.planet || 'unknown') + ' Mahadasha** — ';
+  const secondDasha = dashaTimeline[1];
+  s += '### Chapter 2 — The Formative Years (Childhood)\n\n';
+  s += 'Your earliest years unfolded under the **' + (firstDasha?.planet || 'planetary') + ' Mahadasha**:\n\n';
   s += getDashaEffects(firstDasha?.planet || '') + '\n\n';
-  s += 'As a child under ' + lagnaSign + ' rising, the seeds of your personality were already visible — ';
-  s += getRashiTraitText(VEDIC_RASHIS.indexOf(lagnaSign)) + ' These traits, barely formed, would sharpen and deepen with time.\n\n';
+  if (secondDasha) {
+    s += 'As childhood deepened, the **' + secondDasha.planet + ' Mahadasha** began (around age ' + (secondDasha.startAge || '?') + '). ';
+    s += 'The foundation you were given — emotional, financial, social — carried both gifts and wounds that would take years to understand. The Moon in ' + moonSign + ' means your emotional world was vivid and absorbing: you felt everything deeply, and early disappointments left marks alongside early joys.\n\n';
+  }
 
-  // Chapter 3: Education & Growth
+  // Chapter 3: Youth & Education
   s += '### Chapter 3 — The Awakening (Youth)\n\n';
   const jupiter = planets.find(p => p.name === 'Jupiter');
-  s += 'As adolescence arrived, Jupiter — the great teacher — began to awaken the intellect. ';
+  const mercury = planets.find(p => p.name === 'Mercury');
+  s += 'Adolescence brought the awakening of identity — and its challenges. Jupiter\'s placement in your chart shaped how you learned:\n';
   if (jupiter) {
-    s += 'With Jupiter in your ' + jupiter.rashi + ' (house ' + jupiter.house + '), the path of learning ';
-    if ([4, 5, 9].includes(jupiter.house)) s += 'was naturally strong — academic gifts, curiosity, and a philosophical bent marked these years.\n\n';
-    else if ([10, 11].includes(jupiter.house)) s += 'was directed toward practical skills and worldly ambitions from an early age.\n\n';
-    else s += 'unfolded in unique ways, shaped by the specific energies of house ' + jupiter.house + '.\n\n';
+    if ([4, 5, 9].includes(jupiter.house)) {
+      s += 'With Jupiter in house ' + jupiter.house + ', education came naturally — but so did overconfidence and the temptation to coast on natural talent rather than discipline.\n\n';
+    } else if (jupiter.house === 8 || jupiter.house === 12) {
+      s += 'With Jupiter in house ' + jupiter.house + ', your learning path was unconventional, perhaps disrupted, with gaps or detours that ultimately brought deeper wisdom than a straight path would have.\n\n';
+    } else {
+      s += 'Jupiter in house ' + jupiter.house + ' directed your curiosity toward ' + jupiter.rashi + ' themes — learning was shaped by both genuine enthusiasm and real-world pressures.\n\n';
+    }
+  }
+  if (mercury) {
+    s += 'Mercury in ' + mercury.rashi + ' (house ' + mercury.house + ') colored your communication style and studies. ';
+    if (mercury.retrograde) s += 'Mercury retrograde brought a tendency to second-guess yourself, relearn old lessons, and sometimes miscommunicate at crucial moments — but it also gave deep reflection and original thinking.\n\n';
+    else s += 'This gave specific intellectual strengths but also areas of anxiety and nervous strain.\n\n';
   }
 
-  // Chapter 4: Career & Relationships
-  s += '### Chapter 4 — The Forge (Young Adult)\n\n';
-  s += 'The twenties brought the dual fires of ambition and love. The 10th house of career and the 7th house of partnership both demanded attention. ';
-  const mars = planets.find(p => p.name === 'Mars');
-  const venus = planets.find(p => p.name === 'Venus');
-  if (mars) s += 'Mars in ' + mars.rashi + ' fueled your drive and competitive spirit. ';
-  if (venus) s += 'Venus in ' + venus.rashi + ' shaped your romantic heart and aesthetic sensibility. ';
-  s += '\n\n';
-  s += 'At age 29-30, the great **Saturn Return** arrived — the cosmic coming-of-age that spares no one. Saturn\'s transit over its natal position demanded that you grow up, commit to your true path, and release what was built on false foundations. This is the forge where boys become men and girls become women, in the deepest sense.\n\n';
+  // Chapter 4: Saturn Return — the real test
+  s += '### Chapter 4 — The Forge (Ages 28–31: Saturn Return)\n\n';
+  s += '**This chapter is the pivot point of your life.** Around ages 29–30, Saturn returns to its natal position — the most significant transit anyone experiences. It does not come gently.\n\n';
+  s += 'The Saturn Return demands an accounting: Is your career built on authentic strength or social expectation? Is your relationship chosen freely or out of fear of loneliness? Is your home truly yours or are you living someone else\'s version of your life?\n\n';
+  s += 'For ' + lagnaSign + ' rising, Saturn\'s return challenged the themes of ';
+  const saturnHouse = planets.find(p => p.name === 'Saturn')?.house;
+  if (saturnHouse) {
+    s += 'your ' + saturnHouse + 'th house — bringing concrete tests in ' + (saturnHouse === 7 ? 'marriage and commitment' : saturnHouse === 10 ? 'career and public reputation' : saturnHouse === 4 ? 'home, family, and inner security' : saturnHouse === 1 ? 'your physical body, health, and identity' : 'the life area of house ' + saturnHouse) + '.\n\n';
+  } else {
+    s += 'the foundations of your adult life — career, relationships, and identity all demanded honest re-evaluation.\n\n';
+  }
+  s += 'Those who resist Saturn\'s restructuring face external breakdown. Those who embrace it — even painfully — emerge with a life finally built on truth.\n\n';
 
-  // Chapter 5: Maturity
-  s += '### Chapter 5 — The Harvest (Maturity)\n\n';
-  s += 'The thirties and forties brought the harvest of earlier efforts. ';
+  // Chapter 5: Maturity Dasha — honest picture
+  s += '### Chapter 5 — The Harvest and the Tests (Maturity)\n\n';
+  // Find the dasha active around ages 35-50
+  const maturityDasha = dashaTimeline.find(d => d.startAge >= 30 && d.startAge <= 50) || dashaTimeline[3];
+  if (maturityDasha) {
+    s += 'Your **' + maturityDasha.planet + ' Mahadasha** (ages ~' + maturityDasha.startAge + '–' + maturityDasha.endAge + ') brings the following real picture:\n\n';
+    s += getDashaEffects(maturityDasha.planet) + '\n\n';
+  }
   if (manglik.isManglik) {
-    s += 'The Manglik energy in your chart brought intensity to partnerships — a fire that, when channeled consciously, becomes passionate devotion rather than conflict. ';
+    s += '**Manglik Pattern:** The Mars energy in your chart has brought intensity to your closest relationships. This is not a curse — it is a call for conscious choice. The same fire that creates passion creates conflict when unexamined. Understanding this pattern breaks its automatic hold.\n\n';
   }
-  s += 'Career peaked as the 10th house energies matured. Family life deepened. The question shifted from "What will I do?" to "What legacy will I leave?"\n\n';
+  s += 'Career peaks and pressures coexist in this chapter. The 10th house of public action becomes your arena — and the world can be both rewarding and brutal. The key: separate your self-worth from your professional performance.\n\n';
 
-  // Chapter 6: Wisdom
-  s += '### Chapter 6 — The Deepening (Wisdom Years)\n\n';
-  s += 'As the fifties and sixties arrived, the 9th house of dharma and the 12th house of liberation began to call. ';
+  // Chapter 6: Rahu/Ketu and the Sade Sati
+  s += '### Chapter 6 — The Deep Testing (Sade Sati & Rahu)\n\n';
+  const rahu = planets.find(p => p.name === 'Rahu');
+  const ketu = planets.find(p => p.name === 'Ketu');
+  if (rahu && ketu) {
+    s += 'Your **Rahu** in ' + rahu.rashi + ' (house ' + rahu.house + ') represents where you are being pulled — intense, obsessive, and often deceptive desires that feel like they will complete you but require careful navigation. Your **Ketu** in ' + ketu.rashi + ' (house ' + ketu.house + ') represents what you already mastered in past lives — familiar territory that offers comfort but not growth.\n\n';
+    s += 'The Rahu-Ketu axis is your soul\'s growth edge: you must walk into Rahu\'s unfamiliar territory while releasing Ketu\'s comfortable but limiting patterns. This is not painless. It is purposeful.\n\n';
+  }
   if (sadeSati.isActive) {
-    s += 'Saturn\'s Sade Sati transit added weight and wisdom — the tests of patience that ultimately reveal what truly matters. ';
+    s += '**Sade Sati is currently active in your chart** — Saturn transiting near your Moon sign. This 7.5-year period is traditionally feared in Vedic astrology, and with reason: it brings delays, emotional heaviness, health concerns, and a stripping away of support structures. What it is really doing is revealing which foundations in your life are real. Those that survive Sade Sati are the real ones. Do not fight it — work with it through discipline, service, and honest self-examination.\n\n';
   }
-  s += 'The Atmakaraka (' + atmakaraka.planet + ') whispered its purpose more clearly with each passing year: ' + atmakaraka.meaning + '\n\n';
 
-  // Epilogue
-  s += '### Epilogue — The Eternal Return\n\n';
-  s += 'And so the story continues, ' + name + '. The stars do not write your fate — they illuminate the potential that you, and you alone, will actualize through your choices, your courage, and your love.\n\n';
-  s += 'As the ancient Vedic saying goes: **"Aham Brahmasmi"** — I am the infinite. The chart is a map, but you are the territory. The stars are the script, but you are the author.\n\n';
-  s += '*Remember: the stars impel, they do not compel. You are always free.*\n\n';
+  // Chapter 7: Wisdom years
+  s += '### Chapter 7 — The Deepening (Wisdom Years)\n\n';
+  s += 'The fifties and sixties bring a quieter but deeper challenge: meaning. The 9th house of dharma and 12th house of liberation begin to call more loudly than the 10th house of ambition.\n\n';
+  s += 'Your Atmakaraka — **' + atmakaraka.planet + '** — has been whispering its message throughout your life. Its meaning: **' + atmakaraka.meaning + '** This is the central thread of your existence. Looking back, you will see it has been present in every chapter — in your choices, your struggles, and your moments of deepest satisfaction.\n\n';
+
+  // Epilogue — honest, not just positive
+  s += '### Epilogue — The Honest Truth\n\n';
+  s += name + ', your chart shows both extraordinary gifts and real struggles. The same nakshatra that gives you creative brilliance also brings perfectionism\'s suffering. The same lagna that gives you resilience also brings stubbornness in the wrong moments. The same Venus that gives you capacity for deep love makes heartbreak sharper.\n\n';
+  s += '**This is the contract you signed at birth.** Not as punishment — as curriculum. Every planet that challenges you is a teacher you chose before you arrived. Every difficult dasha is a corridor toward a more honest version of yourself.\n\n';
+  s += 'The Vedic tradition ends its teachings not with a solution but with a question: **"Ko aham?"** — Who am I? The stars point. You walk. The journey is the answer.\n\n';
+  s += '*⚠️ For entertainment & informational purposes only. Consult a professional astrologer for personal guidance.*\n\n';
 
   return s;
 }
@@ -1765,7 +1795,12 @@ export function generateFullReading(input: ReadingInput): FullReading {
     hour = parseInt(hStr, 10) || 12;
     minute = parseInt(mStr, 10) || 0;
   }
-  const fractionalHour = hour + minute / 60;
+  // Convert local birth time to UT using birth longitude (≈15° per hour)
+  // This fixes the Lagna/Ascendant calculation — without this, a birth at 06:30 IST (+5:30)
+  // would be treated as 06:30 UT, shifting the Ascendant by ~82° (5.5 hrs × 15°/hr)
+  const localHour = hour + minute / 60;
+  const utcOffsetHours = input.birthLng / 15; // longitude → UTC offset (fractional hours)
+  const fractionalHour = localHour - utcOffsetHours; // local time → UT
 
   // Julian Day & centuries
   const jd = julianDay(year, month, day, fractionalHour);

@@ -3,23 +3,23 @@
 @tailwind utilities;
 
 @layer base {
-  /* Warm pearl off-white — like fine parchment, not stark white */
+  /* Warm amber parchment — like candlelight on ancient paper */
   body {
     @apply antialiased font-body;
-    background-color: #F5F2EC;
+    background-color: #FAF0DC;
     color: #3A3530;
     min-height: 100vh;
   }
 
-  /* Luxury subtle gradient overlays — very soft, barely visible */
+  /* Warm amber radial overlays — amber glow in top-left, deep orange warmth bottom-right */
   body::before {
     content: '';
     position: fixed;
     inset: 0;
     background:
-      radial-gradient(ellipse at 15% 0%,   rgba(26,107,107,0.06) 0%, transparent 50%),
-      radial-gradient(ellipse at 85% 100%, rgba(212,136,10,0.05)   0%, transparent 50%),
-      radial-gradient(ellipse at 50% 50%,  rgba(42,138,138,0.03)  0%, transparent 70%);
+      radial-gradient(ellipse at 15% 0%,   rgba(212,136,10,0.10) 0%, transparent 55%),
+      radial-gradient(ellipse at 85% 100%, rgba(180,90,20,0.08)   0%, transparent 55%),
+      radial-gradient(ellipse at 50% 50%,  rgba(255,200,100,0.04) 0%, transparent 70%);
     pointer-events: none;
     z-index: 0;
   }

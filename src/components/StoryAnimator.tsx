@@ -499,6 +499,7 @@ export default function StoryAnimator({
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [enrichedTexts, setEnrichedTexts] = useState<Record<number, string>>({});
   const [loadingScene, setLoadingScene] = useState<number | null>(null);
+  const [isSpeaking, setIsSpeaking] = useState(false);
   const autoPlayRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const scenes = buildScenesFromData(name, storyText, storyEvents, lagnaSign, moonSign, sunSign, birthYear, planets, currentDasha);
@@ -552,6 +553,40 @@ export default function StoryAnimator({
 
   const goNext = () => setCurrentScene(prev => Math.min(prev + 1, scenes.length - 1));
   const goPrev = () => setCurrentScene(prev => Math.max(prev - 1, 0));
+
+  // Stop speech when scene changes
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.speechSynthesis) {
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+    }
+  }, [currentScene]);
+
+  function handleSpeak() {
+    if (typeof window === 'undefined' || !window.speechSynthesis) return;
+    if (isSpeaking) {
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+      return;
+    }
+    const text = (enrichedTexts[currentScene] || scene.narrativeText)
+      .replace(/\*\*/g, '').replace(/\*/g, '').replace(/#+\s/g, '').split('⚠️')[0].trim();
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.rate = 0.88;
+    utterance.pitch = 1.0;
+    utterance.volume = 1.0;
+    // Prefer a calm English voice if available
+    const voices = window.speechSynthesis.getVoices();
+    const preferred = voices.find(v => v.lang.startsWith('en') && v.name.toLowerCase().includes('samantha'))
+      || voices.find(v => v.lang === 'en-US' && !v.name.toLowerCase().includes('compact'))
+      || voices.find(v => v.lang.startsWith('en'));
+    if (preferred) utterance.voice = preferred;
+    utterance.onend = () => setIsSpeaking(false);
+    utterance.onerror = () => setIsSpeaking(false);
+    window.speechSynthesis.speak(utterance);
+    setIsSpeaking(true);
+  }
+
   const scene = scenes[currentScene];
 
   // Merge enriched text or show loading state
@@ -565,6 +600,12 @@ export default function StoryAnimator({
     <div className={`relative ${isFullscreen ? 'fixed inset-0 z-50' : 'w-full rounded-2xl overflow-hidden'}`}>
       <SceneNav scenes={scenes} current={currentScene} onSelect={setCurrentScene} />
       <div className="absolute top-4 right-4 z-50 flex gap-2">
+        <button onClick={handleSpeak}
+          className="px-3 py-1.5 rounded-full text-xs font-semibold backdrop-blur-md border border-white/20 text-white/80 hover:text-white transition-all"
+          style={{ backgroundColor: isSpeaking ? (scene.accentColor + '40') : 'rgba(0,0,0,0.4)' }}
+          title={isSpeaking ? 'Stop narration' : 'Listen to this scene'}>
+          {isSpeaking ? '🔇 Stop' : '🔊 Listen'}
+        </button>
         <button onClick={() => setAutoPlay(!autoPlay)}
           className="px-3 py-1.5 rounded-full text-xs font-semibold backdrop-blur-md border border-white/20 text-white/80 hover:text-white transition-all"
           style={{ backgroundColor: autoPlay ? scene.accentColor + '40' : 'rgba(0,0,0,0.4)' }}>

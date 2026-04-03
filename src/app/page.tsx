@@ -47,7 +47,7 @@ export default function HomePage() {
   }
 
   return (
-    <div className="relative min-h-screen" style={{ background: 'linear-gradient(160deg, #EFF8F8 0%, #F5F2EC 40%, #FBF6ED 100%)' }}>
+    <div className="relative min-h-screen" style={{ background: 'linear-gradient(160deg, #FDF6E8 0%, #FAF0DC 45%, #F5E8D0 100%)' }}>
       <StarField />
       <DisclaimerBanner t={t} />
       <AgeGate t={t} underage={false} />
@@ -76,45 +76,39 @@ export default function HomePage() {
           transition={{ duration: 0.6 }}
           className="text-center mb-10"
         >
-          {/* Logo — graphic wordmark with orbital ring */}
+          {/* Logo — gradient pill matching the submit button style */}
           <div className="flex justify-center mb-5">
             <div className="relative inline-flex items-center gap-3 px-6 py-3 rounded-2xl"
-              style={{ background: 'linear-gradient(135deg, rgba(26,107,107,0.08) 0%, rgba(212,136,10,0.06) 100%)', border: '1.5px solid rgba(26,107,107,0.18)' }}>
+              style={{
+                background: 'linear-gradient(135deg, #1A6B6B 0%, #1E8080 40%, #D4880A 100%)',
+                boxShadow: '0 4px 20px rgba(26,107,107,0.35), 0 2px 8px rgba(212,136,10,0.2)',
+              }}>
               {/* Icon mark — orrery/eye-of-cosmos */}
               <svg width="52" height="52" viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
                 {/* Outer orbital ring */}
-                <circle cx="26" cy="26" r="23" stroke="#D4880A" strokeWidth="1.2" strokeDasharray="4 2.5" opacity="0.55"/>
+                <circle cx="26" cy="26" r="23" stroke="rgba(255,255,255,0.5)" strokeWidth="1.2" strokeDasharray="4 2.5"/>
                 {/* Middle ring */}
-                <circle cx="26" cy="26" r="15" stroke="#1A6B6B" strokeWidth="1.5" fill="none" opacity="0.5"/>
+                <circle cx="26" cy="26" r="15" stroke="rgba(255,255,255,0.6)" strokeWidth="1.5" fill="none"/>
                 {/* Inner filled circle — the star / soul */}
-                <circle cx="26" cy="26" r="6" fill="url(#coreGrad)"/>
+                <circle cx="26" cy="26" r="6" fill="white" opacity="0.9"/>
                 {/* Cardinal dots on middle ring */}
-                <circle cx="26" cy="11" r="2.2" fill="#D4880A" opacity="0.85"/>
-                <circle cx="26" cy="41" r="2.2" fill="#D4880A" opacity="0.85"/>
-                <circle cx="11" cy="26" r="2.2" fill="#D4880A" opacity="0.85"/>
-                <circle cx="41" cy="26" r="2.2" fill="#D4880A" opacity="0.85"/>
+                <circle cx="26" cy="11" r="2.2" fill="white" opacity="0.85"/>
+                <circle cx="26" cy="41" r="2.2" fill="white" opacity="0.85"/>
+                <circle cx="11" cy="26" r="2.2" fill="white" opacity="0.85"/>
+                <circle cx="41" cy="26" r="2.2" fill="white" opacity="0.85"/>
                 {/* Diagonal subtle crosses */}
-                <circle cx="36.6" cy="15.4" r="1.4" fill="#1A6B6B" opacity="0.5"/>
-                <circle cx="15.4" cy="36.6" r="1.4" fill="#1A6B6B" opacity="0.5"/>
-                <circle cx="15.4" cy="15.4" r="1.4" fill="#1A6B6B" opacity="0.5"/>
-                <circle cx="36.6" cy="36.6" r="1.4" fill="#1A6B6B" opacity="0.5"/>
-                {/* Core gradient def */}
-                <defs>
-                  <radialGradient id="coreGrad" cx="40%" cy="35%" r="65%">
-                    <stop offset="0%" stopColor="#2A9A9A"/>
-                    <stop offset="100%" stopColor="#1A5555"/>
-                  </radialGradient>
-                </defs>
+                <circle cx="36.6" cy="15.4" r="1.4" fill="white" opacity="0.5"/>
+                <circle cx="15.4" cy="36.6" r="1.4" fill="white" opacity="0.5"/>
+                <circle cx="15.4" cy="15.4" r="1.4" fill="white" opacity="0.5"/>
+                <circle cx="36.6" cy="36.6" r="1.4" fill="white" opacity="0.5"/>
               </svg>
 
               {/* Wordmark */}
               <div className="text-left">
-                <div className="leading-none" style={{ fontFamily: 'Cinzel, Georgia, serif', fontSize: '2.1rem', fontWeight: 700, letterSpacing: '0.12em',
-                  background: 'linear-gradient(135deg, #1A6B6B 0%, #1E8888 45%, #C47800 100%)',
-                  WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
+                <div className="leading-none" style={{ fontFamily: 'Cinzel, Georgia, serif', fontSize: '2.1rem', fontWeight: 700, letterSpacing: '0.12em', color: '#FFFFFF' }}>
                   UNIVU
                 </div>
-                <div className="tracking-[0.22em] text-[0.6rem] font-semibold uppercase mt-0.5" style={{ color: '#8AA8A0' }}>
+                <div className="tracking-[0.22em] text-[0.6rem] font-semibold uppercase mt-0.5" style={{ color: 'rgba(255,255,255,0.75)' }}>
                   Cosmic Blueprint
                 </div>
               </div>
