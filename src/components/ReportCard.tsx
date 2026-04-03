@@ -145,34 +145,34 @@ function NakshatraBanner({ reading }: { reading: FullReading }) {
   const famous = NAKSHATRA_FAMOUS[nk] || '';
   const pada = reading.moonNakshatraPada;
   return (
-    <div className="rounded-2xl overflow-hidden border" style={{ borderColor: 'rgba(26,107,107,0.2)', background: 'linear-gradient(135deg,rgba(26,107,107,0.08),rgba(212,136,10,0.06))' }}>
-      <div className="flex items-center gap-4 p-4 sm:p-5">
-        <div className="flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center text-2xl" style={{ background: 'rgba(26,107,107,0.1)', border: '1px solid rgba(26,107,107,0.2)' }}>
+    <div className="rounded-xl overflow-hidden border" style={{ borderColor: 'rgba(26,107,107,0.2)', background: 'linear-gradient(135deg,rgba(26,107,107,0.07),rgba(212,136,10,0.05))' }}>
+      <div className="flex items-center gap-3 px-3 py-2.5">
+        <div className="flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center text-lg" style={{ background: 'rgba(26,107,107,0.1)', border: '1px solid rgba(26,107,107,0.2)' }}>
           {sym}
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-[10px] font-bold uppercase tracking-widest mb-0.5" style={{ color: AMBER }}>Your Birth Star</p>
-          <h2 className="text-2xl sm:text-3xl font-bold leading-tight" style={{ color: TEAL }}>{nk}</h2>
-          <p className="text-xs sm:text-sm font-medium mt-0.5" style={{ color: '#4B5563' }}>Pada {pada} · {quality}</p>
+          <p className="text-[9px] font-bold uppercase tracking-widest mb-0" style={{ color: AMBER }}>Your Birth Star</p>
+          <h2 className="text-base sm:text-lg font-bold leading-tight" style={{ color: TEAL }}>{nk} <span className="text-xs font-medium" style={{ color: '#6B7280' }}>Pada {pada}</span></h2>
+          <p className="text-[10px] font-medium" style={{ color: '#6B7280' }}>{quality}</p>
         </div>
-        <div className="hidden sm:flex flex-col items-end gap-1 text-right flex-shrink-0">
-          <p className="text-[10px] uppercase tracking-wider" style={{ color: '#9CA3AF' }}>Shares nakshatra with</p>
-          {famous.split(' · ').map(f => (
-            <p key={f} className="text-xs font-semibold" style={{ color: '#374151' }}>{f}</p>
+        <div className="hidden sm:flex flex-col items-end gap-0.5 text-right flex-shrink-0">
+          <p className="text-[9px] uppercase tracking-wider" style={{ color: '#9CA3AF' }}>Shares with</p>
+          {famous.split(' · ').slice(0, 2).map(f => (
+            <p key={f} className="text-[10px] font-semibold" style={{ color: '#374151' }}>{f}</p>
           ))}
         </div>
       </div>
       {/* Nakshatra strip — show all 27 nakshatras, highlight current */}
-      <div className="flex overflow-x-auto px-3 pb-2 gap-1" style={{ scrollbarWidth: 'none' }}>
+      <div className="flex overflow-x-auto px-2 pb-1.5 gap-0.5" style={{ scrollbarWidth: 'none' }}>
         {Object.keys(NAKSHATRA_SYMBOL).map((n) => {
           const isCurrent = n === nk;
           return (
-            <div key={n} className="flex-shrink-0 text-center" style={{ opacity: isCurrent ? 1 : 0.3 }}>
-              <div className="w-6 h-6 rounded-md flex items-center justify-center text-xs mb-0.5"
+            <div key={n} className="flex-shrink-0 text-center" style={{ opacity: isCurrent ? 1 : 0.28 }}>
+              <div className="w-5 h-5 rounded flex items-center justify-center text-[10px] mb-0"
                 style={{ background: isCurrent ? `linear-gradient(135deg,${TEAL},${TEAL_L})` : 'rgba(26,107,107,0.06)', border: isCurrent ? `1px solid ${TEAL}` : '1px solid transparent' }}>
                 {NAKSHATRA_SYMBOL[n]}
               </div>
-              {isCurrent && <div className="w-1 h-1 rounded-full mx-auto" style={{ background: AMBER }} />}
+              {isCurrent && <div className="w-0.5 h-0.5 rounded-full mx-auto mt-0.5" style={{ background: AMBER }} />}
             </div>
           );
         })}
