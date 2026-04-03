@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Groq from 'groq-sdk';
 import { budgetGuard, addTokens } from '@/lib/budget';
+import { apiGuard } from '@/lib/apiGuard';
 
 function getGroqClient(): Groq | null {
   const apiKey = process.env.Grok_Univu_Key || process.env.GROQ_API_KEY;
@@ -246,8 +247,11 @@ export interface ReadingContext {
 }
 
 export async function POST(req: NextRequest) {
-  const blocked = budgetGuard();
+  const blocked = apiGuard(req);
   if (blocked) return blocked;
+
+  const budgetBlocked = budgetGuard();
+  if (budgetBlocked) return budgetBlocked;
 
   try {
     const groq = getGroqClient();

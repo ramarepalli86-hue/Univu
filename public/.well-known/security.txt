@@ -1,0 +1,12 @@
+# Univu Security Policy
+# https://univu.vercel.app/.well-known/security.txt
+# Standard: https://securitytxt.org/
+
+Contact: mailto:security@univu.app
+Preferred-Languages: en
+Policy: https://univu.vercel.app/security-policy
+Scope: https://univu.vercel.app
+
+# This site provides astrology readings for ENTERTAINMENT purposes only.
+# It does not store personal data, does not process payments,
+# and does not collect or retain any user information.

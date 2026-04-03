@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Groq from 'groq-sdk';
 import { budgetGuard, addTokens } from '@/lib/budget';
+import { apiGuard, sanitise } from '@/lib/apiGuard';
 
 function getGroqClient(): Groq | null {
   const apiKey = process.env.Grok_Univu_Key || process.env.GROQ_API_KEY;
   if (!apiKey) return null;
   return new Groq({ apiKey });
 }
-
 const ASTRO_SYSTEM = `You are Univu's AI astrologer — a warm, wise, direct guide who answers questions about Vedic astrology, Western astrology, Mayan, and Egyptian traditions.
 
 Rules:
@@ -26,8 +26,11 @@ export interface ChatMessage {
 }
 
 export async function POST(req: NextRequest) {
-  const blocked = budgetGuard();
+  const blocked = apiGuard(req);
   if (blocked) return blocked;
+
+  const budgetBlocked = budgetGuard();
+  if (budgetBlocked) return budgetBlocked;
 
   try {
     const groq = getGroqClient();
@@ -42,16 +45,22 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'messages array required' }, { status: 400 });
     }
 
+    // Sanitise the last user message to prevent prompt injection
+    const safeMessages = messages.slice(-10).map(m => ({
+      role: m.role,
+      content: m.role === 'user' ? sanitise(m.content, 1000) : m.content,
+    }));
+
     // Build system prompt — inject chart context if user has generated a reading
     const systemContent = chartContext
-      ? `${ASTRO_SYSTEM}\n\nThe user's chart context:\n${chartContext}\nUse this chart data when answering their questions.`
+      ? `${ASTRO_SYSTEM}\n\nThe user's chart context:\n${sanitise(chartContext, 2000)}\nUse this chart data when answering their questions.`
       : ASTRO_SYSTEM;
 
     const completion = await groq.chat.completions.create({
       model: 'llama-3.3-70b-versatile',
       messages: [
         { role: 'system', content: systemContent },
-        ...messages.slice(-10), // keep last 10 messages for context window
+        ...safeMessages,
       ],
       max_tokens: 500,
       temperature: 0.7,

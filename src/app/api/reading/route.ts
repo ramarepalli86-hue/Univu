@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { generateFullReading, ReadingInput } from '@/lib/astrology';
+import { apiGuard, sanitise } from '@/lib/apiGuard';
 
 export async function POST(req: NextRequest) {
+  const blocked = apiGuard(req);
+  if (blocked) return blocked;
+
   try {
     const body = await req.json();
 
@@ -10,8 +14,15 @@ export async function POST(req: NextRequest) {
       gender, maritalStatus, employment, concern, chartType, tradition, language,
     } = body;
 
+    // Sanitise all string inputs
+    const safeName     = sanitise(name, 100);
+    const safeDob      = sanitise(dob, 12);
+    const safeBirthCity= sanitise(birthCity, 150);
+    const safeGender   = sanitise(gender, 30);
+    const safeConcern  = sanitise(concern, 500);
+
     // Validate required fields
-    if (!name || !dob || !birthCity || !gender) {
+    if (!safeName || !safeDob || !safeBirthCity || !safeGender) {
       return NextResponse.json(
         { error: 'Name, date of birth, birth city, and gender are required.' },
         { status: 400 }
@@ -19,7 +30,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Validate date
-    const date = new Date(dob);
+    const date = new Date(safeDob);
     if (isNaN(date.getTime())) {
       return NextResponse.json(
         { error: 'Invalid date of birth.' },
@@ -28,29 +39,27 @@ export async function POST(req: NextRequest) {
     }
 
     const input: ReadingInput = {
-      name: name.trim(),
-      dob,
-      timeOfBirth: timeOfBirth || '12:00',
+      name: safeName,
+      dob: safeDob,
+      timeOfBirth: sanitise(timeOfBirth, 10) || '12:00',
       birthLat: parseFloat(birthLat) || 28.6139,
       birthLng: parseFloat(birthLng) || 77.2090,
-      birthCity: birthCity.trim(),
-      // currentCity/currentLat/currentLng removed — not required for chart calc
+      birthCity: safeBirthCity,
       currentLat: parseFloat(birthLat) || 28.6139,
       currentLng: parseFloat(birthLng) || 77.2090,
-      currentCity: birthCity.trim(),
-      gender,
-      maritalStatus: maritalStatus || 'single',
-      employment: employment || 'employed',
-      concern: (concern || '').trim(),
-      chartType: chartType || 'north',
+      currentCity: safeBirthCity,
+      gender: safeGender,
+      maritalStatus: sanitise(maritalStatus, 30) || 'single',
+      employment: sanitise(employment, 30) || 'employed',
+      concern: safeConcern,
+      chartType: chartType === 'south' ? 'south' : 'north',
       tradition: tradition || 'all',
-      language: language || 'en',
+      language: sanitise(language, 10) || 'en',
     };
 
     // Generate reading
     const reading = generateFullReading(input);
 
-    // Add disclaimer to response
     return NextResponse.json({
       disclaimer: 'This reading is for INFORMATION and ENTERTAINMENT purposes ONLY. It should NOT be used as guidance or a path for life decisions. Please CONSULT A PROFESSIONAL ASTROLOGER for true and accurate details.',
       reading,
