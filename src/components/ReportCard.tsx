@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
+import VedicChart from './VedicChart';
+import WesternChart from './WesternChart';
 import StoryAnimator from './StoryAnimator';
 import CelestialScene from './CelestialScene';
 import type { FullReading } from '@/lib/astrology';
@@ -17,7 +19,7 @@ interface ReportCardProps {
 const TABS = [
   'Overview', 'Personality', 'Houses', 'Timeline',
   'Love', 'Career', 'Health', 'Spiritual',
-  'Egyptian', 'Mayan', 'History', 'Remedies', 'Story',
+  'Traditions', 'Charts', 'Story',
 ] as const;
 type Tab = typeof TABS[number];
 
@@ -254,20 +256,46 @@ export default function ReportCard({ t, reading }: ReportCardProps) {
           <div className="card-main"><MarkdownSection content={reading.spiritualReport} /></div>
         )}
 
-        {tab === 'Egyptian' && (
-          <div className="card-main"><MarkdownSection content={reading.egyptianReport} /></div>
+        {tab === 'Traditions' && (
+          <div className="space-y-5">
+            <div className="card-main"><MarkdownSection content={reading.egyptianReport} /></div>
+            <div className="card-main"><MarkdownSection content={reading.mayanReport} /></div>
+            <div className="card-main"><MarkdownSection content={reading.historicalPatterns} /></div>
+            <div className="card-main"><MarkdownSection content={reading.remedies} /></div>
+          </div>
         )}
 
-        {tab === 'Mayan' && (
-          <div className="card-main"><MarkdownSection content={reading.mayanReport} /></div>
-        )}
-
-        {tab === 'History' && (
-          <div className="card-main"><MarkdownSection content={reading.historicalPatterns} /></div>
-        )}
-
-        {tab === 'Remedies' && (
-          <div className="card-main"><MarkdownSection content={reading.remedies} /></div>
+        {tab === 'Charts' && (
+          <div className="space-y-6">
+            <div className="card-main">
+              <VedicChart
+                planets={reading.planets.map(p => {
+                  const westernName = p.rashi.split(' (')[0].replace('Mesha', 'Aries').replace('Vrishabha', 'Taurus').replace('Mithuna', 'Gemini').replace('Karka', 'Cancer').replace('Simha', 'Leo').replace('Kanya', 'Virgo').replace('Tula', 'Libra').replace('Vrischika', 'Scorpio').replace('Dhanu', 'Sagittarius').replace('Makara', 'Capricorn').replace('Kumbha', 'Aquarius').replace('Meena', 'Pisces');
+                  return { name: p.name, rashi: westernName, house: p.house, retrograde: p.retrograde };
+                })}
+                ascendant={reading.lagnaSign.split(' (')[0].replace('Mesha', 'Aries').replace('Vrishabha', 'Taurus').replace('Mithuna', 'Gemini').replace('Karka', 'Cancer').replace('Simha', 'Leo').replace('Kanya', 'Virgo').replace('Tula', 'Libra').replace('Vrischika', 'Scorpio').replace('Dhanu', 'Sagittarius').replace('Makara', 'Capricorn').replace('Kumbha', 'Aquarius').replace('Meena', 'Pisces')}
+                chartType={reading.chartType}
+              />
+            </div>
+            <div className="card-main">
+              <WesternChart
+                sunSign={reading.westernSunSign}
+                moonSign={(() => {
+                  const sign = reading.moonSign.split(' (')[1]?.replace(')', '') || reading.moonSign;
+                  return sign;
+                })()}
+                risingSign={(() => {
+                  const sign = reading.lagnaSign.split(' (')[1]?.replace(')', '') || reading.lagnaSign;
+                  return sign;
+                })()}
+                planets={reading.planets.map(p => ({
+                  name: p.name,
+                  degree: p.siderealLongitude,
+                  sign: p.rashi.split(' (')[1]?.replace(')', '') || 'Aries',
+                }))}
+              />
+            </div>
+          </div>
         )}
 
         {tab === 'Story' && (

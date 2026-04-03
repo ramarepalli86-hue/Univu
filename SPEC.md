@@ -17,14 +17,17 @@
 
 ## 1. ASTROLOGY ENGINE — `src/lib/astrology.ts` — COMPLETE REWRITE
 
-### Test Case
-**DOB 1986-11-28, Time 18:00 (6PM), Birthplace: Vijayawada, AP, India**
-Expected results:
-- Western Sun Sign: **Sagittarius** (Nov 22 – Dec 21)
-- Vedic Sun Rashi: **Vrischika (Scorpio)** — Lahiri ayanamsa ~23°40' for 1986 shifts sidereal back
-- Moon Nakshatra: **Chitra** (star #14, spans 23°20' Kanya to 6°40' Tula)
-- Moon Rashi: **Kanya (Virgo)** — Chitra's first half falls in Kanya
-- Tithi: computed from Sun-Moon angular separation
+### How It Works
+The user enters their **Date of Birth, Time of Birth, and Place of Birth** via the intake form.
+The engine computes all astrological data dynamically for that specific user — no hardcoded results.
+
+**Example validation (any user can verify):**
+- A person born Nov 22 – Dec 21 → Western Sun Sign: Sagittarius
+- Lahiri Ayanamsa shifts tropical positions ~23-24° back for sidereal (Vedic) signs
+- Moon Nakshatra, Rashi, Tithi, Yoga, Karana — all computed from precise birth moment
+- Lagna (Ascendant) requires exact birth time + geographic coordinates
+
+**All readings are generated dynamically per user input. No data is stored or shared.**
 
 ### A. Lahiri Ayanamsa Calculation
 ```
@@ -402,7 +405,7 @@ Each tab = detailed content, minimum 500 words, drawn from actual astrological r
 ### `src/components/WesternChart.tsx` — Wheel
 - SVG circular chart, 12 houses
 - Zodiac glyphs (♈♉♊♋♌♍♎♏♐♑♒♓) around outer ring
-- Planet symbols placed at computed degree positions
+- Planet symbo placed at computed degree positions
 - Aspect lines: conjunction (0°), opposition (180°), trine (120°), square (90°), sextile (60°) — with orb of ±8°
 
 ---

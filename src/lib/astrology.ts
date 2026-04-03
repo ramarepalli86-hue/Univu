@@ -826,46 +826,152 @@ function getDashaEffects(planet: string): string {
 
 // ─── Report Generators (using correct PlanetPosition/DashaPeriod interfaces) ──
 
+// ─── Detailed Nakshatra Descriptions (for expanded personality) ──────
+
+const NAKSHATRA_DETAILED: Record<string, string> = {
+  'Ashwini': 'Ashwini is the first nakshatra, symbolized by a horse\'s head. Ruled by the Ashwini Kumaras (divine physicians), it bestows speed, healing ability, and a pioneering spirit. People born under Ashwini are quick in thought and action, naturally inclined towards medicine, horses, and new beginnings. They possess youthful energy throughout life and are drawn to helping others recover from illness or difficulty. The Ashwini Kumaras represent the twin forces of dawn — you are a bringer of light into dark situations. Per Brihat Parashara Hora Shastra, Ashwini natives have a beautiful countenance, fondness for ornaments, and skillful hands.',
+  'Bharani': 'Bharani is ruled by Yama, the god of death and dharma. This is a powerful nakshatra of transformation, representing the womb of creation. Bharani natives carry an intensity that others feel immediately. They are passionate about their values, fiercely protective of those they love, and unafraid of life\'s deeper mysteries. The symbol is the yoni (female reproductive organ), representing creative power and the ability to bear great burdens. Bharani people go through many transformative cycles in life, each one making them stronger. Per Saravali by Kalyana Varma, they are truthful, resolute, and free from disease.',
+  'Krittika': 'Krittika spans Aries and Taurus, ruled by Agni (fire god). The symbol is a razor or flame. Krittika natives are sharp, purifying, and transformative. They cut through illusion and falsehood with the precision of a blade. This nakshatra bestows courage in the face of criticism, a strong digestive fire (both physical and intellectual), and the ability to nourish others even while maintaining strict standards. In Vedic mythology, the six Krittika stars (Pleiades) nursed baby Kartikeya (Murugan). Per ancient texts, Krittika natives are brilliant eaters, famous, and fond of others\' spouses (this is a karmic pattern to be aware of and overcome).',
+  'Rohini': 'Rohini, ruled by Brahma the creator, is considered the most creative and fertile nakshatra. Symbolized by an ox-cart or a growing plant, it bestows beauty, artistic talent, and material abundance. The Moon is exalted in Rohini, making these natives emotionally rich and magnetically attractive. They have a natural talent for agriculture, arts, fashion, and anything that grows or creates beauty. Krishna was born under Rohini, embodying its charm and divine playfulness. Per Brihat Jataka, Rohini natives are truthful, pure, sweet-spoken, and have a steady mind.',
+  'Mrigashira': 'Mrigashira means "deer\'s head," symbolizing the eternal search. Ruled by Soma (the Moon), this nakshatra bestows curiosity, gentleness, and a perpetual quest for knowledge or beauty. Mrigashira natives are restless seekers — they search for the perfect partner, the perfect home, the perfect truth. This searching nature makes them excellent researchers, travelers, and philosophers. In mythology, Mrigashira represents the head of the deer that Brahma took the form of while chasing his daughter Rohini. The lesson is about desire and the wisdom to channel it properly.',
+  'Ardra': 'Ardra is ruled by Rudra, the fierce form of Shiva. The symbol is a teardrop or diamond. This is one of the most transformative nakshatras — it brings destruction followed by renewal, like a thunderstorm that clears the air. Ardra natives have penetrating intellects, are excellent at research and technology, and often go through major life upheavals that reshape them entirely. Albert Einstein was born under Ardra, exemplifying its explosive intellectual power. Per classical texts, Ardra natives are ungrateful, wicked, and proud — but these are karmic tendencies to be transcended through self-awareness.',
+  'Punarvasu': 'Punarvasu means "return of the light." Ruled by Aditi, the mother of all gods, this nakshatra bestows optimism, wisdom, and the ability to bounce back from any adversity. Punarvasu natives are philosophical, generous, and always find their way home — whether literally or metaphorically. Lord Rama was born under Punarvasu, embodying dharma\'s ultimate return. The symbol is a quiver of arrows, representing both preparedness and the ability to aim true. Per Parashara, Punarvasu natives are self-controlled, happy, good-natured, and dull (the "dullness" is actually meditative calm).',
+  'Pushya': 'Pushya is considered the most auspicious nakshatra for spiritual growth and nourishment. Ruled by Brihaspati (Jupiter), it bestows wisdom, generosity, and the ability to nurture others\' growth. The symbol is a cow\'s udder or a lotus, representing abundant nourishment. Pushya natives make excellent teachers, counselors, parents, and spiritual guides. They have an innate understanding of dharma and naturally gravitate towards service. Per Saravali, Pushya natives are liked by all, learned, wealthy, and inclined to dharma.',
+  'Ashlesha': 'Ashlesha is ruled by the Nagas (serpent deities). The symbol is a coiled serpent, representing kundalini energy, hypnotic power, and deep psychological insight. Ashlesha natives possess penetrating intuition, can read others\' motives instantly, and have a natural talent for psychology, research, and occult sciences. They are fiercely private and protective. The serpent energy can manifest as either poison or medicine — the choice defines their life path. Per classical texts, Ashlesha natives are cruel in speech, ungrateful, and eat others\' food — these are shadow qualities to be consciously transformed.',
+  'Magha': 'Magha means "the great one." Ruled by the Pitris (ancestral spirits), this nakshatra connects you directly to your lineage and royal heritage. Magha natives carry themselves with natural authority and dignity. They are drawn to positions of power, respect tradition, and have a strong connection to their ancestors. The symbol is a throne room or palanquin. Per Brihat Parashara, Magha natives are very rich, have many servants, enjoy constant pleasures, worship gods and ancestors, and are very industrious.',
+  'Purva Phalguni': 'Purva Phalguni is ruled by Bhaga, the god of marital bliss and fortune. The symbol is a swinging hammock or the front legs of a bed, representing rest, luxury, and creative enjoyment. These natives are born to create, perform, entertain, and enjoy life\'s pleasures. They have magnetic charisma and attract others naturally. Per classical texts, they are generous, sweet-spoken, and wandering — always seeking new experiences and pleasures.',
+  'Uttara Phalguni': 'Uttara Phalguni is ruled by Aryaman, the god of patronage and contracts. The symbol is the back legs of a bed, representing commitment and the fruits of partnership. While Purva Phalguni starts the party, Uttara Phalguni brings it to fruition through steady commitment. These natives are excellent in partnerships, business contracts, and marriage. They are known for their reliability and ability to build lasting structures.',
+  'Hasta': 'Hasta means "the hand." Ruled by Savitar (the vivifying Sun), this nakshatra bestows incredible manual skill, craftsmanship, and the ability to manifest ideas into reality. Hasta natives are skilled with their hands — surgeons, artists, magicians, healers, and craftspeople. They are resourceful, witty, and can turn any situation to their advantage. The symbol is an open palm, representing both giving and receiving. Per Parashara, Hasta natives are industrious, bold, merciless to enemies, and thieves — the "thieving" quality is actually their ability to acquire skills rapidly.',
+  'Chitra': 'Chitra means "the brilliant one." Ruled by Tvashtar, the celestial architect, this nakshatra bestows creative brilliance, artistic vision, and the ability to design and build beautiful things. Chitra natives are natural architects — whether of buildings, businesses, or ideas. They have an eye for beauty and proportion. The Taj Mahal\'s commissioner Shah Jahan and Michelangelo both exemplify Chitra energy. Per classical texts, Chitra natives wear colorful garments and garlands, have beautiful eyes and limbs.',
+  'Swati': 'Swati means "the independent one" or "the sword." Ruled by Vayu (the wind god), this nakshatra bestows independence, adaptability, and the ability to thrive in any environment. Swati natives are like coral — they bend with the currents but are incredibly strong. They are diplomatic, business-savvy, and value personal freedom above all. The symbol is a young plant blown by the wind, representing flexibility and growth despite adversity. Mahatma Gandhi\'s birth in Swati demonstrates its independent, justice-seeking nature.',
+  'Vishakha': 'Vishakha means "forked branch" or "triumphal arch." Ruled jointly by Indra and Agni, this nakshatra bestows single-minded determination, ambition, and the energy to achieve seemingly impossible goals. Vishakha natives set their sights on a target and pursue it relentlessly — they are natural leaders and conquerors. The symbol is a triumphal gateway or a potter\'s wheel, representing both achievement and the shaping of destiny. Per Saravali, Vishakha natives are jealous, greedy, and of bright appearance — the jealousy and greed are fuel for their extraordinary ambition.',
+  'Anuradha': 'Anuradha means "following Radha" or "subsequent success." Ruled by Mitra, the god of friendship and alliances, this nakshatra bestows the ability to build deep, lasting relationships and achieve success through collaboration. Anuradha natives are loyal, emotionally intelligent, and excellent organizers. They often succeed in foreign lands. The symbol is a lotus, representing the ability to bloom beautifully even in muddy circumstances. Per classical texts, Anuradha natives wander in foreign countries, cannot bear hunger, and are fond of their friends.',
+  'Jyeshtha': 'Jyeshtha means "the eldest" or "the chief." Ruled by Indra, king of the gods, this nakshatra bestows authority, protective instinct, and the weight of responsibility. Jyeshtha natives are natural leaders who feel compelled to protect others. They carry heavy burdens gracefully and often rise to positions of supreme authority. The symbol is a circular amulet or earring, representing protection and rank. However, Jyeshtha natives face the loneliness that comes with being at the top. Per Parashara, they are contented, virtuous, but irascible.',
+  'Moola': 'Moola means "the root." Ruled by Nirriti, the goddess of dissolution, this nakshatra goes to the very foundation of things. Moola natives are natural investigators — they dig to the root of every problem, question, and mystery. This can make them scientists, philosophers, or spiritual seekers of the highest order. The symbol is a bundle of roots or a lion\'s tail. Destruction of the surface to reveal the truth beneath is Moola\'s function. Per classical texts, Moola natives are proud, wealthy, happy, firm-minded, and luxurious.',
+  'Purva Ashadha': 'Purva Ashadha means "the invincible" or "early victory." Ruled by Apas (the water deity), this nakshatra bestows invincibility through purification and renewal. These natives are optimistic, persuasive, and naturally victorious. They have the ability to inspire others and spread their influence far and wide, like water that finds its way everywhere. The symbol is a fan or winnowing basket, representing the separation of truth from falsehood.',
+  'Uttara Ashadha': 'Uttara Ashadha means "later victory" — the final, lasting triumph. Ruled by the Vishvedevas (universal gods), this nakshatra bestows leadership through universal principles, integrity, and ultimate perseverance. These natives may start slowly, but their victories are permanent and unchallengeable. The symbol is an elephant\'s tusk, representing unstoppable strength and penetrating wisdom. George Washington embodied this energy — slow to rise but impossible to defeat.',
+  'Shravana': 'Shravana means "hearing" or "learning." Ruled by Vishnu, the preserver, this nakshatra bestows the supreme power of listening, learning, and connecting. Shravana natives absorb knowledge through all channels and have an extraordinary memory. They are natural teachers who preserve and transmit wisdom. The symbol is three footprints or an ear, representing Vishnu\'s three steps across the universe and the power of sacred listening.',
+  'Dhanishta': 'Dhanishta means "the most famous" or "the richest." Ruled by the Vasus (eight elemental gods), this nakshatra bestows wealth, musical talent, and fame. Dhanishta natives are naturally rhythmic — whether in music, dance, speech, or business timing. They accumulate wealth through talent and timing. The symbol is a drum (mridanga), representing cosmic rhythm and the beat of creation.',
+  'Shatabhisha': 'Shatabhisha means "hundred physicians." Ruled by Varuna, the cosmic ocean god, this nakshatra bestows healing powers, secretive nature, and the ability to penetrate veils of illusion. Shatabhisha natives are natural healers who work with hidden energies — electricity, frequencies, alternative medicine, and cosmic waters. The symbol is an empty circle, representing the vast ocean of consciousness. Nikola Tesla exemplified Shatabhisha\'s electrical healing genius.',
+  'Purva Bhadrapada': 'Purva Bhadrapada is ruled by Ajaikapada, the one-footed serpent of the cosmic fire. The symbol is a two-faced man or a funeral cot, representing the transformation between death and rebirth. These natives live on the edge between worlds — the material and the spiritual. They possess intense transformative energy that can either uplift or destroy. Per classical texts, they are sorrowful, under the control of their spouses, wealthy, and clever.',
+  'Uttara Bhadrapada': 'Uttara Bhadrapada is ruled by Ahir Budhnya, the serpent of the cosmic depths. The symbol is the back legs of a funeral cot or twins, representing the completion of the cosmic journey. These natives are deeply wise, compassionate, and detached from worldly glamour. They possess oceanic depth of understanding. Rumi exemplified this nakshatra\'s unfathomable spiritual wisdom. Per Parashara, they are eloquent, happy, blessed with children, and conquer enemies.',
+  'Revati': 'Revati is the final nakshatra — the omega point of the zodiac. Ruled by Pushan, the shepherd of souls, it bestows compassion, protection of the helpless, and safe passage through transitions. Revati natives are gentle souls who guide others to their destination. They are natural caretakers, musicians, and spiritual guides. The symbol is a fish or a pair of fish, representing the infinite ocean of consciousness where all journeys end. Per classical texts, Revati natives are clean in body, heroic, wealthy, and loved.',
+};
+
+// ─── Guna descriptions ──────
+
+const GUNA_DESCRIPTIONS: Record<string, string> = {
+  Sattva: 'Sattva Guna — The quality of purity, truth, and spiritual luminosity. Those with strong Sattva are naturally drawn to meditation, study, compassion, vegetarian diet, and the pursuit of wisdom. They maintain balance even in difficulty and see the divine in all beings. Classical texts recommend strengthening Sattva through regular worship, service to elders, truthful speech, and early morning practices.',
+  Rajas: 'Rajas Guna — The quality of passion, action, and worldly engagement. Those with strong Rajas are ambitious, driven, and constantly in motion. They build empires, create art, pursue relationships with intensity, and are the movers of civilization. The challenge is to channel Rajasic energy towards dharma rather than mere accumulation. Balance Rajas with periods of rest and reflection.',
+  Tamas: 'Tamas Guna — The quality of inertia, darkness, and material attachment. Those with strong Tamas may struggle with laziness, confusion, or attachment to comfort. However, Tamas also provides stability, groundedness, and the ability to endure. The path for Tamasic individuals is to gradually introduce Rajasic activity and Sattvic practices to transform heavy energy into light.',
+};
+
+function getNakshatraGuna(nakshatraIdx: number): string {
+  const sattvicNakshatras = [0, 4, 6, 7, 12, 14, 16, 21, 26]; // Ashwini, Mrigashira, Punarvasu, Pushya, Hasta, Swati, Anuradha, Shravana, Revati
+  const rajasicNakshatras = [1, 3, 5, 10, 11, 19, 20, 24, 25]; // Bharani, Rohini, Ardra, P.Phalguni, U.Phalguni, P.Ashadha, U.Ashadha, P.Bhadra, U.Bhadra
+  if (sattvicNakshatras.includes(nakshatraIdx)) return 'Sattva';
+  if (rajasicNakshatras.includes(nakshatraIdx)) return 'Rajas';
+  return 'Tamas';
+}
+
 function generatePersonalityReport(
   lagnaRashi: number, lagnaSign: string, moonRashi: number, moonSign: string,
   moonNakshatra: number, moonNakshatraName: string, moonNakshatraPada: number,
   gana: string, yoni: string, atmakaraka: { planet: string; degree: number; meaning: string }
 ): string {
-  let r = '## Your Core Personality\n\n';
-  r += '**Ascendant (Lagna):** ' + lagnaSign + '\n\n';
-  r += getRashiTraitText(lagnaRashi) + '\n\n';
-  r += 'Your Lagna defines how the world perceives you — your physical body and natural approach to life.\n\n';
-  r += '**Moon Sign:** ' + moonSign + '\n\n';
-  r += getRashiTraitText(moonRashi) + '\n\n';
-  r += 'Your Moon sign reveals your emotional nature and subconscious patterns.\n\n';
-  r += '**Birth Nakshatra:** ' + moonNakshatraName + ' (Pada ' + moonNakshatraPada + ')\n\n';
+  const lagnaLord = RASHI_LORDS[lagnaRashi];
+  const moonLord = RASHI_LORDS[moonRashi];
   const deity = NAKSHATRA_DEITIES[moonNakshatra] || 'the divine';
-  r += 'Your nakshatra is ruled by ' + deity + ', granting unique spiritual gifts.\n\n';
-  r += '**Gana (Temperament):** ' + gana + '\n';
-  if (gana === 'Deva') r += 'Divine, sattvic temperament — gentle, noble, drawn to higher pursuits.\n\n';
-  else if (gana === 'Manushya') r += 'Balanced, human temperament — practical, social, grounded.\n\n';
-  else r += 'Intense, rakshasa temperament — powerful, independent, fiercely protective.\n\n';
-  r += '**Yoni (Animal Nature):** ' + yoni + '\n';
-  r += 'This reflects your instinctual nature and compatibility patterns.\n\n';
-  r += '**Atmakaraka (Soul Planet):** ' + atmakaraka.planet + ' at ' + atmakaraka.degree.toFixed(2) + '\n\n';
-  r += atmakaraka.meaning + '\n';
+  const ruler = NAKSHATRA_RULERS[moonNakshatra] || 'a celestial ruler';
+  const guna = getNakshatraGuna(moonNakshatra);
+  const nakshatraDetail = NAKSHATRA_DETAILED[moonNakshatraName] || '';
+
+  let r = '## Your Core Personality — A Multi-Traditional Analysis\n\n';
+
+  // Vedic disclaimer
+  r += '*The following analysis draws from Brihat Parashara Hora Shastra, Saravali by Kalyana Varma, Brihat Jataka by Varahamihira, and Hellenistic astrological traditions. For ENTERTAINMENT and INFORMATION purposes only. Consult a qualified astrologer for personal guidance.*\n\n';
+
+  // Lagna Analysis
+  r += '### Ascendant (Lagna) — ' + lagnaSign + '\n\n';
+  r += getRashiTraitText(lagnaRashi) + '\n\n';
+  r += 'Your Ascendant (Lagna) is the zodiac sign that was rising on the eastern horizon at your exact moment of birth at your specific birth location. In Vedic astrology, the Lagna is considered the most important factor in the chart — it shapes your physical body, your natural temperament, how others perceive you, and your approach to life itself. The Lagna is the lens through which all planetary energies filter before manifesting in your life.\n\n';
+  r += 'Your Lagna lord is **' + lagnaLord + '**, which is the ruling planet of your Ascendant sign. The placement and condition of ' + lagnaLord + ' in your chart determines the overall direction and vitality of your life. A well-placed Lagna lord brings health, success, and clear purpose; a challenged Lagna lord indicates areas requiring conscious effort.\n\n';
+
+  // Moon Sign
+  r += '### Moon Sign (Chandra Rashi) — ' + moonSign + '\n\n';
+  r += getRashiTraitText(moonRashi) + '\n\n';
+  r += 'In Vedic astrology, the Moon sign is equally important to the Lagna — it reveals your emotional nature, subconscious patterns, mental constitution, and relationship with your mother. The Moon represents the mind (manas) in Jyotish, and its condition determines your emotional resilience, intuition, and capacity for contentment. Your Moon lord is **' + moonLord + '**, governing the flow of your emotional life.\n\n';
+
+  // Nakshatra
+  r += '### Birth Nakshatra — ' + moonNakshatraName + ' (Pada ' + moonNakshatraPada + ')\n\n';
+  r += nakshatraDetail + '\n\n';
+  r += 'Your nakshatra ruler is **' + ruler + '**, and the presiding deity is **' + deity + '**. The nakshatra pada (quarter) further refines your personality — Pada ' + moonNakshatraPada + ' of ' + moonNakshatraName + ' places you in a specific navamsha (D-9 chart) that colors your married life and dharmic path.\n\n';
+
+  // Gana
+  r += '### Gana (Cosmic Temperament) — ' + gana + ' Gana\n\n';
+  if (gana === 'Deva') {
+    r += 'You belong to the **Deva Gana** (divine temperament). Deva Gana individuals are naturally gentle, compassionate, spiritual, and drawn to higher pursuits. You have an innate sense of dharma and tend to resolve conflicts through diplomacy rather than force. In relationships, you are most compatible with other Deva Gana or Manushya Gana individuals. The Deva Gana temperament is associated with Sattva — purity of thought and action. You naturally gravitate towards temples, sacred spaces, and uplifting company.\n\n';
+  } else if (gana === 'Manushya') {
+    r += 'You belong to the **Manushya Gana** (human temperament). Manushya Gana individuals are balanced, practical, and socially adept. You navigate the material and spiritual worlds with equal competence. In relationships, you are adaptable and can connect with all three Gana types. The Manushya Gana temperament is associated with Rajas — the energy of action, creation, and worldly engagement. You are the backbone of society — the builders, the workers, the connectors.\n\n';
+  } else {
+    r += 'You belong to the **Rakshasa Gana** (fierce temperament). Rakshasa Gana individuals are powerful, independent, and fiercely protective of those they love. Do not mistake this classification as negative — in Vedic cosmology, Rakshasa energy is the raw power of transformation. You challenge conventions, break barriers, and refuse to submit to injustice. In relationships, you need a partner who can match your intensity. The Rakshasa Gana temperament is associated with Tamas — the grounding force that provides stability and the courage to face darkness directly.\n\n';
+  }
+
+  // Yoni
+  r += '### Yoni (Instinctual Animal Nature) — ' + yoni + '\n\n';
+  r += 'The Yoni system assigns one of 14 animal archetypes to each nakshatra, representing your deepest instinctual nature and physical/intimate compatibility patterns. Your Yoni is the **' + yoni + '**, which governs how you relate to others at the most primal level. This is particularly important in marriage compatibility (Ashta Koota matching). Compatible Yoni pairs create harmony; opposing Yoni pairs require conscious effort to bridge natural differences.\n\n';
+
+  // Guna
+  r += '### Guna (Quality of Consciousness) — ' + guna + '\n\n';
+  r += (GUNA_DESCRIPTIONS[guna] || '') + '\n\n';
+
+  // Atmakaraka
+  r += '### Atmakaraka (Soul Indicator) — ' + atmakaraka.planet + '\n\n';
+  r += 'The Atmakaraka is the planet with the highest degree in any sign in your chart — it is your soul\'s primary desire in this incarnation. Your Atmakaraka is **' + atmakaraka.planet + '** at ' + atmakaraka.degree.toFixed(2) + '° within its sign.\n\n';
+  r += atmakaraka.meaning + '\n\n';
+  r += 'In Jaimini Sutras, the Atmakaraka is the king of the chart — its placement in the Navamsha (D-9) reveals the Karakamsha, which indicates the soul\'s deepest spiritual direction. Understanding your Atmakaraka helps you align your worldly actions with your soul\'s purpose.\n\n';
+
+  // Western Integration
+  r += '### Western Psychological Profile\n\n';
+  r += 'From the Western astrological perspective, your chart reveals a personality shaped by multiple archetypes. The Ascendant sign gives your social persona, the Sun sign your core identity and will, and the Moon sign your emotional intelligence and instincts. Unlike Vedic astrology which uses the sidereal zodiac (fixed stars), Western astrology uses the tropical zodiac (seasons), creating a complementary rather than contradictory picture of your personality. Both traditions, when understood correctly, illuminate different facets of the same truth.\n\n';
+
   return r;
 }
 
 function generateHouseAnalysis(planets: PlanetPosition[], lagnaRashi: number): string {
-  let r = '## Houses of Your Chart\n\n';
+  let r = '## The Twelve Houses of Your Chart (Bhava Phala)\n\n';
+  r += '*Per Brihat Parashara Hora Shastra, Phala Deepika by Mantreshwara, and Saravali by Kalyana Varma. This is the foundation of predictive Vedic astrology — each house governs specific life domains. For ENTERTAINMENT and INFORMATION only.*\n\n';
+
+  const houseDescriptions: string[] = [
+    'The 1st House (Tanu Bhava) is the house of Self — your body, physical constitution, personality, head, brain, and general vitality. It is the foundation upon which the entire chart rests. The strength of this house and its lord determines your overall life force and the ability to actualize the promises of other houses. In Hellenistic (Greek) astrology, this was called "Horoskopos" — the life marker. In Egyptian tradition, this house corresponds to the rising decan that greeted you at birth.',
+    'The 2nd House (Dhana Bhava) is the house of Wealth — accumulated money, family heritage, speech quality, right eye, food habits, and face. This is not just material wealth but also the richness of your voice, your ability to nourish others through words, and the values instilled by your family. In Middle Eastern astrology (Arabic Parts), the Part of Fortune often connects strongly to this house. The 2nd house also governs early childhood education and your relationship with food.',
+    'The 3rd House (Sahaja Bhava) is the house of Valor — courage, younger siblings, short journeys, communication skills, arms, shoulders, and willpower. This house determines your ability to take initiative, your relationship with brothers and sisters, and your skill in writing, media, and self-expression. In Hellenistic astrology, this house was associated with the Moon goddess and travel. A strong 3rd house gives entrepreneurial courage.',
+    'The 4th House (Sukha Bhava) is the house of Happiness — mother, home, property, vehicles, land, chest/heart area, emotional peace, and inner contentment. This is one of the four Kendra (angular) houses, making it extremely powerful. It represents your roots, your homeland, your private sanctuary, and your emotional foundation. In Vastu Shastra (the Vedic architecture science), the 4th house governs the energy of your dwelling place. Egyptian astrology linked this house to the Nadir — the hidden foundation of the soul.',
+    'The 5th House (Putra Bhava) is the house of Intelligence — children, creative intelligence, education, romance, stomach, past-life merit (Purva Punya), and speculation. This is a trikona (trine) house, one of the most auspicious positions in the chart. The 5th house reveals your relationship with your children, your creative genius, and the spiritual merit you carry from previous incarnations. In Western astrology, this is the house of Leo — self-expression and joy.',
+    'The 6th House (Ripu Bhava) is the house of Enemies — diseases, debts, daily service, maternal uncle, intestines, and obstacles. While seemingly negative, a strong 6th house gives the ability to overcome all challenges. This is a Dusthana (malefic) house, but planets here can also give tremendous competitive advantage. The 6th house governs your immune system, your daily work routine, and your relationship with employees/servants. In Arabic astrology, this house was linked to "bad fortune" but also to the healing arts.',
+    'The 7th House (Kalatra Bhava) is the house of Partnership — marriage, spouse, business partnerships, lower abdomen, and public dealings. Directly opposite the 1st house, the 7th represents everything that complements you — your mirror in another person. The condition of this house, its lord, and planets within it determine the quality, timing, and nature of your married life. In all astrological traditions — Vedic, Western, Egyptian, and Mesopotamian — the 7th house governs the "other" who completes you.',
+    'The 8th House (Ayu Bhava) is the house of Transformation — lifespan, sudden events, inheritance, in-laws\' wealth, reproductive organs, occult knowledge, and hidden things. This is the most mysterious house in astrology, governing everything that lies beneath the surface. A strong 8th house gives longevity, inheritance, and deep occult knowledge. A troubled 8th house brings sudden upheavals. In Egyptian mystery schools, the 8th house was linked to the underworld journey of Osiris — death and resurrection.',
+    'The 9th House (Dharma Bhava) is the house of Fortune — father, guru, religion, long-distance travel, higher education, thighs, hips, and luck. This is the most auspicious trikona house, representing dharma (righteous path), bhagya (fortune), and the grace of the divine. The 9th house governs your relationship with your father, your guru/teacher, and your philosophical/religious orientation. In all traditions, this house represents the connection between the individual and the cosmic order.',
+    'The 10th House (Karma Bhava) is the house of Action — profession, fame, government, public reputation, knees, and worldly authority. This is the highest point of the chart (Midheaven in Western astrology), representing the pinnacle of your worldly achievement. The 10th house determines your career, your public image, and your relationship with authority. In Mesopotamian astrology, the 10th house was linked to the visible heavens — what the world sees of you. Saturn (Shani) naturally rules this house\'s themes.',
+    'The 11th House (Labha Bhava) is the house of Gains — income, elder siblings, friends, desires fulfilled, ankles/calves, and social networks. This is a house of abundance and wish fulfillment. Strong planets here bring wealth, influential friends, and the realization of your deepest ambitions. The 11th house governs your relationship with large groups, organizations, and your ability to earn from your profession. In modern astrology, this house also governs technology, innovation, and collective movements.',
+    'The 12th House (Vyaya Bhava) is the house of Liberation — expenses, foreign travel/residence, hospitals, spiritual liberation (Moksha), feet, isolation, sleep, and the subconscious. This is the final house of the zodiac, representing the end of the material journey and the beginning of spiritual transcendence. A strong 12th house can give foreign success, deep meditation ability, and ultimate liberation. In Buddhist astrology, this house represents the dissolution of ego. In Sufi tradition, it represents fana (annihilation of the self in the divine).',
+  ];
+
   for (let h = 1; h <= 12; h++) {
     const houseName = HOUSE_NAMES[h - 1] || ('House ' + h);
-    const houseMeaning = HOUSE_MEANINGS[h - 1] || '';
+    const houseRashi = (lagnaRashi + h - 1) % 12;
+    const houseSign = VEDIC_RASHIS[houseRashi];
+    const houseLord = RASHI_LORDS[houseRashi];
     r += '### ' + h + '. ' + houseName + '\n';
-    r += '*' + houseMeaning + '*\n\n';
+    r += '**Sign:** ' + houseSign + ' | **Lord:** ' + houseLord + '\n\n';
+    r += houseDescriptions[h - 1] + '\n\n';
     const planetsInHouse = planets.filter(p => p.house === h);
     if (planetsInHouse.length === 0) {
-      r += 'No planets occupy this house. Its effects are determined by its lord and aspects.\n\n';
+      r += 'No planets occupy this house in your chart. Its effects are determined by the placement and condition of its lord (**' + houseLord + '**) and any aspects it receives from other planets.\n\n';
     } else {
       for (const p of planetsInHouse) {
-        r += '**' + p.name + '** in ' + p.rashi + ' (' + p.siderealLongitude.toFixed(1) + ')';
-        if (p.retrograde) r += ' (Retrograde)';
+        r += '**' + p.name + '** in ' + p.rashi + ' (' + p.siderealLongitude.toFixed(1) + '°)';
+        if (p.retrograde) r += ' ℞ (Retrograde — internalized energy, past-life karmic connection)';
         r += '\n';
         r += getPlanetInHouseEffect(p.name, h) + '\n\n';
       }
@@ -875,110 +981,354 @@ function generateHouseAnalysis(planets: PlanetPosition[], lagnaRashi: number): s
 }
 
 function generateLifeTimeline(birthYear: number, dashaTimeline: DashaPeriod[]): string {
-  let r = '## Your Life Timeline\n\n';
+  let r = '## Your Life Timeline — Decade by Decade with Dasha Correlation\n\n';
+  r += '*This timeline correlates your Vimshottari Dasha periods with major life stages. Saturn returns (~29, ~59), Jupiter returns (~12, ~24, ~36, ~48, ~60), and Rahu returns (~18, ~36, ~54) are universal astrological milestones. For ENTERTAINMENT and INFORMATION only.*\n\n';
+
   const decades = [
-    { label: 'Childhood (0-10)', start: birthYear, end: birthYear + 10 },
-    { label: 'Youth (10-20)', start: birthYear + 10, end: birthYear + 20 },
-    { label: 'Young Adult (20-30)', start: birthYear + 20, end: birthYear + 30 },
-    { label: 'Prime (30-40)', start: birthYear + 30, end: birthYear + 40 },
-    { label: 'Maturity (40-50)', start: birthYear + 40, end: birthYear + 50 },
-    { label: 'Wisdom (50-60)', start: birthYear + 50, end: birthYear + 60 },
-    { label: 'Elder (60-70)', start: birthYear + 60, end: birthYear + 70 },
-    { label: 'Sage (70-80)', start: birthYear + 70, end: birthYear + 80 },
+    { label: 'Childhood (Ages 0-10)', start: birthYear, end: birthYear + 10, ageStart: 0, ageEnd: 10,
+      description: 'The formative years when your Lagna sign\'s energy first manifests — physical body development, early personality traits emerge, relationship with parents (especially mother — 4th house), and the seeds of your life path are planted. In Vedic tradition, the Vidyarambha (beginning of education) occurs during this period.',
+      milestones: 'Jupiter\'s first return at age ~12 begins the next phase of intellectual awakening.' },
+    { label: 'Youth & Education (Ages 10-20)', start: birthYear + 10, end: birthYear + 20, ageStart: 10, ageEnd: 20,
+      description: 'The awakening of intelligence (5th house) and formation of identity. Education, first friendships, discovery of talents, and early encounters with the wider world. This period is strongly influenced by the 5th house (education, intelligence) and 3rd house (courage, communication).',
+      milestones: 'Rahu\'s first return at age ~18 brings karmic intensity — major life decisions about education and career direction. Jupiter return at ~12 opens intellectual horizons.' },
+    { label: 'Young Adult (Ages 20-30)', start: birthYear + 20, end: birthYear + 30, ageStart: 20, ageEnd: 30,
+      description: 'Career launch (10th house activation), first serious relationships (7th house), and the building of an independent life. This is the most dynamic decade, when the person establishes their position in the world.',
+      milestones: '**Saturn Return at age ~29-30** is the most significant transit — a fundamental restructuring of life. Saturn demands maturity, responsibility, and alignment with your true path. Those who resist Saturn\'s lessons face external crises; those who embrace them emerge with unshakeable foundations. Jupiter return at ~24 brings expansion opportunities.' },
+    { label: 'Establishment (Ages 30-40)', start: birthYear + 30, end: birthYear + 40, ageStart: 30, ageEnd: 40,
+      description: 'Post-Saturn return consolidation — marriage, family building, career advancement, and deepening of professional expertise. The 7th house (marriage), 5th house (children), and 10th house (career peak) are most active.',
+      milestones: '**Rahu return at age ~36** brings another karmic shift — identity questioning, potential for major life changes, and a push toward your soul\'s true purpose. Jupiter return at ~36 simultaneously expands possibilities.' },
+    { label: 'Maturity (Ages 40-50)', start: birthYear + 40, end: birthYear + 50, ageStart: 40, ageEnd: 50,
+      description: 'Peak professional years — leadership, authority, and the harvest of decades of effort. The 11th house (fulfillment of desires) becomes prominent. Health awareness increases (6th house). Spiritual awakening may begin (9th house).',
+      milestones: 'Jupiter return at ~48 brings philosophical expansion and a preview of life\'s deeper purpose. The midlife period often triggers a re-evaluation of priorities.' },
+    { label: 'Wisdom (Ages 50-60)', start: birthYear + 50, end: birthYear + 60, ageStart: 50, ageEnd: 60,
+      description: 'The transition from worldly achievement to spiritual depth. The 9th house (dharma) and 12th house (liberation) gain prominence. Many experience a natural turning inward — from acquisition to contribution, from building to legacy.',
+      milestones: '**Saturn\'s 2nd return at age ~58-60** is the great wisdom transit — a final restructuring that prepares you for the elder years. Rahu return at ~54 brings one more karmic recalibration.' },
+    { label: 'Elder Wisdom (Ages 60-70)', start: birthYear + 60, end: birthYear + 70, ageStart: 60, ageEnd: 70,
+      description: 'The sage years — accumulation of wisdom, transmission of knowledge to younger generations, grandchildren, spiritual deepening, and the gradual release of worldly attachments. The 9th house (guru) and 5th house (grandchildren) are active.',
+      milestones: 'Jupiter return at ~60 brings benevolence and philosophical peace. This is the Vanaprastha stage in Vedic tradition — gradual withdrawal from worldly duties.' },
+    { label: 'Transcendence (Ages 70-80+)', start: birthYear + 70, end: birthYear + 80, ageStart: 70, ageEnd: 80,
+      description: 'The final chapter — spiritual liberation, legacy, and preparation for the soul\'s next journey. The 12th house (Moksha) becomes the dominant influence. This is the Sannyasa stage — complete spiritual dedication. The life story comes full circle.',
+      milestones: 'Each day is a gift. The accumulated karma of a lifetime ripens into wisdom that transcends the chart itself.' },
   ];
+
   for (const decade of decades) {
-    r += '### ' + decade.label + '\n';
+    r += '### ' + decade.label + ' (' + decade.start + '-' + decade.end + ')\n\n';
+    r += decade.description + '\n\n';
+    r += '**Key Milestone:** ' + decade.milestones + '\n\n';
+
     const relevant = dashaTimeline.filter(d =>
       d.startYear < decade.end && d.endYear > decade.start
     );
-    for (const d of relevant) {
-      r += '**' + d.planet + ' Mahadasha** (' + d.startYear + '-' + d.endYear + '): ';
-      r += getDashaEffects(d.planet) + '\n';
+    if (relevant.length > 0) {
+      r += '**Active Mahadasha Periods:**\n\n';
+      for (const d of relevant) {
+        const startInDecade = Math.max(d.startYear, decade.start);
+        const endInDecade = Math.min(d.endYear, decade.end);
+        r += '**' + d.planet + ' Mahadasha** (~' + startInDecade + ' to ~' + endInDecade + '): ';
+        r += getDashaEffects(d.planet) + '\n\n';
+      }
     }
-    r += '\n';
   }
+
+  r += '### Understanding the Dasha System\n\n';
+  r += 'The Vimshottari Dasha is a 120-year planetary period system unique to Vedic astrology. Each planet rules a specific number of years, and the sequence begins from the ruler of your birth nakshatra. Within each Mahadasha (major period), there are Antardashas (sub-periods) that bring more nuanced influences. The key is not to fear challenging dashas (Saturn, Rahu) but to understand their purpose — they are the cosmic curriculum designed for your soul\'s growth.\n\n';
+
   return r;
 }
 
 function generateLoveReport(
   planets: PlanetPosition[], lagnaRashi: number, manglik: ManglikStatus, maritalStatus: string
 ): string {
-  let r = '## Love & Relationships\n\n';
+  let r = '## Love, Marriage & Relationships — A Deep Dive\n\n';
+  r += '*Analysis based on classical Vedic texts (Brihat Parashara, Phala Deepika), Western psychology of relationships, and ancient compatibility systems. For ENTERTAINMENT and INFORMATION only. Consult a professional astrologer for personal guidance.*\n\n';
+
   const seventhRashi = (lagnaRashi + 6) % 12;
   const seventhSign = VEDIC_RASHIS[seventhRashi];
-  r += '**7th House Sign:** ' + seventhSign + '\n\n';
-  r += 'Your 7th house of partnerships falls in ' + seventhSign + '.\n\n';
+  const seventhLord = RASHI_LORDS[seventhRashi];
+  const fifthRashi = (lagnaRashi + 4) % 12;
+  const eighthRashi = (lagnaRashi + 7) % 12;
+
+  // 7th House Analysis
+  r += '### The 7th House — Your Partnership Blueprint\n\n';
+  r += 'Your 7th house falls in **' + seventhSign + '**, ruled by **' + seventhLord + '**.\n\n';
+
+  const signPartnerTraits: Record<number, string> = {
+    0: 'a partner who is independent, assertive, athletic, and pioneering. They bring fiery energy and initiative into your relationship. They may be in military, sports, engineering, or entrepreneurship.',
+    1: 'a partner who values stability, beauty, comfort, and sensuality. They bring groundedness and financial wisdom. They may be in arts, banking, agriculture, or luxury goods.',
+    2: 'a partner who is intellectually stimulating, communicative, and versatile. Conversations never get boring. They may be in media, writing, trade, or technology.',
+    3: 'a partner who is nurturing, emotionally intelligent, and deeply attached to home and family. They bring emotional security. They may be in hospitality, nursing, real estate, or food industry.',
+    4: 'a partner who is charismatic, confident, generous, and wants to be admired. They bring warmth and creative energy. They may be in entertainment, leadership, politics, or the arts.',
+    5: 'a partner who is analytical, health-conscious, detail-oriented, and service-minded. They bring order and practical support. They may be in healthcare, accounting, editing, or wellness.',
+    6: 'a partner who values harmony, aesthetics, justice, and social grace. They bring balance and diplomacy. They may be in law, design, diplomacy, or beauty industries.',
+    7: 'a partner who is intense, transformative, secretive, and deeply passionate. They bring depth and emotional honesty. They may be in research, psychology, medicine, or occult sciences.',
+    8: 'a partner who is philosophical, adventurous, optimistic, and loves freedom. They bring expansion and higher learning. They may be in education, travel, publishing, or religion.',
+    9: 'a partner who is disciplined, ambitious, structured, and older in spirit. They bring stability and long-term planning. They may be in government, construction, management, or traditional businesses.',
+    10: 'a partner who is unconventional, independent, intellectual, and socially aware. They bring innovation and freedom. They may be in technology, humanitarian work, science, or social activism.',
+    11: 'a partner who is compassionate, artistic, spiritual, and somewhat mysterious. They bring intuition and creative flow. They may be in music, film, healing, or spiritual work.',
+  };
+  r += 'This indicates attraction to ' + (signPartnerTraits[seventhRashi] || 'a unique partnership dynamic.') + '\n\n';
+
+  // Venus Analysis
   const venus = planets.find(p => p.name === 'Venus');
   if (venus) {
-    r += '**Venus** in ' + venus.rashi + ': shapes your romantic nature. ';
-    if (venus.retrograde) r += 'Venus retrograde suggests past-life romantic karma. ';
-    r += '\n\n';
+    r += '### Venus — The Planet of Love\n\n';
+    r += 'Venus is the natural karaka (significator) of marriage, romance, beauty, and sensual pleasure in Vedic astrology. Your Venus is in **' + venus.rashi + '** (House ' + venus.house + ').\n\n';
+    r += getPlanetInHouseEffect('Venus', venus.house) + '\n\n';
+    if (venus.retrograde) {
+      r += '**Venus Retrograde:** This powerful placement suggests deep past-life romantic karma. You may find that relationships bring up old patterns and soul-level lessons. There can be delays in finding the right partner, or a tendency to re-connect with past loves. The retrograde Venus ultimately bestows great wisdom about love through experience.\n\n';
+    }
   }
+
+  // Planets in 7th house
   const planetsIn7 = planets.filter(p => p.house === 7);
   if (planetsIn7.length > 0) {
-    r += '**Planets in 7th house:**\n';
-    for (const p of planetsIn7) r += '- ' + p.name + ': ' + getPlanetInHouseEffect(p.name, 7) + '\n';
-    r += '\n';
+    r += '### Planets Influencing Your 7th House\n\n';
+    for (const p of planetsIn7) {
+      r += '**' + p.name + ' in 7th House:** ' + getPlanetInHouseEffect(p.name, 7) + '\n\n';
+    }
   }
-  r += '**Manglik Status:** ' + (manglik.isManglik ? 'Manglik (Mangal Dosha present)' : 'Non-Manglik') + '\n\n';
+
+  // 5th House (Romance)
+  r += '### The 5th House — Romance Before Marriage\n\n';
+  r += 'Your 5th house of romance, love affairs, and creative expression falls in **' + VEDIC_RASHIS[fifthRashi] + '**. ';
+  const planetsIn5 = planets.filter(p => p.house === 5);
+  if (planetsIn5.length > 0) {
+    for (const p of planetsIn5) r += p.name + ' here influences your romantic nature: ' + getPlanetInHouseEffect(p.name, 5) + ' ';
+  } else {
+    r += 'No planets are placed here, so romantic patterns are primarily determined by the 5th lord\'s placement and aspects. ';
+  }
+  r += '\n\n';
+
+  // Manglik
+  r += '### Manglik (Kuja Dosha) Analysis\n\n';
+  r += '**Status:** ' + (manglik.isManglik ? '🔴 Manglik Dosha Present' : '🟢 Non-Manglik') + '\n\n';
+  r += manglik.details + '\n\n';
   if (manglik.isManglik) {
-    r += 'Remedies include Mangal Shanti puja, wearing red coral, and matching with another Manglik.\n\n';
+    r += '**Traditional Remedies (per Lal Kitab and classical texts):**\n';
+    r += '- Perform Mangal Shanti Puja on Tuesdays\n';
+    r += '- Wear red coral (Moonga) after proper energization\n';
+    r += '- Offer sindoor to Hanuman ji on Tuesdays\n';
+    r += '- Fast on Tuesdays and donate red lentils (masoor dal)\n';
+    r += '- Kumbh Vivah (symbolic marriage to a pot before actual marriage) is a traditional remedy\n';
+    r += '- Matching with another Manglik partner neutralizes the dosha\n\n';
+    r += '**Important Note:** Many modern astrologers consider Manglik Dosha to be overemphasized in popular culture. Several cancellation conditions exist, and a holistic chart analysis is essential before drawing conclusions. Please consult a qualified astrologer.\n\n';
   }
-  if (maritalStatus === 'married') r += 'As a married person, focus on strengthening the existing bond.\n';
-  else if (maritalStatus === 'single') r += 'For those seeking partnership, planetary transits indicate timing.\n';
-  else if (maritalStatus === 'divorced') r += 'Past relationship patterns hold lessons. New opportunities ahead.\n';
-  r += '\n';
+
+  // Ashta Koota Compatibility Traits
+  r += '### Your Ashta Koota Compatibility Profile\n\n';
+  r += 'The Ashta Koota (eight-fold compatibility) system is used in Vedic marriage matching. While we cannot match you with a specific person here, we can describe what your chart indicates about your ideal compatibility:\n\n';
+  const moonNakIdx = planets.find(p => p.name === 'Moon')?.nakshatraIndex || 0;
+  const moonGana = NAKSHATRA_GANAS[moonNakIdx] || 'Manushya';
+  const moonYoni = NAKSHATRA_YONIS[moonNakIdx] || 'Unknown';
+  r += '- **Varna (Spiritual Class):** Based on your Moon sign, you resonate with partners of compatible spiritual orientation\n';
+  r += '- **Vashya (Power Dynamics):** Your Moon sign determines the natural power balance in relationships\n';
+  r += '- **Gana (Temperament):** Your **' + moonGana + ' Gana** is most harmonious with ';
+  if (moonGana === 'Deva') r += 'Deva and Manushya Gana partners\n';
+  else if (moonGana === 'Manushya') r += 'all three Gana types, with best compatibility with Manushya\n';
+  else r += 'Rakshasa Gana partners; Deva Gana matches require conscious effort\n';
+  r += '- **Yoni (Physical Compatibility):** Your **' + moonYoni + '** yoni seeks its natural counterpart\n';
+  r += '- **Nadi (Health/Genetic):** Important for progeny — same Nadi is traditionally avoided\n\n';
+
+  // Marital Status specific advice
+  r += '### Tailored Insights for Your Current Status\n\n';
+  if (maritalStatus === 'married') {
+    r += 'As a married person, the focus shifts from finding a partner to nurturing and deepening your existing bond. Your current planetary periods (dashas) influence the quality of your married life — favorable dashas of Venus, Jupiter, or your 7th lord bring harmony and growth. Challenging dashas may bring tests that ultimately strengthen the relationship. Mutual respect, shared spiritual practices, and honest communication are the foundations of a lasting Vedic marriage.\n\n';
+  } else if (maritalStatus === 'single') {
+    r += 'For those seeking partnership, timing is governed by the transits and dashas of Jupiter, Venus, and the 7th house lord. Watch for periods when these planets are active — they often coincide with meeting significant people. The classical texts say: "When Jupiter transits the 7th house or aspects it, and Venus is simultaneously favorable, marriage opportunities arise." Focus on self-development during the waiting period — the right partner often appears when you have become the right person.\n\n';
+  } else if (maritalStatus === 'divorced') {
+    r += 'A past relationship ending is often reflected in challenging transits (Saturn, Rahu) through the 7th or 8th houses. The astrological perspective views divorce not as failure but as a karmic completion — the souls involved had a specific purpose that has been fulfilled. Your chart indicates the possibility of new partnerships; the timing depends on your current dasha cycle and Jupiter/Venus transits. Healing comes through understanding the astrological patterns that contributed to the difficulty, allowing you to approach future relationships with greater wisdom.\n\n';
+  } else if (maritalStatus === 'widowed') {
+    r += 'The loss of a spouse is one of the deepest experiences in human life. Astrologically, the 8th house (longevity of marriage) and Saturn\'s transits often correlate with such events. The Vedic tradition honors the depth of marital bonds that persist beyond physical separation. Your chart shows continuing capacity for connection and love, whether through family, community, or — when the time is right — a new partnership. The departed spouse\'s blessings remain a protective force in your life.\n\n';
+  }
+
   return r;
 }
 
 function generateCareerReport(
   planets: PlanetPosition[], lagnaRashi: number, employment: string
 ): string {
-  let r = '## Career & Wealth\n\n';
+  let r = '## Career, Wealth & Professional Destiny\n\n';
+  r += '*Based on Brihat Parashara Hora Shastra (Karma Bhava analysis), Phala Deepika, and Jataka Parijata. For ENTERTAINMENT and INFORMATION only.*\n\n';
+
   const tenthRashi = (lagnaRashi + 9) % 12;
-  r += '**10th House Sign:** ' + VEDIC_RASHIS[tenthRashi] + '\n\n';
+  const tenthSign = VEDIC_RASHIS[tenthRashi];
+  const tenthLord = RASHI_LORDS[tenthRashi];
+  const secondRashi = (lagnaRashi + 1) % 12;
+  const eleventhRashi = (lagnaRashi + 10) % 12;
+
+  r += '### The 10th House — Your Karma Bhava\n\n';
+  r += 'Your 10th house of career and public reputation falls in **' + tenthSign + '**, ruled by **' + tenthLord + '**.\n\n';
+
+  const careerBySign: Record<number, string> = {
+    0: 'Aries in 10th: Military, police, fire service, surgery, engineering, competitive sports, entrepreneurship, metal work, adventure tourism. Mars-ruled careers demand action, courage, and physical energy.',
+    1: 'Taurus in 10th: Banking, agriculture, luxury goods, art dealing, real estate, food industry, vocal arts, fashion, finance, beauty products. Venus-ruled careers emphasize beauty, stability, and material accumulation.',
+    2: 'Gemini in 10th: Information technology, journalism, writing, translation, trading, teaching, telecommunications, social media, logistics, astrology. Mercury-ruled careers emphasize communication and intellectual versatility.',
+    3: 'Cancer in 10th: Hospitality, nursing, real estate, water industries, shipping, dairy, motherhood/childcare, interior design, counseling, food preparation. Moon-ruled careers involve nurturing and emotional intelligence.',
+    4: 'Leo in 10th: Government administration, politics, entertainment, theatre, gold trade, leadership coaching, corporate management, luxury hospitality. Sun-ruled careers demand authority and creative self-expression.',
+    5: 'Virgo in 10th: Healthcare, pharmaceuticals, accounting, data analysis, quality control, editing, veterinary science, wellness industry, herbalism. Mercury-ruled careers emphasize detail-orientation and service.',
+    6: 'Libra in 10th: Law, diplomacy, design, interior decoration, fashion, cosmetics, partnership businesses, arbitration, art galleries, public relations. Venus-ruled careers emphasize harmony and aesthetic judgment.',
+    7: 'Scorpio in 10th: Research, investigation, surgery, psychology, insurance, inheritance law, occult sciences, mining, transformative healing, tantra. Mars-ruled (deep) careers probe beneath surfaces.',
+    8: 'Sagittarius in 10th: Higher education, law, publishing, religious ministry, international trade, travel industry, philosophy, foreign affairs, archery, horses. Jupiter-ruled careers emphasize wisdom and expansion.',
+    9: 'Capricorn in 10th: Government contracts, construction, manufacturing, mining, agriculture, bureaucracy, traditional medicine, time-keeping, archaeology. Saturn-ruled careers demand patience, structure, and endurance.',
+    10: 'Aquarius in 10th: Technology, electronics, social reform, NGOs, aviation, space research, networking, humanitarian organizations, futurism, electrical engineering. Saturn-ruled (innovative) careers serve collective progress.',
+    11: 'Pisces in 10th: Music, film, spiritual teaching, charity work, hospital administration, marine biology, oil/petroleum, art therapy, meditation, dreams. Jupiter-ruled careers involve compassion and transcendence.',
+  };
+  r += (careerBySign[tenthRashi] || '') + '\n\n';
+
+  // Planets in 10th
   const planetsIn10 = planets.filter(p => p.house === 10);
   if (planetsIn10.length > 0) {
-    r += '**Planets in 10th house:**\n';
-    for (const p of planetsIn10) r += '- ' + p.name + ': ' + getPlanetInHouseEffect(p.name, 10) + '\n';
-    r += '\n';
+    r += '### Planets in Your 10th House\n\n';
+    for (const p of planetsIn10) {
+      r += '**' + p.name + ':** ' + getPlanetInHouseEffect(p.name, 10) + '\n\n';
+    }
   }
+
+  // Dhana Yogas
+  r += '### Dhana Yogas (Wealth Combinations)\n\n';
+  r += 'Dhana Yogas are specific planetary combinations that indicate wealth accumulation potential. In your chart:\n\n';
+
+  const secondLord = RASHI_LORDS[secondRashi];
+  const eleventhLord = RASHI_LORDS[eleventhRashi];
   const planetsIn2 = planets.filter(p => p.house === 2);
   const planetsIn11 = planets.filter(p => p.house === 11);
-  if (planetsIn2.length + planetsIn11.length > 0) {
-    r += '**Dhana Yoga Indicators:**\n';
-    for (const p of planetsIn2) r += '- ' + p.name + ' in 2nd house supports wealth accumulation.\n';
-    for (const p of planetsIn11) r += '- ' + p.name + ' in 11th house supports income gains.\n';
-    r += '\n';
+  const planetsIn5 = planets.filter(p => p.house === 5);
+  const planetsIn9 = planets.filter(p => p.house === 9);
+
+  let dhanaYogaCount = 0;
+  if (planetsIn2.length > 0) {
+    for (const p of planetsIn2) {
+      r += '- **' + p.name + ' in 2nd house** (Dhana Bhava): Directly strengthens wealth accumulation. ' + getPlanetInHouseEffect(p.name, 2) + '\n';
+      dhanaYogaCount++;
+    }
   }
-  if (employment === 'employed') r += 'In your current employment, leverage your 10th house energies for advancement.\n';
-  else if (employment === 'self-employed') r += 'As an entrepreneur, your chart supports independent ventures.\n';
-  else if (employment === 'student') r += 'Your educational phase aligns with 5th and 9th house learning energies.\n';
-  else if (employment === 'unemployed') r += 'This period is temporary. Opportunities emerge through planetary transits.\n';
+  if (planetsIn11.length > 0) {
+    for (const p of planetsIn11) {
+      r += '- **' + p.name + ' in 11th house** (Labha Bhava): Strengthens income and gains. ' + getPlanetInHouseEffect(p.name, 11) + '\n';
+      dhanaYogaCount++;
+    }
+  }
+
+  const jupiter = planets.find(p => p.name === 'Jupiter');
+  if (jupiter && [2, 5, 9, 11].includes(jupiter.house)) {
+    r += '- **Jupiter in house ' + jupiter.house + '**: Jupiter, the great benefic, in a wealth-related house is a powerful Dhana Yoga. This promises expansion of wealth through righteous means.\n';
+    dhanaYogaCount++;
+  }
+
+  // Lakshmi Yoga check
+  if (planetsIn5.length > 0 && planetsIn9.length > 0) {
+    r += '- **Lakshmi Yoga Indicators**: Planets in both 5th (Purva Punya) and 9th (Bhagya) houses create powerful fortune combinations.\n';
+    dhanaYogaCount++;
+  }
+
+  if (dhanaYogaCount === 0) {
+    r += 'No classical Dhana Yogas are prominently visible. Wealth comes through the lord of the 2nd and 11th houses — their dasha periods bring financial opportunities.\n';
+  }
   r += '\n';
+
+  // Employment-specific guidance
+  r += '### Guidance for Your Current Professional Situation\n\n';
+  if (employment === 'employed') {
+    r += 'As an employed professional, your current planetary period (Mahadasha/Antardasha) determines the pace of advancement. If the 10th lord or its antardasha is active, this is a period of professional growth and recognition. If Saturn\'s influence is strong, career progress may be slow but ultimately more solid and permanent. Leverage your 10th house sign\'s natural career inclinations for maximum alignment.\n\n';
+  } else if (employment === 'self-employed') {
+    r += 'As an entrepreneur, your chart\'s 7th house (business partnerships), 10th house (professional action), and 11th house (gains) form a trinity of success. The current dasha period determines whether this is a time for expansion (Jupiter/Venus period) or consolidation (Saturn period). Business success in Vedic astrology is strongly tied to the 3rd house of courage — your willingness to take calculated risks.\n\n';
+  } else if (employment === 'student') {
+    r += 'As a student, the 5th house (intelligence and education) and 4th house (foundational learning) are your primary indicators. Jupiter\'s transit through these houses brings academic breakthroughs. Mercury\'s condition in your chart determines your learning style — strong Mercury favors analytical/technical subjects, while Jupiter favors philosophical/legal studies, and Venus favors creative/artistic pursuits.\n\n';
+  } else if (employment === 'unemployed') {
+    r += 'The current period of unemployment is temporary. In Vedic astrology, unemployment often correlates with a transitional dasha period — particularly when Saturn transits the 10th house or when the 10th lord is between major periods. Watch for upcoming Jupiter or Venus dashas/transits, which frequently bring new career opportunities. Use this period for skill development aligned with your 10th house sign.\n\n';
+  } else if (employment === 'retired') {
+    r += 'In the wisdom years of retirement, the 9th house (higher purpose) and 12th house (spiritual liberation) become more relevant than the 10th house. This is a time for pursuing dharma, sharing accumulated wisdom, and investing in spiritual growth. Many retirees find renewed purpose through teaching, counseling, or charitable work — activities aligned with Jupiter and Saturn\'s mature energies.\n\n';
+  }
+
   return r;
 }
 
 function generateHealthReport(planets: PlanetPosition[], lagnaRashi: number): string {
-  let r = '## Health & Wellness\n\n';
+  let r = '## Health & Wellness — Astrological Body Mapping\n\n';
+  r += '*Based on Ashtanga Hridaya correlations with Jyotish, Charaka Samhita body constitution mapping, and classical zodiac-body correlations found in both Vedic and Hippocratic (Greek) medical astrology. This is for ENTERTAINMENT and INFORMATION only — NOT medical advice. Always consult qualified healthcare professionals for health concerns.*\n\n';
+
   const lagnaSign = VEDIC_RASHIS[lagnaRashi];
   const lagnaBody = ZODIAC_BODY_MAP[lagnaSign] || 'general vitality';
-  r += '**Ascendant Health Focus:** ' + lagnaSign + ' governs ' + lagnaBody + '.\n\n';
+  const sixthRashi = (lagnaRashi + 5) % 12;
+  const eighthRashi = (lagnaRashi + 7) % 12;
+  const sixthSign = VEDIC_RASHIS[sixthRashi];
+  const eighthSign = VEDIC_RASHIS[eighthRashi];
+
+  r += '### Ascendant Health Profile\n\n';
+  r += 'Your Lagna in **' + lagnaSign + '** primarily governs: **' + lagnaBody + '**\n\n';
+  r += 'In the ancient zodiac-body mapping system (shared by both Vedic and Hellenistic traditions), each sign governs specific body parts and organ systems. The sign on your Ascendant indicates your constitutional strengths and potential vulnerabilities:\n\n';
+
+  // Full body mapping
+  r += '### Complete Zodiac-Body Correlation (per classical texts)\n\n';
+  for (let i = 0; i < 12; i++) {
+    const house = i + 1;
+    const rashi = (lagnaRashi + i) % 12;
+    const sign = VEDIC_RASHIS[rashi];
+    const bodyPart = ZODIAC_BODY_MAP[sign] || 'general';
+    const planetsHere = planets.filter(p => p.house === house);
+    r += '**House ' + house + ' (' + sign + '):** ' + bodyPart;
+    if (planetsHere.length > 0) {
+      r += ' — Planets here: ' + planetsHere.map(p => p.name + (p.retrograde ? '℞' : '')).join(', ');
+    }
+    r += '\n';
+  }
+  r += '\n';
+
+  // 6th House Analysis
+  r += '### The 6th House — Chronic Vulnerabilities\n\n';
+  r += 'Your 6th house of disease falls in **' + sixthSign + '**, governing ' + (ZODIAC_BODY_MAP[sixthSign] || 'general health') + '.\n\n';
   const planetsIn6 = planets.filter(p => p.house === 6);
-  const planetsIn8 = planets.filter(p => p.house === 8);
   if (planetsIn6.length > 0) {
-    r += '**6th House (Disease):**\n';
-    for (const p of planetsIn6) r += '- ' + p.name + ': Watch for health issues related to ' + p.name + ' significations.\n';
-    r += '\n';
+    for (const p of planetsIn6) {
+      r += '**' + p.name + ' in 6th house:** ';
+      if (p.name === 'Saturn') r += 'Saturn here indicates chronic conditions (bone/joint issues, slow metabolism) but also gives tremendous endurance. Saturn in 6th actually helps defeat enemies and chronic illness over time through sheer persistence.\n';
+      else if (p.name === 'Mars') r += 'Mars here can indicate inflammatory conditions, fevers, surgical interventions, and accident-proneness. However, Mars in 6th also gives strong immune response and the fighting spirit to overcome any disease.\n';
+      else if (p.name === 'Rahu') r += 'Rahu here indicates mysterious, hard-to-diagnose conditions, chemical sensitivities, or unusual health challenges. It also gives victory over hidden enemies and success in healing professions.\n';
+      else if (p.name === 'Ketu') r += 'Ketu here indicates skin conditions, allergies, psychosomatic issues, and past-life health karma. It also gives intuitive healing abilities and success in alternative medicine.\n';
+      else if (p.name === 'Moon') r += 'Moon here brings emotional health fluctuations, digestive sensitivity, and stress-related conditions. Mental wellness practices are especially important.\n';
+      else if (p.name === 'Sun') r += 'Sun here can indicate eye issues, heart strain, or constitutional heat. However, Sun in 6th gives strong vitality to overcome enemies and disease.\n';
+      else r += getPlanetInHouseEffect(p.name, 6) + '\n';
+      r += '\n';
+    }
+  } else {
+    r += 'No planets occupy your 6th house, suggesting that chronic health issues are less prominent in your chart. Health matters are primarily governed by the 6th lord and its transits.\n\n';
   }
+
+  // 8th House Analysis
+  r += '### The 8th House — Acute/Hidden Health Events\n\n';
+  r += 'Your 8th house of sudden events falls in **' + eighthSign + '**, governing ' + (ZODIAC_BODY_MAP[eighthSign] || 'general health') + '.\n\n';
+  const planetsIn8 = planets.filter(p => p.house === 8);
   if (planetsIn8.length > 0) {
-    r += '**8th House (Chronic/Hidden):**\n';
-    for (const p of planetsIn8) r += '- ' + p.name + ': Potential for hidden or chronic conditions.\n';
-    r += '\n';
+    for (const p of planetsIn8) {
+      r += '**' + p.name + ' in 8th house:** ';
+      if (p.name === 'Jupiter') r += 'Jupiter in 8th is actually protective — it grants longevity and shields against sudden health crises. This is one of the best placements for a long life.\n';
+      else if (p.name === 'Saturn') r += 'Saturn in 8th gives exceptional longevity (Saturn is the planet of endurance). While chronic conditions may develop, you have the stamina to manage them.\n';
+      else r += 'This placement requires attention to sudden health events related to the body areas governed by ' + eighthSign + '.\n';
+      r += '\n';
+    }
   }
-  r += '**General Recommendations:**\n';
-  r += '- Follow dietary and lifestyle practices aligned with your Lagna sign.\n';
-  r += '- Regular yoga asanas suited to your body constitution are recommended.\n\n';
+
+  // Ayurvedic Constitution
+  r += '### Ayurvedic Constitution (Prakriti) Indicators\n\n';
+  r += 'Based on your Lagna and planetary influences, your likely Ayurvedic constitution:\n\n';
+  if ([0, 4, 8].includes(lagnaRashi)) { // Fire signs
+    r += '**Pitta Dominant (Fire Constitution):** You have strong digestive fire, warm body temperature, and sharp intellect. Prone to inflammation, acidity, skin rashes, and heat-related conditions. Recommended: cooling foods, meditation, avoiding excessive competition and spicy diet. Favorable season: winter/autumn.\n\n';
+  } else if ([1, 5, 9].includes(lagnaRashi)) { // Earth signs
+    r += '**Kapha Dominant (Earth-Water Constitution):** You have a sturdy frame, strong immunity, and calm temperament. Prone to weight gain, congestion, lethargy, and water retention. Recommended: regular vigorous exercise, light warm foods, early rising, avoiding dairy excess. Favorable season: spring.\n\n';
+  } else if ([2, 6, 10].includes(lagnaRashi)) { // Air signs
+    r += '**Vata Dominant (Air Constitution):** You have a light frame, quick mind, and creative energy. Prone to anxiety, joint pain, dry skin, and nervous system sensitivity. Recommended: warm oil massage (abhyanga), regular routine, warm nourishing foods, grounding meditation. Favorable season: summer.\n\n';
+  } else { // Water signs
+    r += '**Kapha-Pitta (Water-Fire Constitution):** You combine emotional depth with inner intensity. Prone to digestive fluctuations, emotional eating, and fluid-related conditions. Recommended: balanced diet, emotional regulation practices, moderate exercise, regular hydration. Favorable season: autumn.\n\n';
+  }
+
+  r += '### General Wellness Recommendations\n\n';
+  r += '- **Yoga Asanas:** Practice postures that strengthen the body areas governed by your Lagna sign\n';
+  r += '- **Pranayama:** Nadi Shodhana (alternate nostril breathing) balances all three doshas\n';
+  r += '- **Diet:** Follow seasonal eating (Ritucharya) aligned with your constitution\n';
+  r += '- **Sleep:** Maintain consistent sleep-wake cycles aligned with your Moon sign\'s rhythms\n';
+  r += '- **Planet-specific remedies:** Each planetary period brings specific health themes — awareness allows prevention\n\n';
+  r += '**⚠️ IMPORTANT: This is NOT medical advice. Always consult qualified healthcare professionals for health concerns. Astrological health indications are observational patterns from ancient texts and should be treated as supplementary cultural knowledge only.**\n\n';
+
   return r;
 }
 
@@ -986,75 +1336,209 @@ function generateSpiritualReport(
   planets: PlanetPosition[], lagnaRashi: number,
   atmakaraka: { planet: string; degree: number; meaning: string }, moonNakshatra: number
 ): string {
-  let r = '## Spiritual Path\n\n';
+  let r = '## Spiritual Path & Dharmic Destiny\n\n';
+  r += '*Drawing from the Bhagavad Gita, Yoga Sutras of Patanjali, Jaimini Sutras, Sufi mystical traditions, Buddhist astrology, and Egyptian Book of the Dead. For ENTERTAINMENT and INFORMATION only.*\n\n';
+
   const ninthRashi = (lagnaRashi + 8) % 12;
   const twelfthRashi = (lagnaRashi + 11) % 12;
-  r += '**9th House (Dharma):** ' + VEDIC_RASHIS[ninthRashi] + '\n';
-  r += '**12th House (Moksha):** ' + VEDIC_RASHIS[twelfthRashi] + '\n\n';
+  const ninthSign = VEDIC_RASHIS[ninthRashi];
+  const twelfthSign = VEDIC_RASHIS[twelfthRashi];
+  const ninthLord = RASHI_LORDS[ninthRashi];
+  const twelfthLord = RASHI_LORDS[twelfthRashi];
+
+  // 9th House
+  r += '### The 9th House (Dharma Bhava) — Your Fortune & Faith\n\n';
+  r += '**Sign:** ' + ninthSign + ' | **Lord:** ' + ninthLord + '\n\n';
+  r += 'The 9th house is the most auspicious trikona (trine), governing your relationship with the divine, your guru, your father, higher education, long-distance travel, and the cumulative fortune (bhagya) of your life. In Sufi tradition, this house corresponds to the seeker\'s relationship with the Murshid (spiritual guide). In Buddhist astrology, it represents the potential for Bodhi (enlightenment) through wisdom.\n\n';
+
   const planetsIn9 = planets.filter(p => p.house === 9);
-  const planetsIn12 = planets.filter(p => p.house === 12);
   if (planetsIn9.length > 0) {
-    r += '**Dharma Indicators:**\n';
-    for (const p of planetsIn9) r += '- ' + p.name + ': ' + getPlanetInHouseEffect(p.name, 9) + '\n';
-    r += '\n';
+    r += '**Dharma Indicators in Your Chart:**\n\n';
+    for (const p of planetsIn9) {
+      r += '**' + p.name + ' in 9th house:** ' + getPlanetInHouseEffect(p.name, 9) + '\n\n';
+    }
   }
+
+  // 12th House
+  r += '### The 12th House (Moksha Bhava) — Liberation & Transcendence\n\n';
+  r += '**Sign:** ' + twelfthSign + ' | **Lord:** ' + twelfthLord + '\n\n';
+  r += 'The 12th house is the final house of the zodiac, representing the dissolution of the ego and return to the cosmic source. In the Egyptian Book of the Dead, this corresponds to the soul\'s journey through the Duat (underworld) toward the Field of Reeds. In Buddhist cosmology, it represents the potential for Nirvana. In Vedantic philosophy, it is the house of Moksha — liberation from the cycle of birth and death.\n\n';
+  r += 'A strong 12th house indicates: capacity for deep meditation, vivid dreams and astral experiences, potential for foreign residence, charitable nature, and spiritual sensitivity. The 12th house also governs sleep quality, hospital stays, and expenses — both material and spiritual investments.\n\n';
+
+  const planetsIn12 = planets.filter(p => p.house === 12);
   if (planetsIn12.length > 0) {
-    r += '**Moksha Indicators:**\n';
-    for (const p of planetsIn12) r += '- ' + p.name + ': ' + getPlanetInHouseEffect(p.name, 12) + '\n';
-    r += '\n';
+    r += '**Moksha Indicators in Your Chart:**\n\n';
+    for (const p of planetsIn12) {
+      r += '**' + p.name + ' in 12th house:** ' + getPlanetInHouseEffect(p.name, 12) + '\n\n';
+    }
   }
-  r += '**Atmakaraka Spiritual Message:**\n';
-  r += 'Your soul planet ' + atmakaraka.planet + ' at ' + atmakaraka.degree.toFixed(2) + ' ';
-  r += 'indicates the primary spiritual lesson of this incarnation.\n\n';
+
+  // Rahu-Ketu Axis
+  r += '### The Rahu-Ketu Axis — Your Karmic Journey\n\n';
   const rahu = planets.find(p => p.name === 'Rahu');
   const ketu = planets.find(p => p.name === 'Ketu');
   if (rahu && ketu) {
-    r += '**Rahu-Ketu Axis:** Rahu in ' + rahu.rashi + ' / Ketu in ' + ketu.rashi + '\n';
-    r += 'Rahu shows where you are heading; Ketu shows past-life mastery you carry.\n\n';
+    r += '**Rahu (North Node)** in ' + rahu.rashi + ' (House ' + rahu.house + ')\n';
+    r += '**Ketu (South Node)** in ' + ketu.rashi + ' (House ' + ketu.house + ')\n\n';
+    r += 'The Rahu-Ketu axis is the most profound karmic indicator in Vedic astrology. **Ketu** represents where you have been — the skills, wisdom, and patterns carried from previous incarnations. You are already a master in Ketu\'s domain, but over-reliance on these familiar patterns leads to stagnation.\n\n';
+    r += '**Rahu** represents where you are headed — the unfamiliar territory that your soul needs to explore in this lifetime. Rahu\'s house and sign indicate the area of life where you will experience the greatest growth, obsession, and eventual mastery. The journey from Ketu to Rahu is your soul\'s evolutionary path.\n\n';
+    r += 'In Kabbalistic astrology (Jewish mystical tradition), the North Node (Rahu) represents the Tikkun — the soul\'s specific mission for cosmic repair. In Sufi tradition, the axis represents the journey from nafs (ego) to ruh (spirit). Understanding this axis helps you navigate life\'s challenges with greater acceptance and purpose.\n\n';
   }
+
+  // Atmakaraka Spiritual Message
+  r += '### Atmakaraka — Your Soul\'s Deepest Desire\n\n';
+  r += 'Your Atmakaraka is **' + atmakaraka.planet + '** at ' + atmakaraka.degree.toFixed(2) + '° in its sign.\n\n';
+  r += atmakaraka.meaning + '\n\n';
+  r += 'In Jaimini astrology, the Atmakaraka\'s Navamsha (D-9) placement reveals the Karakamsha — the sign where your soul\'s deepest spiritual work occurs. The Atmakaraka is considered the king of the chart; all other planets serve its purpose. Understanding your Atmakaraka helps you identify the central theme of this incarnation.\n\n';
+
+  // Nakshatra Deity
   const nDeity = NAKSHATRA_DEITIES[moonNakshatra] || 'the cosmic divine';
-  r += '**Nakshatra Deity:** ' + nDeity + '\n';
-  r += 'Worship and meditation on ' + nDeity + ' aligns you with your birth star.\n\n';
+  const nakshatraName = NAKSHATRAS[moonNakshatra];
+  r += '### Ishta Devata (Personal Deity) Connection\n\n';
+  r += 'Your birth nakshatra **' + nakshatraName + '** is presided over by **' + nDeity + '**.\n\n';
+  r += 'In the Vedic tradition, the nakshatra deity is considered your Ishta Devata — the form of the divine that most naturally resonates with your soul. Regular worship, meditation, and mantra practice focused on ' + nDeity + ' accelerates your spiritual evolution and brings protection. This is not about religion — it is about the specific cosmic frequency that your birth moment connected you to.\n\n';
+
+  // Cross-cultural spiritual synthesis
+  r += '### Cross-Cultural Spiritual Connections\n\n';
+  r += '**Vedantic View:** Every soul (Atman) is on a journey of self-realization. Your chart is a map of the specific challenges and gifts designed for this particular incarnation. The ultimate goal is recognition of your identity with Brahman (the cosmic absolute).\n\n';
+  r += '**Buddhist View:** Your chart reflects the specific patterns of attachment, aversion, and ignorance that this lifetime is designed to help you transcend. The planets represent karmic formations (samskaras) that create your experience.\n\n';
+  r += '**Sufi View:** Each planetary period is a "maqam" (spiritual station) on the soul\'s journey toward divine union. The challenges represented by Saturn and Rahu are the "dark nights" that purify the heart.\n\n';
+  r += '**Egyptian View:** Your birth chart is the "Book of Breathings" — the spiritual blueprint that your Ka (vital essence) carries through this lifetime toward Ma\'at (cosmic truth and balance).\n\n';
+
   return r;
 }
 
 function generateEgyptianDecanReport(decan: { sign: string; decanNumber: number; ruler: string; deity: string; traits: string }): string {
-  let r = '## Egyptian Decan Reading\n\n';
-  r += '**Sign:** ' + decan.sign + ' | **Decan:** ' + decan.decanNumber + ' | **Ruler:** ' + decan.ruler + '\n';
-  r += '**Deity:** ' + decan.deity + ' | **Traits:** ' + decan.traits + '\n\n';
-  const meanings: Record<string, string> = {
-    Mars: 'The warrior spirit of ancient Egypt flows through you. Like Montu, you are destined for conquest.',
-    Sun: 'The solar deity Ra illuminates your path. You carry the pharaoh\'s natural authority.',
-    Venus: 'Hathor\'s beauty and love grace your existence. Art and sensual pleasure are your birthright.',
-    Mercury: 'Thoth, the ibis-headed god of wisdom, guides your intellect.',
-    Moon: 'Khonsu, the moon god, shapes your emotional tides.',
-    Saturn: 'The ancient builder\'s patience lives in you. You create structures that endure.',
-    Jupiter: 'Amun-Ra\'s expansive blessing flows through you. Temples of wisdom are your legacy.',
+  let r = '## Egyptian Decan Reading — The Ancient Star Clocks\n\n';
+  r += '*Based on the Dendera Zodiac ceiling (Temple of Hathor, ~50 BCE), the Seti I astronomical ceiling (Valley of the Kings, ~1279 BCE), and the Chaldean decan system transmitted through Hellenistic astrology. For ENTERTAINMENT and INFORMATION only.*\n\n';
+
+  r += '### Your Egyptian Decan\n\n';
+  r += '**Sign:** ' + decan.sign + ' | **Decan:** ' + decan.decanNumber + '/3 | **Planetary Ruler:** ' + decan.ruler + '\n';
+  r += '**Associated Deity:** ' + decan.deity + ' | **Core Traits:** ' + decan.traits + '\n\n';
+
+  r += '### The Decan System — History\n\n';
+  r += 'The Egyptian decan system is one of the oldest astrological frameworks in human history, dating back to at least 2100 BCE. The ancient Egyptians divided the night sky into 36 decans — groups of stars that rose consecutively on the horizon, each ruling 10° of the zodiac. These decans served as "star clocks" — the rising of each decan marked a specific time of night and season of the year.\n\n';
+  r += 'The Chaldean order of planetary rulers (Mars → Sun → Venus → Mercury → Moon → Saturn → Jupiter, repeating) was applied to the 36 decans by Hellenistic astrologers who synthesized Egyptian and Mesopotamian traditions. Each decan thus carries the energy of both its zodiac sign and its planetary ruler.\n\n';
+
+  r += '### Your Decan\'s Meaning\n\n';
+  const decanMeanings: Record<string, Record<number, string>> = {
+    Mars: {
+      1: 'The First Face of Mars: You carry the raw initiating energy of the warrior. Like Montu (the Egyptian war god), you charge into life with courage and determination. You are a pioneer who opens paths for others to follow. Your challenge is to channel aggression into constructive action.',
+      2: 'The Second Face of Mars: Your warrior energy has gained experience and strategy. Like Sekhmet (the lioness), you combine fierce protection with targeted precision. You fight not for glory but for those who cannot fight for themselves.',
+      3: 'The Third Face of Mars: The mature warrior who has learned the cost of battle. Like Neith (the goddess of war and weaving), you understand that true strength lies in knowing when NOT to fight. You are a strategist and protector.',
+    },
+    Sun: {
+      1: 'The First Face of the Sun: You carry the dawn energy of Ra rising over the horizon. Leadership comes naturally. You illuminate whatever you touch, bringing clarity and vitality to those around you.',
+      2: 'The Second Face of the Sun: You are Ra at noon — at the height of creative power. Authority, recognition, and creative expression are your birthright. You shine brightest in positions of visible leadership.',
+      3: 'The Third Face of the Sun: You are Ra descending toward the underworld — wisdom earned through experience. You understand the cycles of rise and fall, and your light illuminates the hidden depths.',
+    },
+    Venus: {
+      1: 'The First Face of Venus: You carry Hathor\'s energy of love, beauty, and artistic creation. The world is more beautiful because of your presence. You naturally create harmony in any environment.',
+      2: 'The Second Face of Venus: Your beauty has depth — like Isis, you combine grace with magical power. You attract abundance through the sheer force of your aesthetic and emotional intelligence.',
+      3: 'The Third Face of Venus: Mature Venusian energy — you understand that true beauty lies in the soul. Like Bastet (the cat goddess), you combine sensuality with fierce independence and refined taste.',
+    },
+    Mercury: {
+      1: 'The First Face of Mercury: You carry Thoth\'s gift of sacred writing and knowledge. Your mind is a telescope that sees patterns invisible to others. Communication and intellectual discovery are your powers.',
+      2: 'The Second Face of Mercury: Like Thoth as the measurer of time, you have precision and analytical skill. You organize the chaotic into the comprehensible. Science, mathematics, and systematic thinking are your domains.',
+      3: 'The Third Face of Mercury: Thoth as the psychopomp — you guide others through transitions of understanding. Teaching, counseling, and translating complex ideas into accessible wisdom are your gifts.',
+    },
+    Moon: {
+      1: 'The First Face of the Moon: You carry Khonsu\'s energy of intuitive perception and emotional depth. Your feelings are your compass, and your sensitivity is your strength. You understand the tides of human emotion.',
+      2: 'The Second Face of the Moon: Like Khonsu the healer, your emotional attunement allows you to sense and soothe the pain of others. You are a natural counselor and nurturer whose presence brings peace.',
+      3: 'The Third Face of the Moon: The mature Moon — your emotional wisdom encompasses both light and shadow. You understand that darkness is not the enemy of light but its partner. Dreams and visions guide your path.',
+    },
+    Saturn: {
+      1: 'The First Face of Saturn: You carry the ancient builder\'s determination. Like Ptah (the creator god who shaped the world through speech), your patience and discipline create lasting structures.',
+      2: 'The Second Face of Saturn: Endurance personified. You understand that the greatest achievements require the greatest patience. Like the pyramids themselves, what you build is designed to last millennia.',
+      3: 'The Third Face of Saturn: Saturn as liberator — through discipline and detachment, you achieve freedom. Your understanding of limitation paradoxically liberates you from its grip. You are an old soul.',
+    },
+    Jupiter: {
+      1: 'The First Face of Jupiter: You carry Amun-Ra\'s expansive blessing. Wisdom, generosity, and philosophical depth define you. You naturally attract abundance and share it with others.',
+      2: 'The Second Face of Jupiter: Like Amun (the hidden god), your spiritual power works beneath the surface. You are a teacher and sage whose influence grows with time. Temples of wisdom are your legacy.',
+      3: 'The Third Face of Jupiter: The culmination of Jupiterian energy — you are a master teacher, a philosophical beacon, a generous soul who has integrated worldly success with spiritual wisdom.',
+    },
   };
-  r += (meanings[decan.ruler] || 'The ancient Egyptian mysteries speak through your birth decan.') + '\n\n';
+  const decanDetail = decanMeanings[decan.ruler]?.[decan.decanNumber];
+  if (decanDetail) r += decanDetail + '\n\n';
+
+  r += '### Middle Eastern Astrological Traditions\n\n';
+  r += 'The Egyptian decan system did not exist in isolation. It was part of a rich tapestry of Middle Eastern astrological science:\n\n';
+  r += '**Mesopotamian (Babylonian) Influence:** The Enuma Anu Enlil (astronomical omen series, ~1800 BCE) provided the foundation for systematic celestial observation. Babylonian astrologers developed the zodiac itself and many of the planetary signification systems still used today.\n\n';
+  r += '**Persian (Zoroastrian) Astrology:** The concept of planetary "lots" (Arabic Parts) and the use of fixed stars in predictive work came from the Persian magi tradition. The idea that the soul chooses its birth moment connects to the Zoroastrian concept of Fravashi (guardian spirit).\n\n';
+  r += '**Arabic Astrology:** The golden age of Islamic astronomy (8th-13th centuries CE) preserved and expanded Greek and Indian astrological knowledge. Abu Ma\'shar, al-Biruni, and others created synthesis systems that bridged Eastern and Western traditions.\n\n';
+  r += '**Kabbalistic Astrology:** The Jewish mystical tradition assigned each zodiac sign to a Hebrew letter and a path on the Tree of Life, connecting astrological archetypes to the very structure of creation.\n\n';
+
   return r;
 }
 
 function generateMayanReport(mayan: { daySign: string; tone: number; meaning: string }): string {
-  let r = '## Mayan Tzolkin Reading\n\n';
-  r += '**Day Sign:** ' + mayan.daySign + ' | **Galactic Tone:** ' + mayan.tone + '\n\n';
+  let r = '## Mayan Tzolkin Reading — The Sacred Calendar\n\n';
+  r += '*Based on the Tzolkin (260-day sacred calendar) of the ancient Maya civilization, as documented in the Dresden Codex (~13th century CE) and various inscriptions at Palenque, Tikal, and Copán. For ENTERTAINMENT and INFORMATION only.*\n\n';
+
+  r += '### Your Mayan Birth Energy\n\n';
+  r += '**Day Sign (Nahual):** ' + mayan.daySign + '\n';
+  r += '**Galactic Tone:** ' + mayan.tone + ' out of 13\n\n';
   r += mayan.meaning + '\n\n';
-  r += '**Galactic Tone ' + mayan.tone + ':** This tone shapes how your day sign expresses itself.\n\n';
+
+  r += '### The Tzolkin System\n\n';
+  r += 'The Tzolkin is a 260-day sacred calendar created by the ancient Maya, combining 20 day signs (representing archetypal energies) with 13 galactic tones (representing cosmic intentions). The resulting 260 unique combinations (20 × 13) create a complete cycle that mirrors the human gestation period of approximately 260 days.\n\n';
+  r += 'Unlike the Western/Vedic zodiac, which is based on the annual solar cycle, the Tzolkin operates on a different rhythmic basis entirely — it is more closely related to biological and galactic rhythms than seasonal ones. The Maya believed that each day of the Tzolkin carries a specific energy that influences everything born or initiated on that day.\n\n';
+
+  r += '### Galactic Tone ' + mayan.tone + ' — Your Cosmic Purpose\n\n';
+  const toneDescriptions: Record<number, string> = {
+    1: 'Unity, new beginnings, the power of attraction. You are a magnetic initiator — you begin cycles and attract the resources needed for creation. Your purpose is to unify diverse elements into a single vision.',
+    2: 'Duality, challenge, stabilization. You hold the tension of opposites and create stability from apparent contradiction. Your purpose is to bring balance where there is polarization.',
+    3: 'Rhythm, activation, bonding. You are a catalyst who activates dormant potential in others. Your purpose is to create movement and rhythm in stagnant situations.',
+    4: 'Measurement, form, definition. You give shape to abstract ideas. Your purpose is to establish foundations, create structures, and define clear boundaries.',
+    5: 'Empowerment, center, command. You are the center of your circle — a natural commander who empowers others. Your purpose is to radiate stability and authority.',
+    6: 'Flow, equality, balance. You bring organic balance to every situation. Your purpose is to create systems of equal exchange and harmonious flow.',
+    7: 'Resonance, attunement, purpose. You are a mystic channel — you resonate with frequencies that others cannot perceive. Your purpose is to align others with their highest potential.',
+    8: 'Harmony, integrity, modeling. You harmonize through example. Your purpose is to demonstrate integrity so thoroughly that others naturally follow your lead.',
+    9: 'Intention, patience, completion. You carry the energy of the greater cycle — your intentions take time to manifest but are deeply powerful. Your purpose is to complete what others have begun.',
+    10: 'Manifestation, production, challenge. You are a manifester — you take abstract potential and make it real. Your purpose is to produce tangible results from visionary ideas.',
+    11: 'Liberation, release, change. You are a liberator who releases old patterns and opens doors to new possibilities. Your purpose is to dissolve structures that no longer serve.',
+    12: 'Cooperation, understanding, sharing. You are a bridge-builder who creates understanding between different people and perspectives. Your purpose is to share knowledge and create community.',
+    13: 'Presence, transcendence, endurance. You carry the full energy of the cosmic cycle. Your purpose is to transcend limitations and bring the entire cycle to its highest expression.',
+  };
+  r += (toneDescriptions[mayan.tone] || 'This tone carries a unique cosmic signature that shapes your life purpose.') + '\n\n';
+
+  r += '### Cross-Cultural Calendar Connections\n\n';
+  r += 'The 260-day cycle of the Tzolkin appears across Mesoamerican cultures (Aztec Tonalpohualli, Zapotec Piye), suggesting a profound astronomical or biological significance that transcends any single civilization. Some researchers note correlations between the Tzolkin and Vedic Nakshatra cycles — both systems use ~27-day sub-cycles and both assign animal/deity energies to specific time periods. Whether this represents independent discovery of universal patterns or ancient cross-cultural contact remains an open question.\n\n';
+
   return r;
 }
 
 function generateHistoricalPatterns(moonNakshatra: number): string {
-  let r = '## Historical Patterns\n\n';
+  let r = '## Historical Patterns — Famous Souls Under Your Star\n\n';
+  r += '*The nakshatra system has been used for thousands of years to identify personality patterns. The following historical parallels are drawn from documented birth data and classical astrological texts. For ENTERTAINMENT and INFORMATION only.*\n\n';
+
   const nName = NAKSHATRAS[moonNakshatra];
-  r += '**Your Nakshatra:** ' + nName + '\n\n';
+  const deity = NAKSHATRA_DEITIES[moonNakshatra] || 'the cosmic divine';
+  const ruler = NAKSHATRA_RULERS[moonNakshatra] || 'a celestial ruler';
+
+  r += '### Your Nakshatra: ' + nName + '\n\n';
+  r += '**Ruling Planet:** ' + ruler + ' | **Presiding Deity:** ' + deity + '\n\n';
+
   const famous = NAKSHATRA_FAMOUS[nName];
   if (famous && famous.length > 0) {
-    r += 'Notable figures born under ' + nName + ':\n\n';
-    for (const person of famous) r += '- **' + person + '**\n';
-    r += '\nYou share cosmic DNA with these individuals.\n\n';
+    r += '### Notable Figures Born Under ' + nName + '\n\n';
+    for (const person of famous) {
+      r += '- **' + person + '**\n';
+    }
+    r += '\n';
+    r += 'These individuals demonstrate the characteristic energy of ' + nName + ' nakshatra — ruled by ' + ruler + ' and blessed by ' + deity + '. You share cosmic DNA with these figures, meaning that the celestial frequency at your birth created similar archetypal potential. However, how this potential manifests depends entirely on your choices, circumstances, and conscious development.\n\n';
   } else {
-    r += 'Those born under ' + nName + ' carry unique cosmic gifts.\n\n';
+    r += 'Those born under ' + nName + ' carry the unique gifts of ' + deity + ' and the energy of ' + ruler + '. Every nakshatra produces remarkable individuals when its energy is channeled consciously.\n\n';
   }
+
+  r += '### Nakshatra Pattern Analysis\n\n';
+  r += 'The nakshatra you are born under does not determine your destiny — it illuminates your potential. ' + nName + ' natives historically demonstrate:\n\n';
+  r += '- **Strengths:** The gifts bestowed by ' + deity + ' — study the mythology of this deity to understand your deepest gifts\n';
+  r += '- **Challenges:** Each nakshatra has shadow qualities that serve as growth opportunities\n';
+  r += '- **Life Themes:** Recurring patterns that appear across generations of ' + nName + ' natives\n';
+  r += '- **Career Inclinations:** Professions that naturally resonate with ' + ruler + '\'s energy\n\n';
+  r += 'The ancient rishis observed these patterns over centuries of careful documentation, creating a living database of human potential mapped to celestial positions. Modern astrologers continue this tradition of empirical observation.\n\n';
+
   return r;
 }
 
@@ -1108,18 +1592,70 @@ export interface StoryEvent {
 
 function generateStoryNarrative(
   name: string, lagnaSign: string, moonSign: string, moonNakshatraName: string,
-  atmakaraka: { planet: string; degree: number; meaning: string }
+  atmakaraka: { planet: string; degree: number; meaning: string },
+  planets: PlanetPosition[], dashaTimeline: DashaPeriod[], birthYear: number,
+  manglik: ManglikStatus, sadeSati: SadeSatiStatus
 ): string {
-  let s = '## Your Cosmic Story\n\n';
-  s += 'In the grand tapestry of the cosmos, at the precise moment of your birth, ';
-  s += 'the heavens aligned in a unique configuration that had not occurred before.\n\n';
-  s += name + ', you entered this world under the rising sign of ' + lagnaSign + ', ';
-  s += 'with the Moon resting in ' + moonSign + ' within the sacred nakshatra of ' + moonNakshatraName + '. ';
-  s += 'Your soul, guided by ' + atmakaraka.planet + ' as its Atmakaraka, chose this very moment.\n\n';
-  s += 'The ancient rishis would say that the configuration of stars at your birth is a map — ';
-  s += 'not of fate carved in stone, but of potential waiting to be unlocked.\n\n';
-  s += 'As you read what follows, remember: the stars impel, they do not compel. ';
-  s += 'You are the author of your story, and the cosmos is your co-creator.\n\n';
+  let s = '## Your Cosmic Life Story\n\n';
+  s += '*This narrative weaves together the threads of Vedic, Western, Egyptian, and Eastern astrological traditions into a single life tapestry. It is a poetic interpretation of your chart — for ENTERTAINMENT and INFORMATION only.*\n\n';
+
+  // Chapter 1: Birth
+  const deity = NAKSHATRA_DEITIES[NAKSHATRAS.indexOf(moonNakshatraName)] || 'the cosmos';
+  s += '### Chapter 1 — The Arrival\n\n';
+  s += 'In the year ' + birthYear + ', at a moment precisely ordained by the dance of celestial bodies, a soul chose to incarnate on Earth. The eastern horizon held the sign of **' + lagnaSign + '**, painting the world in its particular frequency of light. The Moon, that ancient mirror of the soul, rested in **' + moonSign + '**, within the sacred nakshatra of **' + moonNakshatraName + '** — the star governed by **' + deity + '**.\n\n';
+  s += name + ', this was not random. The ancient rishis of India, the priests of Heliopolis in Egypt, the stargazers of Babylon, and the daykeepers of the Maya all understood the same truth: the configuration of stars at birth is the soul\'s chosen curriculum for this lifetime.\n\n';
+
+  // Chapter 2: Childhood
+  const firstDasha = dashaTimeline[0];
+  s += '### Chapter 2 — The Unfolding (Childhood)\n\n';
+  s += 'Your earliest years were colored by the **' + (firstDasha?.planet || 'unknown') + ' Mahadasha** — ';
+  s += getDashaEffects(firstDasha?.planet || '') + '\n\n';
+  s += 'As a child under ' + lagnaSign + ' rising, the seeds of your personality were already visible — ';
+  s += getRashiTraitText(VEDIC_RASHIS.indexOf(lagnaSign)) + ' These traits, barely formed, would sharpen and deepen with time.\n\n';
+
+  // Chapter 3: Education & Growth
+  s += '### Chapter 3 — The Awakening (Youth)\n\n';
+  const jupiter = planets.find(p => p.name === 'Jupiter');
+  s += 'As adolescence arrived, Jupiter — the great teacher — began to awaken the intellect. ';
+  if (jupiter) {
+    s += 'With Jupiter in your ' + jupiter.rashi + ' (house ' + jupiter.house + '), the path of learning ';
+    if ([4, 5, 9].includes(jupiter.house)) s += 'was naturally strong — academic gifts, curiosity, and a philosophical bent marked these years.\n\n';
+    else if ([10, 11].includes(jupiter.house)) s += 'was directed toward practical skills and worldly ambitions from an early age.\n\n';
+    else s += 'unfolded in unique ways, shaped by the specific energies of house ' + jupiter.house + '.\n\n';
+  }
+
+  // Chapter 4: Career & Relationships
+  s += '### Chapter 4 — The Forge (Young Adult)\n\n';
+  s += 'The twenties brought the dual fires of ambition and love. The 10th house of career and the 7th house of partnership both demanded attention. ';
+  const mars = planets.find(p => p.name === 'Mars');
+  const venus = planets.find(p => p.name === 'Venus');
+  if (mars) s += 'Mars in ' + mars.rashi + ' fueled your drive and competitive spirit. ';
+  if (venus) s += 'Venus in ' + venus.rashi + ' shaped your romantic heart and aesthetic sensibility. ';
+  s += '\n\n';
+  s += 'At age 29-30, the great **Saturn Return** arrived — the cosmic coming-of-age that spares no one. Saturn\'s transit over its natal position demanded that you grow up, commit to your true path, and release what was built on false foundations. This is the forge where boys become men and girls become women, in the deepest sense.\n\n';
+
+  // Chapter 5: Maturity
+  s += '### Chapter 5 — The Harvest (Maturity)\n\n';
+  s += 'The thirties and forties brought the harvest of earlier efforts. ';
+  if (manglik.isManglik) {
+    s += 'The Manglik energy in your chart brought intensity to partnerships — a fire that, when channeled consciously, becomes passionate devotion rather than conflict. ';
+  }
+  s += 'Career peaked as the 10th house energies matured. Family life deepened. The question shifted from "What will I do?" to "What legacy will I leave?"\n\n';
+
+  // Chapter 6: Wisdom
+  s += '### Chapter 6 — The Deepening (Wisdom Years)\n\n';
+  s += 'As the fifties and sixties arrived, the 9th house of dharma and the 12th house of liberation began to call. ';
+  if (sadeSati.isActive) {
+    s += 'Saturn\'s Sade Sati transit added weight and wisdom — the tests of patience that ultimately reveal what truly matters. ';
+  }
+  s += 'The Atmakaraka (' + atmakaraka.planet + ') whispered its purpose more clearly with each passing year: ' + atmakaraka.meaning + '\n\n';
+
+  // Epilogue
+  s += '### Epilogue — The Eternal Return\n\n';
+  s += 'And so the story continues, ' + name + '. The stars do not write your fate — they illuminate the potential that you, and you alone, will actualize through your choices, your courage, and your love.\n\n';
+  s += 'As the ancient Vedic saying goes: **"Aham Brahmasmi"** — I am the infinite. The chart is a map, but you are the territory. The stars are the script, but you are the author.\n\n';
+  s += '*Remember: the stars impel, they do not compel. You are always free.*\n\n';
+
   return s;
 }
 
@@ -1323,7 +1859,7 @@ export function generateFullReading(input: ReadingInput): FullReading {
   const mayanReport = generateMayanReport(mayanTzolkin);
   const historicalPatternsReport = generateHistoricalPatterns(moonNakshatra);
   const remedies = generateRemedies(lagnaRashi, moonNakshatra, manglik, sadeSati, planets);
-  const storyNarrative = generateStoryNarrative(input.name, lagnaSign, moonSign, moonNakshatraName, atmakaraka);
+  const storyNarrative = generateStoryNarrative(input.name, lagnaSign, moonSign, moonNakshatraName, atmakaraka, planets, dashaTimeline, year, manglik, sadeSati);
   const storyEvents = generateStoryEvents(year, dashaTimeline, lagnaSign);
 
   return {
