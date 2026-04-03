@@ -183,7 +183,8 @@ function NakshatraBanner({ reading }: { reading: FullReading }) {
 
 function buildContext(reading: FullReading): ReadingContext {
   const birthYear = parseInt(reading.dob?.split('-')[0] || '1990', 10);
-  const currentAge = new Date().getFullYear() - birthYear;
+  const currentYear = new Date().getFullYear();
+  const currentAge = currentYear - birthYear;
   const venus   = reading.planets.find(p => p.name === 'Venus');
   const mars    = reading.planets.find(p => p.name === 'Mars');
   const saturn  = reading.planets.find(p => p.name === 'Saturn');
@@ -193,9 +194,12 @@ function buildContext(reading: FullReading): ReadingContext {
   const li = reading.lagnaRashi;
   const dashaTimeline = reading.dashaTimeline || [];
   let currentDashaYears = '', nextDasha = '', nextDashaYear = '';
+  // Match by the dasha period whose year bracket contains today — not just planet name
+  // (each planet appears twice in the 120-yr cycle; name-only match picks the wrong one)
   for (let i = 0; i < dashaTimeline.length; i++) {
-    if (dashaTimeline[i].planet === reading.currentDasha) {
-      currentDashaYears = `${dashaTimeline[i].startYear}–${dashaTimeline[i].endYear}`;
+    const d = dashaTimeline[i];
+    if (d.planet === reading.currentDasha && currentYear >= d.startYear && currentYear <= d.endYear) {
+      currentDashaYears = `${d.startYear}–${d.endYear}`;
       if (dashaTimeline[i+1]) { nextDasha = dashaTimeline[i+1].planet; nextDashaYear = String(dashaTimeline[i+1].startYear); }
       break;
     }

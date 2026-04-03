@@ -1848,7 +1848,8 @@ export function generateFullReading(input: ReadingInput): FullReading {
   let currentDasha = '';
   let currentAntardasha = '';
   for (const d of dashaTimeline) {
-    if (currentAge >= d.startAge && currentAge <= d.endAge) {
+    // Match by calendar year bracket (avoids float age drift and double-planet ambiguity)
+    if (currentYear >= d.startYear && currentYear <= d.endYear) {
       currentDasha = d.planet;
       for (const sub of d.subPeriods) {
         if (currentAge >= sub.startAge && currentAge <= sub.endAge) {

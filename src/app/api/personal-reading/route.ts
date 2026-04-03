@@ -47,6 +47,7 @@ Data:
 - Saturn in ${ctx.saturnSign} House ${ctx.saturnHouse}${ctx.saturnHouse === 7 ? ' (directly delays marriage)' : ''}
 - Rahu in House ${ctx.rahuHouse} | Current dasha: ${ctx.currentDasha} / ${ctx.currentAntardasha} (${ctx.currentDashaYears})
 - Next dasha: ${ctx.nextDasha} starts ~${ctx.nextDashaYear}
+- CURRENT AGE: ~${ctx.currentAge} years old (born ${ctx.dob?.split('-')[0] || 'unknown'}) — any marriage timing prediction MUST be realistic for this age. Do NOT predict marriage beyond age 55.
 ${ctx.concern ? `- Their question: "${ctx.concern}"` : ''}
 
 Write 5 sections with bold headings:
@@ -61,7 +62,7 @@ Name the EXACT planets and positions causing this. Not jargon — plain language
 Based on Moon in ${ctx.moonSign} and 7th lord ${ctx.seventhHouseLord} — the emotional truth, not what they consciously say.
 
 **📅 When will marriage / a serious relationship happen**
-THIS IS THE MOST IMPORTANT SECTION. Give ${ctx.name} a real answer with specific years or windows. Example format: "The most promising window for ${ctx.name} is [year range] when [specific dasha/transit reason]. The ${ctx.nextDasha} dasha starting ~${ctx.nextDashaYear} [will/will not] favor marriage because [specific reason based on which planet ${ctx.nextDasha} is and how it relates to the 7th house]." Name at least one concrete year or 2-year window.
+THIS IS THE MOST IMPORTANT SECTION. ${ctx.name} is currently ~${ctx.currentAge} years old. The year is ${new Date().getFullYear()}. Any timing prediction MUST be within the next 1–10 years from now (${new Date().getFullYear()}–${new Date().getFullYear() + 10}) — never predict marriage at age 55+ for someone already in their 30s or 40s. Give a real answer with specific years. Example format: "The most promising window for ${ctx.name} is [year range] when [specific dasha/transit reason]. The ${ctx.nextDasha} dasha starting ~${ctx.nextDashaYear} [will/will not] favor marriage because [specific reason]." Name at least one concrete year or 2-year window within realistic range.
 
 **What ${ctx.name} should do right now to move toward that**
 One specific action — a pattern to break, a Saturn remedy, a conscious shift — based on the chart.
