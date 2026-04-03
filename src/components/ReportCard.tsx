@@ -5,7 +5,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import VedicChart from './VedicChart';
 import WesternChart from './WesternChart';
 import StoryAnimator from './StoryAnimator';
-import CelestialScene from './CelestialScene';
 import type { FullReading } from '@/lib/astrology';
 import type { ReadingContext } from '@/app/api/personal-reading/route';
 
@@ -96,6 +95,91 @@ const BODY_MAP: Record<string,string> = {
   'Dhanu (Sagittarius)':'thighs & hips','Makara (Capricorn)':'knees & joints',
   'Kumbha (Aquarius)':'calves & circulation','Meena (Pisces)':'feet & lymph',
 };
+
+const NAKSHATRA_SYMBOL: Record<string, string> = {
+  Ashwini:'🐴', Bharani:'🌺', Krittika:'🔥', Rohini:'🌹', Mrigashira:'🦌', Ardra:'💎',
+  Punarvasu:'🌟', Pushya:'🌸', Ashlesha:'🐍', Magha:'👑', 'Purva Phalguni':'❤️', 'Uttara Phalguni':'🌞',
+  Hasta:'🙌', Chitra:'💫', Swati:'🌬️', Vishakha:'⚡', Anuradha:'🪷', Jyeshtha:'⚔️',
+  Mula:'🌿', 'Purva Ashadha':'🌊', 'Uttara Ashadha':'🦅', Shravana:'👂', Dhanishta:'🥁',
+  Shatabhisha:'💊', 'Purva Bhadrapada':'⚡', 'Uttara Bhadrapada':'🐉', Revati:'🐟',
+};
+
+const NAKSHATRA_QUALITY: Record<string, string> = {
+  Ashwini:'Healing & swift beginnings', Bharani:'Transformation & fierce love',
+  Krittika:'Sharp discernment & fire', Rohini:'Beauty, wealth & sensuality',
+  Mrigashira:'Eternal seeking & curiosity', Ardra:'Destruction that renews',
+  Punarvasu:'Return & restoration', Pushya:'Nourishment & protection',
+  Ashlesha:'Serpent wisdom & intensity', Magha:'Royal lineage & authority',
+  'Purva Phalguni':'Pleasure & creative joy', 'Uttara Phalguni':'Contracts & social bonds',
+  Hasta:'Craft, skill & dexterity', Chitra:'Architecture of beauty',
+  Swati:'Independent spirit & balance', Vishakha:'Focused ambition & duality',
+  Anuradha:'Loyal devotion & friendship', Jyeshtha:'Elder authority & occult power',
+  Mula:'Root destruction & liberation', 'Purva Ashadha':'Invincible fire & pride',
+  'Uttara Ashadha':'Universal victory & dharma', Shravana:'Listening, learning & connection',
+  Dhanishta:'Abundance & musical soul', Shatabhisha:'Healing & mysticism',
+  'Purva Bhadrapada':'Two-faced intensity & fire', 'Uttara Bhadrapada':'Depth, patience & moksha',
+  Revati:'Final journey, protection & compassion',
+};
+
+const NAKSHATRA_FAMOUS: Record<string, string> = {
+  Ashwini:'Mahatma Gandhi · Amitabh Bachchan', Bharani:'Charlie Chaplin · Aishwarya Rai',
+  Krittika:'Jack Nicholson · Indira Gandhi', Rohini:'Barack Obama · Rihanna',
+  Mrigashira:'Nikola Tesla · Oprah Winfrey', Ardra:'Leonardo DiCaprio · Elon Musk',
+  Punarvasu:'Steve Jobs · Lata Mangeshkar', Pushya:'Dalai Lama · Warren Buffett',
+  Ashlesha:'Elvis Presley · Cardi B', Magha:'Napoleon · Madhuri Dixit',
+  'Purva Phalguni':'Michael Jackson · Marilyn Monroe', 'Uttara Phalguni':'Mother Teresa · AR Rahman',
+  Hasta:'Mahatma Gandhi · Princess Diana', Chitra:'Michelangelo · Shah Jahan',
+  Swati:'Rabindranath Tagore · Celine Dion', Vishakha:'Bill Gates · Deepika Padukone',
+  Anuradha:'Shah Rukh Khan · Taylor Swift', Jyeshtha:'Cleopatra · Amitabh Bachchan',
+  Mula:'Osho · Rumi · Nostradamus', 'Purva Ashadha':'Elvis · Jim Morrison',
+  'Uttara Ashadha':'Julius Caesar · APJ Abdul Kalam', Shravana:'Albert Einstein · Jawaharlal Nehru',
+  Dhanishta:'Aryabhata · Ludwig van Beethoven', Shatabhisha:'Abraham Lincoln · Nietzsche',
+  'Purva Bhadrapada':'Nikola Tesla · Fyodor Dostoevsky', 'Uttara Bhadrapada':'Michelangelo · Nostradamus',
+  Revati:'Swami Vivekananda · Rabindranath Tagore',
+};
+
+function NakshatraBanner({ reading }: { reading: FullReading }) {
+  const nk = reading.moonNakshatraName;
+  const sym = NAKSHATRA_SYMBOL[nk] || '✦';
+  const quality = NAKSHATRA_QUALITY[nk] || 'Ancient cosmic wisdom';
+  const famous = NAKSHATRA_FAMOUS[nk] || '';
+  const pada = reading.moonNakshatraPada;
+  return (
+    <div className="rounded-2xl overflow-hidden border" style={{ borderColor: 'rgba(26,107,107,0.2)', background: 'linear-gradient(135deg,rgba(26,107,107,0.08),rgba(212,136,10,0.06))' }}>
+      <div className="flex items-center gap-4 p-4 sm:p-5">
+        <div className="flex-shrink-0 w-16 h-16 sm:w-20 sm:h-20 rounded-2xl flex items-center justify-center text-4xl sm:text-5xl" style={{ background: 'rgba(26,107,107,0.1)', border: '1px solid rgba(26,107,107,0.2)' }}>
+          {sym}
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-[10px] font-bold uppercase tracking-widest mb-0.5" style={{ color: AMBER }}>Your Birth Star</p>
+          <h2 className="text-2xl sm:text-3xl font-bold leading-tight" style={{ color: TEAL }}>{nk}</h2>
+          <p className="text-xs sm:text-sm font-medium mt-0.5" style={{ color: '#4B5563' }}>Pada {pada} · {quality}</p>
+        </div>
+        <div className="hidden sm:flex flex-col items-end gap-1 text-right flex-shrink-0">
+          <p className="text-[10px] uppercase tracking-wider" style={{ color: '#9CA3AF' }}>Shares nakshatra with</p>
+          {famous.split(' · ').map(f => (
+            <p key={f} className="text-xs font-semibold" style={{ color: '#374151' }}>{f}</p>
+          ))}
+        </div>
+      </div>
+      {/* Nakshatra strip — show all 27 nakshatras, highlight current */}
+      <div className="flex overflow-x-auto px-4 pb-3 gap-1.5" style={{ scrollbarWidth: 'none' }}>
+        {Object.keys(NAKSHATRA_SYMBOL).map((n, i) => {
+          const isCurrent = n === nk;
+          return (
+            <div key={n} className="flex-shrink-0 text-center" style={{ opacity: isCurrent ? 1 : 0.35 }}>
+              <div className="w-8 h-8 rounded-lg flex items-center justify-center text-base mb-0.5"
+                style={{ background: isCurrent ? `linear-gradient(135deg,${TEAL},${TEAL_L})` : 'rgba(26,107,107,0.06)', border: isCurrent ? `1px solid ${TEAL}` : '1px solid transparent' }}>
+                {NAKSHATRA_SYMBOL[n]}
+              </div>
+              {isCurrent && <div className="w-1.5 h-1.5 rounded-full mx-auto" style={{ background: AMBER }} />}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
 
 function buildContext(reading: FullReading): ReadingContext {
   const birthYear = parseInt(reading.dob?.split('-')[0] || '1990', 10);
@@ -202,7 +286,7 @@ export default function ReportCard({ t: _t, reading }: ReportCardProps) {
         <p className="text-sm mt-1" style={{ color:'#6B7280' }}>Born {reading.dob} · {reading.birthCity}</p>
       </div>
 
-      <CelestialScene sunSign={reading.westernSunSign} moonSign={reading.moonSign} rashi={reading.lagnaSign} nakshatra={reading.moonNakshatraName} />
+      <NakshatraBanner reading={reading} />
 
       {/* Quick stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">

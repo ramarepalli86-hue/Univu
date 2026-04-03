@@ -11,31 +11,21 @@ function getGroqClient(): Groq | null {
 }
 
 // ─── System prompt — the astrology intelligence core ─────────────────────────
-const SYSTEM_PROMPT = `You are a master astrologer and storyteller with deep knowledge of:
-- Vedic/Jyotish astrology (Lahiri ayanamsa, nakshatras, dashas, yogas, rashis)
-- Western astrology (tropical zodiac, houses, aspects, progressions, transits)
-- Egyptian/Hellenistic astrology (decans, lots, Thema Mundi, Heliopolis tradition)
-- Babylonian/Mesopotamian astrology (omens, fixed stars, lunar calendar)
-- Chinese/Eastern astrology (Five Elements, Heavenly Stems, Earthly Branches)
-- Mayan calendar (Tzolkin, Long Count, day signs, trecena)
-- Middle Eastern Islamic astrology (Arabic Parts, fixed stars, planetary hours)
-
-Your role is to write deeply personal, HONEST, emotionally resonant life story scenes — like a chapter in a cosmic biography that tells the FULL truth.
+const SYSTEM_PROMPT = `You are a master astrologer and storyteller giving a deeply personal cosmic biography scene.
 
 Rules:
-1. Write in beautiful, poetic but clear prose (not dry astrology jargon)
-2. Be specific to the person's planetary positions — not generic
-3. Weave ALL traditions into the narrative (Vedic + Western + Egyptian + Mayan)
-4. Tell it like a skilled biographer who knows the highs AND the lows — be honest
-5. INCLUDE real challenges, struggles, and shadow sides of the planetary period
-6. INCLUDE real solutions, growth opportunities, and how to navigate the difficulties
-7. Do NOT be relentlessly positive — real life has real problems; the chart shows both
-8. Reference documented astrological scriptures and traditions when relevant
-9. ALWAYS end with: "⚠️ For entertainment & informational purposes only."
-10. Keep each scene between 180-280 words
-11. Use the person's name naturally in the narrative
-12. Include at least ONE specific possible life event or challenge the person might face based on the planets
-13. Include at least ONE specific recommended action or remedy for navigating the period`;
+1. Write in vivid, clear prose directly about THIS person — use their name.
+2. Be specific to their planetary positions — no generic zodiac descriptions.
+3. Weave Vedic + Western + Egyptian traditions naturally into the narrative.
+4. Tell the FULL truth: real gifts AND real struggles. Never be relentlessly positive.
+5. Structure EVERY scene with these three parts in order:
+   - Opening narrative (2-3 sentences): what this life chapter IS for this person
+   - Challenge: Start exactly with "Challenge: " followed by the specific obstacle, struggle or pain this period brings (1-2 sentences)
+   - Lesson: Start exactly with "Lesson: " followed by the specific action, growth or remedy that navigates it (1-2 sentences)
+6. Reference astrological traditions concretely (e.g., "Saturn's 2.5-year transit", "Rahu's insatiable hunger")
+7. End with: "⚠️ For entertainment & informational purposes only."
+8. Keep total length 200–280 words.
+9. Always include the person's name naturally.`;
 
 export async function POST(req: NextRequest) {
   try {
@@ -79,54 +69,75 @@ export async function POST(req: NextRequest) {
     // Build the user prompt for this specific scene
     const scenePrompts: Record<number, string> = {
       0: `Write Chapter I — "The Arrival" for ${name}'s cosmic biography.
-Birth year: ${birthYear}, born in ${birthCity}.
-Ascendant/Lagna: ${lagnaSign} | Moon: ${moonSign} | Sun: ${sunSign}
+Born ${birthYear} in ${birthCity}. Ascendant: ${lagnaSign} | Moon: ${moonSign} | Sun: ${sunSign}
+Planets at birth: ${planetContext}
+
+Opening: What energies ${name} came into this world carrying — what gifts AND what heavy karmic debts were baked in from day one. Be specific about what ${lagnaSign} rising + ${moonSign} Moon creates in a real person (not just planet meanings — what their LIFE feels like).
+
+Challenge: What is the core difficulty of this birth chart? (e.g., Moon-Saturn tension, Manglik influence, 8th house stellium — name it and what it means for their actual lived experience)
+
+Lesson: What one astrological tradition (Vedic/Egyptian/Mayan) says is the path through this birth challenge for ${lagnaSign} rising.`,
+
+      1: `Write Chapter II — "The Unfolding" for ${name}'s childhood (ages 0–12).
+Ascendant: ${lagnaSign} | Moon: ${moonSign} | Planets: ${planetContext}
+Birth year: ${birthYear}
+
+Opening: What ${name}'s early emotional world was like — what their home life, relationships with parents, and core childhood emotional pattern was based on ${moonSign} Moon. Be specific and personal, not generic.
+
+Challenge: What specific emotional wound or family dynamic does this chart suggest ${name} likely carried from childhood? (Name the planet + house creating it)
+
+Lesson: What Vedic tradition recommends for healing this particular childhood wound. Give one practical remedy or shift.`,
+
+      2: `Write Chapter III — "The Awakening" for ${name} (ages 13–25).
+Ascendant: ${lagnaSign} | Moon: ${moonSign} | Jupiter: ${planets.find((p: { name: string }) => p.name === 'Jupiter') ? `House ${planets.find((p: { name: string }) => p.name === 'Jupiter')?.house}` : 'unknown'}
+Full chart: ${planetContext}
+
+Opening: What ${name}'s awakening years felt like — the identity questions, educational choices, and first real relationships shaped by this specific chart. What did ${lagnaSign} rising as a young adult look like in real life?
+
+Challenge: What is the specific pitfall of this age period for this chart — the mistake or pain most likely to hit between 18–25 based on Jupiter's placement and the running dasha?
+
+Lesson: What specific action or mindset shift would help ${name} navigate this chapter's challenge successfully.`,
+
+      3: `Write Chapter IV — "The Forge" for ${name} (ages 26–40).
+Ascendant: ${lagnaSign} | Sun: ${sunSign} | Current Dasha: ${currentDasha}
 Planets: ${planetContext}
-Describe the birth energy honestly — what gifts this chart carries AND what inherent challenges are baked in from birth.
-Reference: What Vedic rishis say about ${lagnaSign} rising (both strengths and difficulties), Egyptian decan at birth, Western natal chart tensions.
-Include one specific challenge this Lagna-Moon combination historically brings.`,
+${concern ? `Their stated concern: "${concern}"` : ''}
 
-      1: `Write Chapter II — "The Unfolding" childhood scene for ${name}.
-Ascendant: ${lagnaSign} | Moon: ${moonSign} | Current Dasha: ${currentDasha}
-Birth year: ${birthYear} — ages 0–12 period.
-Be HONEST: describe both the childhood gifts AND the emotional wounds, family dynamics, or early struggles this chart suggests.
-What did ${moonSign} Moon mean for emotional needs that may NOT have been fully met?
-Include a specific challenge of this dasha period and how to heal from it.`,
+Opening: What ${name}'s career forge years are actually about — not just ambition but what Saturn's first return at 29-30 demanded of them specifically. Be direct about their actual 10th house sign and career direction.
 
-      2: `Write Chapter III — "The Awakening" youth scene for ${name}.
-Ascendant: ${lagnaSign} | Moon: ${moonSign} | Jupiter position from: ${planetContext}
-Ages 13–25 — the awakening of identity, education, and first real choices.
-Be HONEST: What are the real struggles of this period? Educational pressures, identity crises, relationship mistakes?
-What does Jupiter's placement suggest goes right — and what goes wrong — in this chapter?
-Include one specific pitfall of this period and a path through it.`,
+Challenge: What is the specific career or relationship obstacle this chart creates in the 30s? Name the planet, its position, and what real-life problem it causes for ${name}.
 
-      3: `Write Chapter IV — "The Forge" career scene for ${name}.
-Ascendant: ${lagnaSign} | Sun: ${sunSign} | Planets: ${planetContext}
-Current Dasha: ${currentDasha}
-Ages 26–40 — the forge of career, Saturn return at 29-30, and real-world tests.
-${concern ? `Special concern: ${concern}` : ''}
-Be HONEST: Saturn return brings crisis for a reason — what structures in ${name}'s life need to collapse to be rebuilt truly?
-Include specific career or relationship challenges of this period and practical solutions from Vedic tradition.`,
+Lesson: What Vedic tradition (specific dasha timing, Saturn remedy, Jupiter transit window) gives ${name} the clearest path through this decade's challenges.`,
 
-      4: `Write Chapter V — "The Union" love/partnership scene for ${name}.
-Ascendant: ${lagnaSign} | Venus from: ${planetContext}
-Ages 30–50 — love, marriage, and the real tests of partnership.
-Be HONEST: What are the shadow patterns this chart brings to relationships? Possessiveness, avoidance, unrealistic expectations?
-What does Venus's placement reveal about the person's capacity for love AND their relationship blind spots?
-Include a real problem this chart pattern creates in relationships and how to work through it.`,
+      4: `Write Chapter V — "The Union" for ${name} (ages 30–50).
+Ascendant: ${lagnaSign} | Venus: ${planets.find((p: { name: string }) => p.name === 'Venus') ? `${planets.find((p: { name: string }) => p.name === 'Venus')?.rashi} House ${planets.find((p: { name: string }) => p.name === 'Venus')?.house}` : 'unknown'}
+7th house context from: ${planetContext}
 
-      5: `Write Chapter VI — "The Deepening" wisdom scene for ${name}.
-Ascendant: ${lagnaSign} | Saturn from: ${planetContext}
-Ages 50–70 — the harvest years AND the weight of accumulated karma.
-Be HONEST: What debts (karmic, emotional, financial) does this period require settlement?
-Saturn's second return at 58-60 is as significant as the first — what does it demand from ${name} specifically?
-Include specific challenges of the elder years for this chart and how wisdom addresses them.`,
+Opening: What ${name}'s relationship chapter actually looks like — what Venus's exact placement creates in their love life, who they attract, and what the pattern of their partnerships has been.
 
-      6: `Write Chapter VII — "The Eternal" soul purpose scene for ${name}.
-Ascendant: ${lagnaSign} | Moon: ${moonSign} | All planets: ${planetContext}
-The soul's ultimate purpose — but also its ultimate challenge.
-Be HONEST: What is the central karmic struggle of this lifetime? What is Ketu's past-life baggage that ${name} carries? What does Rahu demand that feels most difficult?
-Include the honest truth about what dharmic success requires for this specific chart, and what failure to live it brings.`,
+Challenge: What is the shadow pattern this chart brings to relationships — possessiveness, avoidance, fear of commitment, or attracting the wrong partners? Name the specific planetary cause.
+
+Lesson: What one thing ${name} must genuinely change or accept about themselves to experience deeper love, based on their Venus and 7th house.`,
+
+      5: `Write Chapter VI — "The Deepening" for ${name} (ages 50–70).
+Ascendant: ${lagnaSign} | Saturn: ${planets.find((p: { name: string }) => p.name === 'Saturn') ? `${planets.find((p: { name: string }) => p.name === 'Saturn')?.rashi} House ${planets.find((p: { name: string }) => p.name === 'Saturn')?.house}` : 'unknown'}
+Full chart: ${planetContext}
+
+Opening: What the harvest years look like for ${name} — what has been built, what must be surrendered, and what Saturn's second return at 58-60 demands of this specific chart.
+
+Challenge: What karmic debt or structural collapse does this period bring for ${name}? Be specific — which house, which area of life (health/career/relationship) is Saturn testing?
+
+Lesson: What wisdom or practice from Vedic tradition gives ${name} peace and purpose in this chapter. Be practical.`,
+
+      6: `Write Chapter VII — "The Eternal" for ${name}'s soul purpose.
+Ascendant: ${lagnaSign} | Moon: ${moonSign}
+Rahu-Ketu axis + all planets: ${planetContext}
+
+Opening: What ${name}'s soul came here to ultimately experience — stated in plain language (not mystical jargon). What Rahu's house/sign is pulling them toward that feels uncomfortable but essential.
+
+Challenge: What is the central karmic battle of this lifetime for ${name}? What does Ketu's comfort zone keep pulling them back to, preventing real growth?
+
+Lesson: What one transformative action — based on Rahu's placement and the Atmakaraka planet — would most radically shift ${name}'s life in the direction of their soul's true purpose.`,
     };
 
     const userPrompt = scenePrompts[sceneIndex] || `Write a cosmic life story scene for ${name} 
@@ -141,7 +152,7 @@ Planets: ${planetContext}`;
         { role: 'system', content: SYSTEM_PROMPT },
         { role: 'user', content: userPrompt },
       ],
-      max_tokens: 350,
+      max_tokens: 500,
       temperature: 0.8,
     });
 

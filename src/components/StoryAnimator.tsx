@@ -413,46 +413,99 @@ function CinematicScene({ scene, name, planets }: {
   planets: Array<{ name: string; rashi: string; house: number }>;
 }) {
   const orbPlanets = planets.filter(p => p.name !== 'Rahu' && p.name !== 'Ketu').slice(0, 3);
+
+  // Parse challenge and lesson from enriched narrative text
+  const text = scene.narrativeText || '';
+  const challengeMatch = text.match(/challenge[s]?[:\s]+([^.!?\n]{20,120}[.!?])/i)
+    || text.match(/struggle[s]?[:\s]+([^.!?\n]{20,120}[.!?])/i)
+    || text.match(/difficult[y]?[:\s]+([^.!?\n]{20,120}[.!?])/i);
+  const lessonMatch = text.match(/lesson[s]?[:\s]+([^.!?\n]{20,120}[.!?])/i)
+    || text.match(/learn[s]?[:\s]+([^.!?\n]{20,120}[.!?])/i)
+    || text.match(/growth[:\s]+([^.!?\n]{20,120}[.!?])/i)
+    || text.match(/action[s]?[:\s]+([^.!?\n]{20,120}[.!?])/i);
+
+  // Strip the matched sentence from the main narrative to avoid duplication
+  let mainText = text
+    .replace(/\*\*/g, '').replace(/\*/g, '').replace(/#+\s/g, '')
+    .replace('⚠️ For entertainment & informational purposes only.', '')
+    .replace('⚠️ For entertainment and informational purposes only.', '')
+    .trim();
+  // Limit main text to ~260 chars for readability
+  if (mainText.length > 300) mainText = mainText.slice(0, 297) + '…';
+
+  const challengeText = challengeMatch?.[1]?.trim();
+  const lessonText = lessonMatch?.[1]?.trim();
+
   return (
-    <div className={`relative w-full h-full flex flex-col items-center justify-center overflow-hidden bg-gradient-to-br ${scene.bgGradient}`}>
+    <div className={`relative w-full h-full flex flex-col items-center justify-start overflow-hidden bg-gradient-to-br ${scene.bgGradient}`}>
       <StarField count={scene.starsCount} color={scene.accentColor} />
       <motion.div className="absolute rounded-full blur-3xl pointer-events-none"
-        style={{ width: '60%', height: '60%', top: '20%', left: '20%', backgroundColor: scene.accentColor + '08' }}
+        style={{ width: '60%', height: '60%', top: '10%', left: '20%', backgroundColor: scene.accentColor + '08' }}
         animate={{ scale: [1, 1.15, 1] }} transition={{ duration: 6, repeat: Infinity }} />
       {orbPlanets.map((p, i) => (
         <PlanetOrb key={p.name} planet={p.name}
-          x={i === 0 ? '5%' : i === 1 ? '78%' : '85%'}
-          y={i === 0 ? '15%' : i === 1 ? '12%' : '55%'}
+          x={i === 0 ? '3%' : i === 1 ? '80%' : '86%'}
+          y={i === 0 ? '10%' : i === 1 ? '8%' : '48%'}
           delay={i * 0.8} />
       ))}
-      <div className="relative z-10 w-full max-w-2xl mx-auto px-6 flex flex-col items-center text-center gap-5">
+
+      {/* Scrollable content area */}
+      <div className="relative z-10 w-full max-w-2xl mx-auto px-5 pt-14 pb-28 flex flex-col items-center gap-4 overflow-y-auto h-full">
+        {/* Chapter badge */}
         <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3, duration: 0.8 }}
           className="px-4 py-1.5 rounded-full border text-xs font-semibold tracking-widest uppercase"
           style={{ borderColor: scene.accentColor + '60', color: scene.accentColor, backgroundColor: scene.accentColor + '15' }}>
           {scene.chapter} · {scene.lifeAge}
         </motion.div>
+
+        {/* Character figure — smaller */}
         <motion.div initial={{ opacity: 0, scale: 0.6 }} animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.5, duration: 1, type: 'spring', stiffness: 80 }}
-          className="w-44 h-44 md:w-60 md:h-60">
+          className="w-28 h-28 md:w-36 md:h-36">
           <CharacterFigure pose={scene.characterPose} color={scene.accentColor} />
         </motion.div>
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.8, duration: 0.8 }}>
-          <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-1"
+
+        {/* Title */}
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.8, duration: 0.8 }} className="text-center">
+          <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-0.5"
             style={{ color: scene.accentColor, textShadow: `0 0 30px ${scene.accentColor}60` }}>
             {scene.title}
           </h2>
-          <p className="text-lg md:text-xl text-white/70 font-light">{scene.subtitle}</p>
+          <p className="text-base md:text-lg text-white/70 font-light">{scene.subtitle}</p>
+          <p className="text-sm font-semibold text-white/90 mt-1">{name}</p>
         </motion.div>
-        <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 1.1, duration: 0.6 }} className="text-2xl font-semibold text-white/90">
-          {name}
-        </motion.div>
+
+        {/* Main narrative — bigger and more readable */}
         <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1.4, duration: 0.8 }}
-          className="text-sm md:text-base leading-relaxed text-white/80 italic max-w-lg"
-          style={{ textShadow: '0 1px 8px rgba(0,0,0,0.8)' }}>
-          {scene.narrativeText.replace(/\*\*/g, '').replace(/\*/g, '').replace(/#+\s/g, '')}
+          transition={{ delay: 1.1, duration: 0.8 }}
+          className="text-sm md:text-base leading-relaxed text-white/85 text-center max-w-lg"
+          style={{ textShadow: '0 1px 8px rgba(0,0,0,0.9)' }}>
+          {mainText || `The ${scene.title.toLowerCase()} — a chapter of profound significance in the cosmic journey of ${name}.`}
         </motion.p>
+
+        {/* Challenge card */}
+        {challengeText && (
+          <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 1.4, duration: 0.7 }}
+            className="w-full max-w-md rounded-xl px-4 py-3 border-l-4 backdrop-blur-sm"
+            style={{ background: 'rgba(239,68,68,0.12)', borderLeftColor: '#EF4444', borderTop: '1px solid rgba(239,68,68,0.2)', borderRight: '1px solid rgba(239,68,68,0.1)', borderBottom: '1px solid rgba(239,68,68,0.1)' }}>
+            <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: '#FCA5A5' }}>⚠️ Challenge in this period</p>
+            <p className="text-xs md:text-sm text-white/80 leading-relaxed">{challengeText}</p>
+          </motion.div>
+        )}
+
+        {/* Lesson / Growth card */}
+        {lessonText && (
+          <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 1.6, duration: 0.7 }}
+            className="w-full max-w-md rounded-xl px-4 py-3 border-l-4 backdrop-blur-sm"
+            style={{ background: 'rgba(34,197,94,0.10)', borderLeftColor: '#22C55E', borderTop: '1px solid rgba(34,197,94,0.2)', borderRight: '1px solid rgba(34,197,94,0.1)', borderBottom: '1px solid rgba(34,197,94,0.1)' }}>
+            <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: '#86EFAC' }}>✨ What to learn & do</p>
+            <p className="text-xs md:text-sm text-white/80 leading-relaxed">{lessonText}</p>
+          </motion.div>
+        )}
+
+        {/* Planet ruler badge */}
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.8, duration: 0.6 }}
           className="flex items-center gap-2 px-4 py-2 rounded-full"
           style={{ backgroundColor: scene.accentColor + '20', border: `1px solid ${scene.accentColor}40` }}>
