@@ -47,7 +47,7 @@ export default function HomePage() {
   }
 
   return (
-    <div className="relative min-h-screen bg-warm-50">
+    <div className="relative min-h-screen" style={{ background: '#0E0C09' }}>
       <StarField />
       <DisclaimerBanner t={t} />
       <AgeGate t={t} underage={false} />
@@ -60,13 +60,13 @@ export default function HomePage() {
           transition={{ duration: 0.6 }}
           className="text-center mb-10"
         >
-          <h1 className="text-4xl sm:text-5xl font-display font-bold text-teal-700 tracking-tight">
+          <h1 className="text-4xl sm:text-5xl font-display font-bold tracking-tight" style={{ color: '#E8D4A8' }}>
             {t.app_name || 'Univu'}
           </h1>
-          <p className="text-base sm:text-lg text-gray-500 mt-2">
+          <p className="text-base sm:text-lg mt-2" style={{ color: '#9A8468' }}>
             {t.tagline || 'See the universe. Know yourself.'}
           </p>
-          <p className="text-sm text-gray-400 mt-1 italic">
+          <p className="text-sm mt-1 italic" style={{ color: '#7A6448' }}>
             {t.hero_subtitle || 'Vedic · Western · Egyptian · Roman astrological traditions'}
           </p>
         </motion.header>
@@ -91,7 +91,10 @@ export default function HomePage() {
             <motion.div key="report" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
               <button
                 onClick={() => { setReading(null); }}
-                className="mb-6 text-sm text-gray-400 hover:text-gray-600 transition-colors"
+                className="mb-6 text-sm transition-colors"
+                style={{ color: '#7A6448' }}
+                onMouseEnter={e => (e.currentTarget.style.color = '#C4A87A')}
+                onMouseLeave={e => (e.currentTarget.style.color = '#7A6448')}
               >
                 ← Back to Home
               </button>
@@ -100,11 +103,11 @@ export default function HomePage() {
           )}
         </AnimatePresence>
 
-        <footer className="mt-16 pt-6 border-t border-warm-200 text-center space-y-3">
-          <p className="text-xs text-gray-400">
+        <footer className="mt-16 pt-6 text-center space-y-3" style={{ borderTop: '1px solid rgba(156,122,26,0.15)' }}>
+          <p className="text-xs" style={{ color: '#6B5840' }}>
             For entertainment and information only. Consult a professional astrologer for accurate guidance.
           </p>
-          <p className="text-xs text-gray-300">
+          <p className="text-xs" style={{ color: '#4A3E2E' }}>
             {t.footer_text || '© 2026 Univu'}
           </p>
         </footer>
