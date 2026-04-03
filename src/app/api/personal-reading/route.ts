@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Groq from 'groq-sdk';
+import { budgetGuard, addTokens } from '@/lib/budget';
 
 function getGroqClient(): Groq | null {
   const apiKey = process.env.Grok_Univu_Key || process.env.GROQ_API_KEY;
@@ -236,6 +237,9 @@ export interface ReadingContext {
 }
 
 export async function POST(req: NextRequest) {
+  const blocked = budgetGuard();
+  if (blocked) return blocked;
+
   try {
     const groq = getGroqClient();
     if (!groq) {
@@ -279,12 +283,7 @@ RULES:
 
     const text = completion.choices[0]?.message?.content || '';
     const tokensUsed = completion.usage?.total_tokens || 0;
-
-    fetch(`${req.nextUrl.origin}/api/usage-alert`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ tokensUsed }),
-    }).catch(() => {});
+    addTokens(tokensUsed);
 
     return NextResponse.json({ text, section, tokensUsed });
   } catch (error: unknown) {

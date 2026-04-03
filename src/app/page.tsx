@@ -7,6 +7,7 @@ import DisclaimerBanner from '@/components/DisclaimerBanner';
 import IntakeForm, { IntakeFormData } from '@/components/IntakeForm';
 import AgeGate from '@/components/AgeGate';
 import ReportCard, { ReadingResult } from '@/components/ReportCard';
+import AstroChat from '@/components/AstroChat';
 import { Locale, getTranslations, detectLocale } from '@/i18n';
 
 export default function HomePage() {
@@ -193,6 +194,20 @@ export default function HomePage() {
           </a>
         </footer>
       </div>
+
+      {/* Floating AI chat — always visible, injects chart context when reading is available */}
+      <AstroChat chartContext={reading
+        ? [
+            reading.name ? `Name: ${reading.name}` : '',
+            reading.lagnaSign ? `Lagna (Rising): ${reading.lagnaSign}` : '',
+            reading.moonSign ? `Moon sign: ${reading.moonSign}` : '',
+            reading.sunSign ? `Sun sign: ${reading.sunSign}` : '',
+            reading.currentDasha ? `Current Dasha: ${reading.currentDasha}` : '',
+            reading.currentAntardasha ? `Antardasha: ${reading.currentAntardasha}` : '',
+            reading.concern ? `User concern: ${reading.concern}` : '',
+          ].filter(Boolean).join(', ')
+        : undefined
+      } />
     </div>
   );
 }

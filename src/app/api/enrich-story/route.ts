@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Groq from 'groq-sdk';
+import { budgetGuard, addTokens } from '@/lib/budget';
 
 // ─── Groq client — lazy initialized so missing key won't crash build ──────────
-// FREE tier: 14,400 requests/day. Sign up free at https://console.groq.com
 function getGroqClient(): Groq | null {
-  // Key name: Grok_Univu_Key (prefix pattern for future keys e.g. OpenAI_Univu_Key)
   const apiKey = process.env.Grok_Univu_Key || process.env.GROQ_API_KEY;
   if (!apiKey) return null;
   return new Groq({ apiKey });
@@ -28,12 +27,14 @@ Rules:
 9. Always include the person's name naturally.`;
 
 export async function POST(req: NextRequest) {
+  const blocked = budgetGuard();
+  if (blocked) return blocked;
+
   try {
-    // Check API key — if missing, return gracefully (app still works without AI)
     const groq = getGroqClient();
     if (!groq) {
       return NextResponse.json(
-        { error: 'API key not configured. Set Grok_Univu_Key in environment variables.', enriched: null },
+        { error: 'API key not configured.', enriched: null },
         { status: 503 }
       );
     }
@@ -158,13 +159,7 @@ Planets: ${planetContext}`;
 
     const enrichedText = completion.choices[0]?.message?.content || '';
     const tokensUsed = completion.usage?.total_tokens || 0;
-
-    // Log usage for cost tracking (fire-and-forget, don't block response)
-    fetch(`${req.nextUrl.origin}/api/usage-alert`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ tokensUsed }),
-    }).catch(() => {}); // silent — never block the story response
+    addTokens(tokensUsed);
 
     return NextResponse.json({
       enriched: enrichedText,
