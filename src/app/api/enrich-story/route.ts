@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Groq from 'groq-sdk';
 
-// ─── Groq client — FREE tier (Llama 3.3 70B) ─────────────────────────────────
-// Free: 14,400 requests/day. ~$0.00 for most usage.
-// Sign up free at https://console.groq.com — add GROQ_API_KEY to .env.local
-const groq = new Groq({
-  apiKey: process.env.GROQ_API_KEY,
-});
+// ─── Groq client — lazy initialized so missing key won't crash build ──────────
+// FREE tier: 14,400 requests/day. Sign up free at https://console.groq.com
+function getGroqClient(): Groq | null {
+  if (!process.env.GROQ_API_KEY) return null;
+  return new Groq({ apiKey: process.env.GROQ_API_KEY });
+}
 
 // ─── System prompt — the astrology intelligence core ─────────────────────────
 const SYSTEM_PROMPT = `You are a master astrologer and storyteller with deep knowledge of:
@@ -33,8 +33,9 @@ Rules:
 
 export async function POST(req: NextRequest) {
   try {
-    // Check API key
-    if (!process.env.GROQ_API_KEY) {
+    // Check API key — if missing, return gracefully (app still works without AI)
+    const groq = getGroqClient();
+    if (!groq) {
       return NextResponse.json(
         { error: 'Groq API key not configured', enriched: null },
         { status: 503 }
