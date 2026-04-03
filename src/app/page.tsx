@@ -121,6 +121,17 @@ export default function HomePage() {
             {t.hero_subtitle || 'Vedic · Western · Chinese · Egyptian · Mayan traditions'}
           </p>
 
+          {/* Live site link */}
+          <a
+            href="https://univu.vercel.app"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-block mt-2 text-xs font-semibold hover:underline transition-opacity hover:opacity-75"
+            style={{ color: '#D4880A', letterSpacing: '0.06em' }}
+          >
+            🌐 univu.vercel.app
+          </a>
+
           {/* Tradition pills */}
           <div className="flex flex-wrap justify-center gap-2 mt-4">
             {[['🕉️','Vedic'],['♈','Western'],['☯️','Chinese'],['𓂀','Egyptian'],['☀️','Mayan']].map(([icon, name]) => (

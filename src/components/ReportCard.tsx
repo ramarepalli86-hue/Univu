@@ -229,6 +229,17 @@ function buildContext(reading: FullReading): ReadingContext {
   };
 }
 
+function ConcernBanner({ concern }: { concern: string }) {
+  if (!concern?.trim()) return null;
+  return (
+    <div className="mb-5 rounded-xl p-4 border" style={{ background: 'rgba(212,136,10,0.07)', borderColor: 'rgba(212,136,10,0.3)' }}>
+      <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: AMBER }}>📌 Your Question</p>
+      <p className="text-sm font-medium italic" style={{ color: '#374151' }}>&ldquo;{concern}&rdquo;</p>
+      <p className="text-[11px] mt-1.5" style={{ color: '#9CA3AF' }}>The AI reading below addresses this directly.</p>
+    </div>
+  );
+}
+
 function AISection({ sectionId, reading }: { sectionId: string; reading: FullReading }) {
   const [text, setText] = useState('');
   const [loading, setLoading] = useState(false);
@@ -248,15 +259,32 @@ function AISection({ sectionId, reading }: { sectionId: string; reading: FullRea
 
   useEffect(() => { fetch_(); }, [fetch_]);
 
-  if (loading) return <ReadingSkeleton />;
-  if (text) return <PersonalText text={text} />;
+  const concern = (reading as FullReading & { concern?: string }).concern ?? '';
+
+  if (loading) return (
+    <div>
+      {sectionId === 'overview' && <ConcernBanner concern={concern} />}
+      <ReadingSkeleton />
+    </div>
+  );
+  if (text) return (
+    <div>
+      {sectionId === 'overview' && <ConcernBanner concern={concern} />}
+      <PersonalText text={text} />
+    </div>
+  );
   if (fetched) return (
     <div className="text-center py-10 space-y-3">
       <p className="text-sm" style={{ color: '#6B7280' }}>Could not load reading right now.</p>
       <button onClick={() => setFetched(false)} className="text-xs px-4 py-2 rounded-full font-medium text-white" style={{ background: TEAL }}>Try Again</button>
     </div>
   );
-  return <ReadingSkeleton />;
+  return (
+    <div>
+      {sectionId === 'overview' && <ConcernBanner concern={concern} />}
+      <ReadingSkeleton />
+    </div>
+  );
 }
 
 function StatBadge({ label, value, accent }: { label: string; value: string; accent?: boolean }) {
@@ -323,7 +351,7 @@ export default function ReportCard({ t: _t, reading }: ReportCardProps) {
           {tab === 'charts' && (
             <div className="space-y-6">
               <div>
-                <h3 className="text-base font-bold mb-3" style={{ color:TEAL }}>🪐 Planetary Positions</h3>
+                <h3 className="text-base font-bold mb-3" style={{ color:TEAL }}>🪐 Your Planetary Positions</h3>
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead>
@@ -345,6 +373,42 @@ export default function ReportCard({ t: _t, reading }: ReportCardProps) {
                   </table>
                 </div>
               </div>
+
+              {/* Personal planet-in-house meanings */}
+              <div>
+                <h3 className="text-base font-bold mb-3" style={{ color:TEAL }}>💡 What Your Planets Mean For You</h3>
+                <div className="space-y-2">
+                  {reading.planets.map(p => {
+                    const meanings: Record<string,Record<number,string>> = {
+                      Sun: {1:'Strong personality, leadership ability, robust health. You command respect naturally.',2:'Wealth through authority. Your speech is powerful.',3:'Courageous, competitive spirit, bold communication.',4:'Deep connection to homeland; tension with authority figures.',5:'Sharp intelligence, creative power, strong firstborn.',6:'Victory over enemies; government dealings favor you.',7:'Dominant in relationships; partners from notable backgrounds.',8:'Interest in the hidden, occult, and transformation.',9:'Dharmic nature, strong father influence, higher purpose.',10:'Natural career authority — leadership, fame, government.',11:'Gains through powerful connections.',12:'Foreign residence tendency, spiritual inclinations.'},
+                      Moon: {1:'Emotionally expressive, caring, changeable moods, sensitive to environment.',2:'Wealth fluctuations; warm voice; deeply attached to family.',3:'Creative courage; emotionally driven communication.',4:'Domestic happiness, close bond with mother. Very strong placement.',5:'Emotionally intelligent, imaginative, intuitive mind.',6:'Emotional sensitivity to enemies and health; needs grounding.',7:'Nurturing spouse; deeply emotional partnerships.',8:'Intense emotional depth; psychic ability; life upheavals.',9:'Devotion, religious instinct, fortune tied to mother figure.',10:'Public-facing career; popularity; emotional investment in work.',11:'Fulfilled through friendships and community.',12:'Rich dream life, spiritual sensitivity, needs solitude to recharge.'},
+                      Mars: {1:'Physical courage, athletic energy, assertive temperament (Manglik).',2:'Aggressive wealth-building; harsh speech in conflict (Manglik).',3:'Immense initiative and courage — you charge when others hesitate.',4:'Domestic intensity; property disputes possible (Manglik).',5:'Sharp competitive intelligence; driven to achieve.',6:'Excellent — you destroy enemies and disease with fighting spirit.',7:'Passionate, intense partnerships (Manglik) — strong chemistry.',8:'Transformative upheavals; surgical/accident awareness (Manglik).',9:'Warrior dharma; sometimes conflict with teachers or authority.',10:'Career in action-fields: military, engineering, surgery, real estate.',11:'Gains through courage and powerful friend circles.',12:'Foreign roots, spiritual warrior, hidden intensity (Manglik).'},
+                      Mercury: {1:'Quick-witted, youthful energy, natural communicator.',2:'Wealthy through intellect; eloquent, persuasive speaker.',3:'Exceptional communication talent — writing, speaking, media.',4:'Intellectual home environment; educated, stimulating mother.',5:'Mathematical and analytical brilliance; sharp examiner.',6:'Analytical problem-solver; defeats opponents through logic.',7:'Intelligent spouse; successful in business partnerships.',8:'Research genius; drawn to psychology and hidden knowledge.',9:'Higher education, philosophy, long-distance communication.',10:'Career in IT, writing, teaching, accounting, or consulting.',11:'Gains through diverse intellectual networks.',12:'Foreign-language talent; spiritual intellectualism.'},
+                      Jupiter: {1:'Wisdom radiates from you; healthy, optimistic, natural teacher.',2:'Excellent for family wealth — speech is inspiring.',3:'Wise communicator; siblings carry philosophical energy.',4:'Domestic happiness; property gains; wise, nurturing household.',5:'Very auspicious — brilliant children, high intelligence, merit.',6:'Wisdom defeats enemies; charitable nature wins over opposition.',7:'Wise, educated spouse; marriage is dharmic and lasting.',8:'Longevity; inheritance; deep spiritual knowledge.',9:'Supreme — dharmic life, guru blessings, fortune flows.',10:'Career in law, education, banking, or counseling.',11:'All desires fulfilled — this is the best placement for wealth.',12:'Foreign prosperity; spiritual liberation; moksha potential.'},
+                      Venus: {1:'Naturally attractive, artistic, charming, lover of comfort.',2:'Wealth; beautiful speaking voice; family harmony.',3:'Artistic communication; creative, beauty-oriented siblings.',4:'Luxury vehicles, beautiful home, deep comfort in life.',5:'Romantic nature; artistic children; creative talent.',6:'Relationship friction possible; success in beauty industries.',7:'Very favorable — charming spouse, harmonious marriage.',8:'Hidden pleasures; inheritance through spouse or partner.',9:'Fortune through art, beauty, and meaningful travel.',10:'Career in arts, entertainment, fashion, or diplomacy.',11:'Gains through beauty and pleasure; loving friend circle.',12:'Foreign luxuries; spiritual devotion through beauty.'},
+                      Saturn: {1:'Serious, disciplined personality; life lessons through hardship early.',2:'Delayed but steady wealth accumulation; careful speech.',3:'Perseverance in communication; courage earned not inherited.',4:'Property delays; eventual domestic stability through patience.',5:'Delayed children; serious, old-soul intelligence.',6:'Defeat chronic problems through endurance — strong placement.',7:'Delayed marriage; brings serious, committed spouse eventually.',8:'Longevity; endurance through crisis; chronic health awareness.',9:'Practical dharma; strict guru; slow-building philosophy.',10:'Slow but permanent career rise — government, labor, authority.',11:'Steady income; loyal elder friends; patient fulfillment.',12:'Spiritual discipline through isolation; eventual liberation.'},
+                      Rahu: {1:'Unconventional personality; worldly ambition; foreign connections.',2:'Unusual wealth patterns; hypnotic speech.',3:'Bold media talent; breaks communication barriers.',4:'Restlessness at home; foreign property connections.',5:'Speculative intelligence; unconventional education path.',6:'Powerful — victory over hidden enemies; foreign service.',7:'Karmic, intense marriage; foreign or unconventional spouse.',8:'Occult mastery; sudden transformations.',9:'Unconventional spirituality; foreign guru.',10:'Worldly fame through technology or unconventional path.',11:'Large gains; powerful networks; desire fulfilled.',12:'Foreign residence; vivid dreams; spiritual confusion.'},
+                      Ketu: {1:'Spiritual personality; past-life wisdom visible from birth.',2:'Detachment from material accumulation; unique way of speaking.',3:'Psychic courage; intuitive communication.',4:'Emotional detachment; spiritual home environment.',5:'Past-life spiritual merit; deeply intuitive intelligence.',6:'Victory through spiritual means; alternative healing gifts.',7:'Karmic, spiritually charged relationships.',8:'Past-life occult knowledge; deep transformation.',9:'Unconventional dharma path; spiritual wisdom.',10:'Research, spirituality, detachment from worldly ambition.',11:'Spiritual gains; eventual detachment from desire.',12:'Excellent for liberation — deep meditation, past-life attainment.'},
+                    };
+                    const meaning = meanings[p.name]?.[p.house] || `${p.name} in House ${p.house} brings its unique energy to this life domain.`;
+                    return (
+                      <div key={p.name} className="rounded-xl p-3 border" style={{ background:'#FAFAF8', borderColor:'#E5E7EB' }}>
+                        <div className="flex items-start gap-2">
+                          <span className="text-base flex-shrink-0">{P_SYMBOLS[p.name]}</span>
+                          <div>
+                            <p className="text-xs font-bold mb-0.5" style={{ color: TEAL }}>
+                              {p.name}{p.retrograde ? ' ℞' : ''} in {p.rashi} · House {p.house}
+                              {p.retrograde && <span className="ml-1 text-[10px] font-normal" style={{ color: AMBER }}>(retrograde)</span>}
+                            </p>
+                            <p className="text-xs leading-relaxed" style={{ color: '#4B5563' }}>{meaning}</p>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
               <div>
                 <h3 className="text-base font-bold mb-3" style={{ color:TEAL }}>🪷 Panchanga at Birth</h3>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
@@ -353,17 +417,29 @@ export default function ReportCard({ t: _t, reading }: ReportCardProps) {
                   ].map(([k,v]) => <StatBadge key={k} label={k} value={v} />)}
                 </div>
               </div>
-              <VedicChart
-                planets={reading.planets.map(p=>({ name:p.name, rashi:p.rashi.split(' (')[1]?.replace(')','') || p.rashi, house:p.house, retrograde:p.retrograde }))}
-                ascendant={reading.lagnaSign.split(' (')[1]?.replace(')','') || reading.lagnaSign}
-                chartType={reading.chartType}
-              />
-              <WesternChart
-                sunSign={reading.westernSunSign}
-                moonSign={reading.moonSign.split(' (')[1]?.replace(')','') || reading.moonSign}
-                risingSign={reading.lagnaSign.split(' (')[1]?.replace(')','') || reading.lagnaSign}
-                planets={reading.planets.map(p=>({ name:p.name, degree:p.siderealLongitude, sign:p.rashi.split(' (')[1]?.replace(')','') || 'Aries' }))}
-              />
+
+              {/* Charts — constrained size */}
+              <div>
+                <h3 className="text-base font-bold mb-3" style={{ color:TEAL }}>📐 Vedic Chart</h3>
+                <div className="max-w-sm mx-auto">
+                  <VedicChart
+                    planets={reading.planets.map(p=>({ name:p.name, rashi:p.rashi.split(' (')[1]?.replace(')','') || p.rashi, house:p.house, retrograde:p.retrograde }))}
+                    ascendant={reading.lagnaSign.split(' (')[1]?.replace(')','') || reading.lagnaSign}
+                    chartType={reading.chartType}
+                  />
+                </div>
+              </div>
+              <div>
+                <h3 className="text-base font-bold mb-3" style={{ color:TEAL }}>⭕ Western Chart</h3>
+                <div className="max-w-sm mx-auto">
+                  <WesternChart
+                    sunSign={reading.westernSunSign}
+                    moonSign={reading.moonSign.split(' (')[1]?.replace(')','') || reading.moonSign}
+                    risingSign={reading.lagnaSign.split(' (')[1]?.replace(')','') || reading.lagnaSign}
+                    planets={reading.planets.map(p=>({ name:p.name, degree:p.siderealLongitude, sign:p.rashi.split(' (')[1]?.replace(')','') || 'Aries' }))}
+                  />
+                </div>
+              </div>
             </div>
           )}
 
@@ -406,20 +482,87 @@ export default function ReportCard({ t: _t, reading }: ReportCardProps) {
         </div>
       )}
 
-      {/* Tradition mini cards */}
-      <div className="grid sm:grid-cols-3 gap-3">
-        {[
-          { icon:'𓂀', label:'Egyptian Decan', title:`${reading.egyptianDecan?.sign} — Decan ${reading.egyptianDecan?.decanNumber}`, sub:`Ruler: ${reading.egyptianDecan?.ruler}` },
-          { icon:'☀️', label:'Mayan Tzolkin', title:reading.mayanTzolkin?.daySign, sub:`Galactic Tone ${reading.mayanTzolkin?.tone}` },
-          { icon:'⭐', label:`${reading.moonNakshatraName} Hall of Fame`, title:'Michelangelo · Shah Jahan', sub:'Fellow Chitra souls' },
-        ].map(card => (
-          <div key={card.label} className="rounded-2xl p-4 border text-center space-y-1" style={{ background:'#FFFDF8', borderColor:'#E5E7EB' }}>
-            <p className="text-xl">{card.icon}</p>
-            <p className="text-[11px] font-bold uppercase tracking-wide" style={{ color:AMBER }}>{card.label}</p>
-            <p className="text-sm font-semibold" style={{ color:'#1F2937' }}>{card.title}</p>
-            <p className="text-[11px]" style={{ color:'#6B7280' }}>{card.sub}</p>
+      {/* Tradition deep-dive cards */}
+      <div className="space-y-3">
+        {/* Egyptian Decan */}
+        <div className="rounded-2xl p-5 border" style={{ background: '#FFFDF8', borderColor: '#E5E7EB' }}>
+          <div className="flex items-start gap-3 mb-3">
+            <span className="text-2xl">𓂀</span>
+            <div>
+              <p className="text-[11px] font-bold uppercase tracking-wide" style={{ color: AMBER }}>Egyptian Decan</p>
+              <p className="text-base font-bold" style={{ color: '#1F2937' }}>{reading.egyptianDecan?.sign} — Decan {reading.egyptianDecan?.decanNumber}</p>
+              <p className="text-xs" style={{ color: '#6B7280' }}>Ruled by {reading.egyptianDecan?.ruler} · Deity: {reading.egyptianDecan?.deity}</p>
+            </div>
           </div>
-        ))}
+          <p className="text-sm leading-relaxed" style={{ color: '#374151' }}>
+            You are born in the <strong>{reading.egyptianDecan?.decanNumber === 1 ? 'first' : reading.egyptianDecan?.decanNumber === 2 ? 'second' : 'third'} decan of {reading.egyptianDecan?.sign}</strong>, ruled by <strong>{reading.egyptianDecan?.ruler}</strong> in the ancient Chaldean system. 
+            The Egyptians called this your &ldquo;star clock&rdquo; — the group of stars rising on your birth horizon. Your decan ruler {reading.egyptianDecan?.ruler} gives you: <em>{reading.egyptianDecan?.traits}</em>. 
+            The presiding deity <strong>{reading.egyptianDecan?.deity}</strong> governs the cosmic energy of your life chapter.
+            In the Temple of Hathor at Dendera, this decan marks you as one who carries {
+              reading.egyptianDecan?.ruler === 'Mars' ? 'warrior courage and pioneering fire' :
+              reading.egyptianDecan?.ruler === 'Sun' ? 'solar authority and creative leadership' :
+              reading.egyptianDecan?.ruler === 'Venus' ? 'the gift of beauty, harmony, and artistic magnetism' :
+              reading.egyptianDecan?.ruler === 'Mercury' ? 'the sacred scribe\'s intelligence and communicative power' :
+              reading.egyptianDecan?.ruler === 'Moon' ? 'deep intuition and the healer\'s emotional wisdom' :
+              reading.egyptianDecan?.ruler === 'Saturn' ? 'the builder\'s patience and the architect of lasting legacy' :
+              'Jupiter\'s expansive wisdom and philosophical generosity'
+            }.
+          </p>
+        </div>
+
+        {/* Mayan Tzolkin */}
+        <div className="rounded-2xl p-5 border" style={{ background: '#FFFDF8', borderColor: '#E5E7EB' }}>
+          <div className="flex items-start gap-3 mb-3">
+            <span className="text-2xl">☀️</span>
+            <div>
+              <p className="text-[11px] font-bold uppercase tracking-wide" style={{ color: AMBER }}>Mayan Tzolkin</p>
+              <p className="text-base font-bold" style={{ color: '#1F2937' }}>{reading.mayanTzolkin?.daySign}</p>
+              <p className="text-xs" style={{ color: '#6B7280' }}>Galactic Tone {reading.mayanTzolkin?.tone} of 13</p>
+            </div>
+          </div>
+          <p className="text-sm leading-relaxed mb-2" style={{ color: '#374151' }}>
+            {reading.mayanTzolkin?.meaning}
+          </p>
+          <p className="text-sm leading-relaxed" style={{ color: '#374151' }}>
+            Your Galactic Tone is <strong>{reading.mayanTzolkin?.tone}</strong> — {
+              reading.mayanTzolkin?.tone === 1 ? 'the tone of Unity. You initiate new cycles and magnetically attract what you need. Your power is in new beginnings.' :
+              reading.mayanTzolkin?.tone === 2 ? 'the tone of Duality. You hold opposites in balance and create stability from contradiction. Your power is in bridging divides.' :
+              reading.mayanTzolkin?.tone === 3 ? 'the tone of Rhythm. You activate dormant potential in others. Your power is in catalyzing movement.' :
+              reading.mayanTzolkin?.tone === 4 ? 'the tone of Form. You give shape to abstract ideas and build lasting structures. Your power is in definition.' :
+              reading.mayanTzolkin?.tone === 5 ? 'the tone of Command. You are a natural center of authority who empowers others. Your power is in radiating stability.' :
+              reading.mayanTzolkin?.tone === 6 ? 'the tone of Flow. You bring organic balance and equal exchange. Your power is in harmonizing systems.' :
+              reading.mayanTzolkin?.tone === 7 ? 'the tone of Resonance. You attune to frequencies others cannot perceive. Your power is in alignment.' :
+              reading.mayanTzolkin?.tone === 8 ? 'the tone of Harmony. You lead through integrity and example. Your power is in modeling wholeness.' :
+              reading.mayanTzolkin?.tone === 9 ? 'the tone of Intention. Your intentions take time but carry immense weight. Your power is in completion.' :
+              reading.mayanTzolkin?.tone === 10 ? 'the tone of Manifestation. You take abstract vision and make it real. Your power is in production.' :
+              reading.mayanTzolkin?.tone === 11 ? 'the tone of Liberation. You dissolve outdated structures. Your power is in releasing what no longer serves.' :
+              reading.mayanTzolkin?.tone === 12 ? 'the tone of Cooperation. You build bridges between worlds. Your power is in sharing knowledge.' :
+              'the tone of Transcendence — the final tone. You carry the full cosmic cycle. Your power is in surpassing all limitations.'
+            }
+          </p>
+        </div>
+
+        {/* Nakshatra Hall of Fame */}
+        <div className="rounded-2xl p-5 border" style={{ background: '#FFFDF8', borderColor: '#E5E7EB' }}>
+          <div className="flex items-start gap-3 mb-3">
+            <span className="text-2xl">{NAKSHATRA_SYMBOL[reading.moonNakshatraName] || '⭐'}</span>
+            <div>
+              <p className="text-[11px] font-bold uppercase tracking-wide" style={{ color: AMBER }}>{reading.moonNakshatraName} — Kindred Souls</p>
+              <p className="text-xs" style={{ color: '#6B7280' }}>Famous people born under your nakshatra</p>
+            </div>
+          </div>
+          <div className="space-y-1.5">
+            {(NAKSHATRA_FAMOUS[reading.moonNakshatraName] || '').split(' · ').map(name => (
+              <div key={name} className="flex items-center gap-2">
+                <div className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: TEAL }} />
+                <p className="text-sm" style={{ color: '#374151' }}>{name}</p>
+              </div>
+            ))}
+          </div>
+          <p className="text-xs mt-3 italic" style={{ color: '#9CA3AF' }}>
+            You share the {reading.moonNakshatraName} cosmic frequency — {NAKSHATRA_QUALITY[reading.moonNakshatraName] || 'ancient wisdom and unique potential'}.
+          </p>
+        </div>
       </div>
 
       <div className="text-center pb-6">
