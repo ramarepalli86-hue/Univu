@@ -277,6 +277,9 @@ function AISection({ sectionId, reading }: { sectionId: string; reading: FullRea
     <div>
       {sectionId === 'overview' && <ConcernBanner concern={concern} />}
       <PersonalText text={text} />
+      <p className="text-xs mt-3 pt-3 border-t text-center" style={{ color:'#9CA3AF', borderColor:'rgba(0,0,0,0.07)' }}>
+        For entertainment &amp; information only · Not professional advice · Consult a qualified professional before making any major life decision
+      </p>
     </div>
   );
   if (fetched) return (
@@ -431,6 +434,19 @@ export default function ReportCard({ t: _t, reading }: ReportCardProps) {
         <span className="inline-block mt-2 text-xs font-semibold px-3 py-1 rounded-full" style={{ background:'rgba(26,107,107,0.1)', color: TEAL, border:'1px solid rgba(26,107,107,0.2)' }}>
           {trad === 'all' ? '🌍 All Traditions' : trad === 'vedic' ? '🕉️ Vedic' : trad === 'western' ? '♈ Western' : trad === 'chinese' ? '☯️ Chinese' : trad === 'egyptian' ? '𓂀 Egyptian' : '☀️ Mayan'}
         </span>
+      </div>
+
+      {/* ── Legal Disclaimer Banner ── */}
+      <div className="rounded-xl px-4 py-3 flex items-start gap-3" style={{ background:'rgba(212,136,10,0.07)', border:'1px solid rgba(212,136,10,0.25)' }}>
+        <span className="text-base flex-shrink-0 mt-0.5">⚠️</span>
+        <div className="space-y-0.5">
+          <p className="text-xs font-bold uppercase tracking-wide" style={{ color: AMBER }}>Important Notice</p>
+          <p className="text-xs leading-relaxed" style={{ color:'#78350F' }}>
+            This reading is for <strong>entertainment and informational purposes only</strong> and does not constitute professional advice of any kind — medical, psychological, legal, or financial.{' '}
+            <strong>Consult a qualified professional before making any major life decision.</strong>{' '}
+            Astrological readings are not a substitute for professional guidance.
+          </p>
+        </div>
       </div>
 
       {/* Show nakshatra banner only for Vedic-aware traditions */}
@@ -994,10 +1010,13 @@ export default function ReportCard({ t: _t, reading }: ReportCardProps) {
         </div>}
       </div>
 
-      <div className="text-center pb-6">
-        <p className="text-xs italic" style={{ color:'#9CA3AF' }}>
-          ⚠️ For entertainment and information only. Consult a qualified astrologer for personal guidance.
+      {/* ── Footer Legal Disclaimer ── */}
+      <div className="rounded-xl px-5 py-4 mb-2 text-center" style={{ background:'rgba(26,107,107,0.05)', border:'1px solid rgba(26,107,107,0.18)' }}>
+        <p className="text-xs leading-relaxed" style={{ color:'#6B7280' }}>
+          ⚠️ <strong>For entertainment and informational purposes only.</strong> This is not a substitute for professional medical, psychological, legal, or financial advice.{' '}
+          <strong>Consult a qualified professional before making any major life decision.</strong>
         </p>
+        <p className="text-xs mt-1.5" style={{ color:'#9CA3AF' }}>© {new Date().getFullYear()} Univu · All rights reserved</p>
       </div>
     </motion.div>
   );
