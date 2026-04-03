@@ -8,6 +8,7 @@ import IntakeForm, { IntakeFormData } from '@/components/IntakeForm';
 import AgeGate from '@/components/AgeGate';
 import ReportCard, { ReadingResult } from '@/components/ReportCard';
 import AstroChat from '@/components/CosmicOracle';
+import Panchangam from '@/components/Panchangam';
 import { Locale, getTranslations, detectLocale } from '@/i18n';
 
 function FeedbackWidget() {
@@ -99,6 +100,7 @@ export default function HomePage() {
   const [reading, setReading] = useState<ReadingResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [view, setView] = useState<'astrology'|'panchangam'>('astrology');
 
   useEffect(() => {
     const detected = detectLocale();
@@ -225,10 +227,35 @@ export default function HomePage() {
               </span>
             ))}
           </div>
+
+          {/* ── Top-level nav: Astrology vs Panchangam ── */}
+          <div className="flex gap-2 justify-center mt-6">
+            <button
+              onClick={() => setView('astrology')}
+              className="px-5 py-2.5 text-sm font-semibold rounded-xl transition-all"
+              style={view === 'astrology'
+                ? { background: 'linear-gradient(135deg,#1A6B6B,#2A8A8A)', color: '#fff', boxShadow: '0 2px 10px rgba(26,107,107,0.3)' }
+                : { color: '#1A6B6B', border: '1px solid rgba(26,107,107,0.3)', background: 'transparent' }
+              }
+            >🔮 My Astrology Reading</button>
+            <button
+              onClick={() => setView('panchangam')}
+              className="px-5 py-2.5 text-sm font-semibold rounded-xl transition-all"
+              style={view === 'panchangam'
+                ? { background: 'linear-gradient(135deg,#1A6B6B,#2A8A8A)', color: '#fff', boxShadow: '0 2px 10px rgba(26,107,107,0.3)' }
+                : { color: '#1A6B6B', border: '1px solid rgba(26,107,107,0.3)', background: 'transparent' }
+              }
+            >🪔 Telugu Panchangam</button>
+          </div>
         </motion.header>
 
-        <AnimatePresence mode="wait">
-          {!reading ? (
+        {view === 'panchangam' ? (
+          <motion.div key="panchangam" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
+            <Panchangam />
+          </motion.div>
+        ) : (
+          <AnimatePresence mode="wait">
+            {!reading ? (
             <motion.div key="form" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, y: -20 }}>
               <IntakeForm
                 t={t}
@@ -259,6 +286,7 @@ export default function HomePage() {
             </motion.div>
           )}
         </AnimatePresence>
+        )}
 
         <footer className="mt-16 pt-6 text-center space-y-3" style={{ borderTop: '1.5px solid', borderImage: 'linear-gradient(90deg, transparent, #1A6B6B, #D4880A, transparent) 1' }}>
           <p className="text-xs" style={{ color: '#8A8278' }}>
