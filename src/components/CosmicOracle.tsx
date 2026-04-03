@@ -25,12 +25,12 @@ interface AstroChatProps {
   chartContext?: string; // pass reading summary so AI knows the user's chart
 }
 
-export default function AstroChat({ chartContext }: AstroChatProps) {
+export default function CosmicOracle({ chartContext }: AstroChatProps) {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'assistant',
-      content: "Namaste 🙏 I'm your Univu AI astrologer. Ask me anything about your chart, timing, marriage, career, or any astrological tradition — Vedic, Western, Egyptian, or Mayan. What's on your mind?",
+      content: "Namaste 🙏 I'm your Cosmic Oracle. Ask me anything about your chart, timing, marriage, career, or any astrological tradition — Vedic, Western, Egyptian, or Mayan. What's on your mind?",
     },
   ]);
   const [input, setInput] = useState('');
@@ -96,7 +96,7 @@ export default function AstroChat({ chartContext }: AstroChatProps) {
         onClick={() => setOpen(o => !o)}
         className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full flex items-center justify-center shadow-xl transition-transform hover:scale-105 active:scale-95"
         style={{ background: `linear-gradient(135deg, ${TEAL}, #2A8A8A)`, boxShadow: `0 4px 20px rgba(26,107,107,0.45)` }}
-        aria-label="Open astrology chat"
+        aria-label="Open Cosmic Oracle chat"
       >
         {open
           ? <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M5 5l10 10M15 5L5 15" stroke="white" strokeWidth="2.2" strokeLinecap="round"/></svg>
@@ -128,8 +128,8 @@ export default function AstroChat({ chartContext }: AstroChatProps) {
               <div className="w-8 h-8 rounded-full flex items-center justify-center text-base flex-shrink-0"
                 style={{ background: 'rgba(255,255,255,0.2)' }}>🔮</div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-bold text-white leading-tight">Univu Astrologer</p>
-                <p className="text-[10px] text-white/70">Ask anything about your chart</p>
+                <p className="text-sm font-bold text-white leading-tight">Cosmic Oracle</p>
+                <p className="text-[10px] text-white/70">Your personal astrology guide</p>
               </div>
               {chartContext && (
                 <div className="flex-shrink-0 flex items-center gap-1 px-2 py-0.5 rounded-full"

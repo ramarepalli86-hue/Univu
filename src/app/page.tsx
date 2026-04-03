@@ -7,7 +7,7 @@ import DisclaimerBanner from '@/components/DisclaimerBanner';
 import IntakeForm, { IntakeFormData } from '@/components/IntakeForm';
 import AgeGate from '@/components/AgeGate';
 import ReportCard, { ReadingResult } from '@/components/ReportCard';
-import AstroChat from '@/components/AstroChat';
+import AstroChat from '@/components/CosmicOracle';
 import { Locale, getTranslations, detectLocale } from '@/i18n';
 
 function FeedbackWidget() {

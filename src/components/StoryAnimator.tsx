@@ -683,7 +683,7 @@ export default function StoryAnimator({
           <span className="text-[10px] text-emerald-400">✨ AI-enhanced</span>
         </div>
       )}
-      <div className={`relative ${isFullscreen ? 'h-screen' : 'h-[85vh] min-h-[600px]'}`}>
+      <div className={`relative ${isFullscreen ? 'h-screen' : 'h-[65vh] min-h-[480px]'}`}>
         <AnimatePresence mode="wait">
           <motion.div key={currentScene} className="absolute inset-0"
             initial={{ opacity: 0, x: 60 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -60 }}
