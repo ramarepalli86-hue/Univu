@@ -7,171 +7,182 @@ function getGroqClient(): Groq | null {
   return new Groq({ apiKey });
 }
 
-// Each section type → what the AI should produce
 const SECTION_PROMPTS: Record<string, (ctx: ReadingContext) => string> = {
 
   overview: (ctx) => `You are speaking directly to ${ctx.name}. Write their personal cosmic overview.
 
-Who ${ctx.name} IS:
-- ${ctx.lagnaSign} Ascendant: this shapes how they appear to the world AND their relationship with their physical body and first impressions
-- ${ctx.moonSign} Moon: this is their emotional default, what they need to feel safe, how they process feelings
-- ${ctx.moonNakshatraName} birth star (Pada ${ctx.moonNakshatraPada}): the specific flavor of their soul
-- Currently ${ctx.currentAge} years old, ${ctx.maritalStatus}, working as ${ctx.employment}
-- Active dasha: ${ctx.currentDasha} Mahadasha / ${ctx.currentAntardasha} Antardasha
-${ctx.concern ? `- Their specific question: "${ctx.concern}"` : ''}
-- Manglik: ${ctx.isManglik ? 'YES' : 'No'} | Sade Sati: ${ctx.sadeSatiActive ? 'ACTIVE — intensified testing period' : 'Not active'}
-
-Write 3 paragraphs directly to ${ctx.name}:
-
-Paragraph 1 (WHO YOU ARE): What the combination of ${ctx.lagnaSign} rising + ${ctx.moonSign} Moon creates in a real human — NOT what these signs mean generically, but what the PERSON who has this combination is actually like. What do they struggle with? What do others notice about them first? What emotional pattern do they repeat?
-
-Paragraph 2 (RIGHT NOW): What ${ctx.currentDasha}/${ctx.currentAntardasha} means specifically for ${ctx.name}'s life RIGHT NOW in ${new Date().getFullYear()}. Is this a building period or a releasing period? What area of life is being most activated? What is being demanded of them?
-
-Paragraph 3 (HONEST TRUTH): One honest challenge ${ctx.name} is almost certainly facing right now based on their chart (be specific — name the house/planet causing it). Then one genuine strength they have that they may be underusing.
-
-DO NOT start any sentence with generic planet facts. Every sentence must be about ${ctx.name} specifically.
-End with: "⚠️ For entertainment & informational purposes only."`,
-
-  love: (ctx) => `You are speaking privately with ${ctx.name} about their love life. Be direct, warm, and specific.
-
-${ctx.name}'s love profile:
-- ${ctx.maritalStatus.toUpperCase()} | Age ~${ctx.currentAge} | ${ctx.gender}
-- Venus in ${ctx.venusSign} (House ${ctx.venusHouse}): this is HOW ${ctx.name} loves, what they find attractive, what they offer in relationships
-- 7th house (marriage house): ${ctx.seventhHouseSign} | Ruled by ${ctx.seventhHouseLord} 
-- Planets in 7th house: ${ctx.planetsIn7}
-- ${ctx.isManglik ? `MANGLIK: Mars in House ${ctx.marsHouse} — this creates relationship intensity and potential volatility that needs awareness` : 'No Manglik dosha'}
-- Saturn in ${ctx.saturnSign} House ${ctx.saturnHouse}: ${ctx.saturnHouse === 7 ? 'Saturn directly aspects/influences marriage house — delays and lessons in partnership' : `delays wherever it sits — House ${ctx.saturnHouse}`}
-- Current dasha: ${ctx.currentDasha} / ${ctx.currentAntardasha}
+Chart data:
+- ${ctx.lagnaSign} Ascendant | ${ctx.moonSign} Moon | ${ctx.moonNakshatraName} Nakshatra Pada ${ctx.moonNakshatraPada}
+- Age ~${ctx.currentAge}, ${ctx.maritalStatus}, ${ctx.employment}
+- Current dasha: ${ctx.currentDasha} / ${ctx.currentAntardasha} (${ctx.currentDashaYears})
+- Next dasha: ${ctx.nextDasha} starts ~${ctx.nextDashaYear}
+- Manglik: ${ctx.isManglik ? 'YES' : 'No'} | Sade Sati: ${ctx.sadeSatiActive ? 'ACTIVE NOW' : 'Not active'}
 ${ctx.concern ? `- Their question: "${ctx.concern}"` : ''}
 
-Write 4 sections, each with a bold heading:
+Write 4 sections with bold headings. Every sentence must be about ${ctx.name} specifically — NEVER generic planet facts.
 
-**Why ${ctx.name} keeps attracting the partners they do**
-[2-3 sentences — based on Venus sign + 7th house: what type of partner they pull in, and WHY — including the difficult patterns they attract because of their own unresolved needs]
+**Who ${ctx.name} really is**
+What ${ctx.lagnaSign} rising + ${ctx.moonSign} Moon creates in a REAL person — not sign definitions, but what their inner world feels like, what others notice, what emotional pattern they repeat, what they secretly struggle with.
 
-**The real astrological reason marriage ${ctx.maritalStatus === 'single' ? 'hasn\'t happened yet' : 'has unfolded the way it has'}**
-[2-3 sentences — be SPECIFIC: name the actual planets causing delay/difficulty. Is it Saturn's 7th house aspect? Manglik dosha? Rahu in 7th? Venus debilitated? Name it in plain language, not astro-jargon]
+**What is happening in ${ctx.name}'s life RIGHT NOW (${new Date().getFullYear()})**
+What ${ctx.currentDasha} / ${ctx.currentAntardasha} is activating for them specifically. Which area of life is under pressure? What is being tested or opened? Be direct — if this is a hard period, say so.
 
-**What ${ctx.name} genuinely needs in a partner (not what they think they want)**
-[2-3 sentences — based on Moon sign ${ctx.moonSign} and 7th house lord ${ctx.seventhHouseLord}: the emotional truth about what they actually need vs what they consciously seek]
+**The main challenge ${ctx.name} faces right now**
+Name the exact house and planet causing the biggest current difficulty. What does it look like in their actual daily life — not what the planet "represents" but what ${ctx.name} is actually experiencing.
 
-**Timing: When and how marriage becomes more likely**
-[2-3 sentences — name the specific dasha/antardasha period that historically brings marriage for this chart type. Be as specific as possible with years: "The ${ctx.nextDasha} period starting around ${ctx.nextDashaYear} brings…"]
+**📅 When does this shift — the timeline ahead**
+When does ${ctx.currentDasha} end? When does ${ctx.nextDasha} begin (~${ctx.nextDashaYear})? What changes? Give ${ctx.name} a concrete answer: "Between now and ${ctx.nextDashaYear}, you will likely experience... After ${ctx.nextDashaYear}, the energy shifts toward..."
 
 End with: "⚠️ For entertainment & informational purposes only."`,
 
-  career: (ctx) => `You are speaking directly to ${ctx.name} about their career path and finances.
+  love: (ctx) => `You are speaking privately to ${ctx.name} about love and marriage.
 
-${ctx.name}'s career profile:
-- Employment: ${ctx.employment} | Age ~${ctx.currentAge}
-- ${ctx.lagnaSign} Ascendant: shapes their natural working style and approach
-- 10th house (career): ${ctx.tenthHouseSign} ruled by ${ctx.tenthHouseLord}
-- Sun in ${ctx.sunSign}: their core drive and leadership style
-- Saturn in ${ctx.saturnSign} House ${ctx.saturnHouse}: where discipline and delay operate
-- Jupiter in ${ctx.jupiterSign} House ${ctx.jupiterHouse}: where growth and opportunity emerge
-- Current Dasha: ${ctx.currentDasha} / ${ctx.currentAntardasha}
-- Next major period: ${ctx.nextDasha} starts ~${ctx.nextDashaYear}
+Data:
+- ${ctx.maritalStatus.toUpperCase()} | Age ~${ctx.currentAge} | ${ctx.gender}
+- Venus in ${ctx.venusSign} House ${ctx.venusHouse}
+- 7th house: ${ctx.seventhHouseSign} | 7th lord: ${ctx.seventhHouseLord}
+- Planets in 7th: ${ctx.planetsIn7}
+- ${ctx.isManglik ? `MANGLIK — Mars in House ${ctx.marsHouse}` : 'No Manglik dosha'}
+- Saturn in ${ctx.saturnSign} House ${ctx.saturnHouse}${ctx.saturnHouse === 7 ? ' (directly delays marriage)' : ''}
+- Rahu in House ${ctx.rahuHouse} | Current dasha: ${ctx.currentDasha} / ${ctx.currentAntardasha} (${ctx.currentDashaYears})
+- Next dasha: ${ctx.nextDasha} starts ~${ctx.nextDashaYear}
+${ctx.concern ? `- Their question: "${ctx.concern}"` : ''}
+
+Write 5 sections with bold headings:
+
+**Why ${ctx.name} attracts the partners they do**
+Based on Venus in ${ctx.venusSign} and 7th house — what type keeps showing up and WHY including the painful patterns.
+
+**The real reason marriage ${ctx.maritalStatus === 'single' ? 'has not happened yet' : 'has unfolded this way'}**
+Name the EXACT planets and positions causing this. Not jargon — plain language. e.g. "Saturn in House X delays your 7th house lord by..." or "Rahu in the 7th creates..." Be specific about what ${ctx.name}'s chart actually shows.
+
+**What ${ctx.name} actually needs in a partner**
+Based on Moon in ${ctx.moonSign} and 7th lord ${ctx.seventhHouseLord} — the emotional truth, not what they consciously say.
+
+**📅 When will marriage / a serious relationship happen**
+THIS IS THE MOST IMPORTANT SECTION. Give ${ctx.name} a real answer with specific years or windows. Example format: "The most promising window for ${ctx.name} is [year range] when [specific dasha/transit reason]. The ${ctx.nextDasha} dasha starting ~${ctx.nextDashaYear} [will/will not] favor marriage because [specific reason based on which planet ${ctx.nextDasha} is and how it relates to the 7th house]." Name at least one concrete year or 2-year window.
+
+**What ${ctx.name} should do right now to move toward that**
+One specific action — a pattern to break, a Saturn remedy, a conscious shift — based on the chart.
+
+End with: "⚠️ For entertainment & informational purposes only."`,
+
+  career: (ctx) => `You are speaking directly to ${ctx.name} about career and money.
+
+Data:
+- ${ctx.employment} | Age ~${ctx.currentAge}
+- ${ctx.lagnaSign} Ascendant | 10th house: ${ctx.tenthHouseSign} lord: ${ctx.tenthHouseLord}
+- Sun in ${ctx.sunSign} | Saturn in ${ctx.saturnSign} House ${ctx.saturnHouse} | Jupiter in ${ctx.jupiterSign} House ${ctx.jupiterHouse}
+- Current dasha: ${ctx.currentDasha} / ${ctx.currentAntardasha} (${ctx.currentDashaYears})
+- Next dasha: ${ctx.nextDasha} starts ~${ctx.nextDashaYear}
 ${ctx.concern ? `- Their concern: "${ctx.concern}"` : ''}
 
-Write 4 sections with bold headings:
+Write 5 sections with bold headings:
 
-**What ${ctx.name} is genuinely built for professionally**
-[2-3 sentences — what ${ctx.lagnaSign} rising + ${ctx.tenthHouseSign} 10th house creates in terms of career strengths. Don't list jobs — describe the WAY they work and what ENVIRONMENT suits them. What do colleagues notice about them?]
+**What ${ctx.name} is built for professionally**
+Not a list of careers — describe HOW they work naturally, what environment suits them, what colleagues notice about them. Specific to ${ctx.lagnaSign} + ${ctx.tenthHouseSign}.
 
-**What ${ctx.currentDasha} Dasha means for ${ctx.name}'s work right now**
-[2-3 sentences — is this a visibility period? A behind-the-scenes period? A restructuring period? What should ${ctx.name} be actively doing or avoiding in their career in ${new Date().getFullYear()}?]
+**What is happening in ${ctx.name}'s career RIGHT NOW (${new Date().getFullYear()})**
+What ${ctx.currentDasha} specifically means for work. Building period? Restructuring? Waiting? What to actively do or avoid.
 
-**The hidden obstacle blocking ${ctx.name}'s career potential**
-[2-3 sentences — be HONEST. Name the specific planetary placement or aspect that creates the main career blockage. Saturn's house position, a debilitated 10th lord, Sun in a difficult house — what is it and how does it show up in their actual work life?]
+**The hidden obstacle in ${ctx.name}'s career**
+Name the specific planet and placement creating the main blockage. How does it show up in their actual work — with bosses, income, direction, confidence?
 
-**Best moves for ${ctx.name} in the next 12-24 months**
-[2-3 sentences — based on when ${ctx.nextDasha} begins and Jupiter's current influence, what SPECIFIC actions (not generic advice) should ${ctx.name} take? What window is opening?]
+**📅 When does the career breakthrough or shift come**
+Give a real answer with years. "By ${ctx.nextDashaYear} when ${ctx.nextDasha} dasha begins, ${ctx.name} can expect [specific shift] because [why this planet changes the career picture]." Also note if there is a Jupiter transit window or Saturn shift coming. Name actual years.
+
+**One move ${ctx.name} should make in the next 6 months**
+Specific and actionable based on what the current planetary energy supports.
 
 End with: "⚠️ For entertainment & informational purposes only."`,
 
-  health: (ctx) => `You are speaking privately to ${ctx.name} about their health and body.
+  health: (ctx) => `You are speaking privately to ${ctx.name} about health and wellbeing.
 
-${ctx.name}'s health profile:
-- ${ctx.lagnaSign} Ascendant → body governs: ${ctx.lagnaBodyPart}
-- 6th house (chronic health): ${ctx.sixthHouseSign} — where recurring health issues tend to manifest
-- 8th house (acute/crisis health): ${ctx.eighthHouseSign}
-- Moon in ${ctx.moonSign} — governs mind, emotions, gut, sleep
-- Mars in ${ctx.marsSign} House ${ctx.marsHouse} — energy, inflammation, accidents
-- Saturn in ${ctx.saturnSign} House ${ctx.saturnHouse} — chronic conditions, bone/joint issues, discipline
-- Planets in 6th house: ${ctx.planetsIn6}
-- Current Dasha: ${ctx.currentDasha} — ${ctx.currentDasha === 'Saturn' ? 'Saturn dasha is notorious for bringing chronic fatigue, depression, and bone issues' : ctx.currentDasha === 'Mars' ? 'Mars dasha brings inflammation, accidents, and high energy that needs grounding' : ctx.currentDasha === 'Rahu' ? 'Rahu dasha brings mysterious illnesses, anxiety, and confusion in diagnosis' : 'health expression of this planet'}
-- Sade Sati: ${ctx.sadeSatiActive ? 'ACTIVE — emotional heaviness and physical depletion are common' : 'Not active'}
-- Gender: ${ctx.gender}
-
-Write 4 sections with bold headings:
-
-**${ctx.name}'s body type and natural energy pattern**
-[2-3 sentences — what ${ctx.lagnaSign} Ascendant creates in terms of physical constitution, energy levels, and what ${ctx.name}'s body naturally needs. Not generic sign traits — what their specific body tends to feel like day-to-day]
-
-**The health areas ${ctx.name} must pay attention to**
-[2-3 sentences — based on 6th house ${ctx.sixthHouseSign} and planets in 6th, name the SPECIFIC body systems or health areas that are this person's vulnerable points. Be clear and non-alarming]
-
-**How ${ctx.currentDasha} Dasha is affecting ${ctx.name}'s body right now**
-[2-3 sentences — what this specific dasha planet's energy does to health when it runs. What symptoms or states might ${ctx.name} notice? What is their body trying to tell them?]
-
-**3 daily practices that genuinely match ${ctx.name}'s chart**
-[3 specific habits — one for body (based on Lagna), one for mind (based on Moon in ${ctx.moonSign}), one for energy (based on current dasha). Be specific, not generic "eat well and sleep" advice]
-
-End with: "⚠️ For entertainment & informational purposes only. This is NOT medical advice."`,
-
-  timeline: (ctx) => `You are speaking directly to ${ctx.name} about the key chapters of their life — past, present, and future.
-
-${ctx.name}'s timeline:
-- Born: ${ctx.dob} in ${ctx.birthCity} | Current age: ~${ctx.currentAge}
-- Current Dasha: ${ctx.currentDasha} (${ctx.currentDashaYears})
-- Current Antardasha: ${ctx.currentAntardasha}
-- Next major Dasha: ${ctx.nextDasha} (starts ~${ctx.nextDashaYear})
-- Saturn Return: age 29-30 (year ~${parseInt(ctx.dob.split('-')[0],10)+29}) and age 58-60
-- Jupiter Return: every 12 years (ages 12, 24, 36, 48, 60)
-- Sade Sati: ${ctx.sadeSatiActive ? 'ACTIVE NOW — this 7.5-year Saturn transit near your Moon sign is in progress' : 'Not currently active'}
-- Lagna: ${ctx.lagnaSign} | Moon: ${ctx.moonSign}
+Data:
+- ${ctx.lagnaSign} Ascendant → governs: ${ctx.lagnaBodyPart}
+- 6th house: ${ctx.sixthHouseSign} | 8th house: ${ctx.eighthHouseSign}
+- Moon in ${ctx.moonSign} | Mars in ${ctx.marsSign} House ${ctx.marsHouse} | Saturn in ${ctx.saturnSign} House ${ctx.saturnHouse}
+- Planets in 6th: ${ctx.planetsIn6}
+- Current dasha: ${ctx.currentDasha}${ctx.currentDasha === 'Saturn' ? ' (chronic fatigue, bone/joint stress, low mood common)' : ctx.currentDasha === 'Mars' ? ' (inflammation, overexertion, injuries common)' : ctx.currentDasha === 'Rahu' ? ' (mysterious symptoms, anxiety, insomnia common)' : ctx.currentDasha === 'Sun' ? ' (eye strain, heart/spine focus, ego depletion)' : ctx.currentDasha === 'Moon' ? ' (emotional fluctuations, gut issues, sleep sensitivity)' : ''}
+- Sade Sati: ${ctx.sadeSatiActive ? 'ACTIVE — physical depletion and emotional stress common' : 'Not active'}
 ${ctx.concern ? `- Their concern: "${ctx.concern}"` : ''}
 
-Write 4 sections with bold headings:
+Write 5 sections with bold headings:
 
-**What ${ctx.name}'s life has been building toward (the past chapter)**
-[2-3 sentences — what dasha they were in before ${ctx.currentDasha} and what that period was testing, building, or clearing in their life. What foundation (good or difficult) did it lay?]
+**${ctx.name}'s body constitution and natural energy pattern**
+What ${ctx.lagnaSign} Ascendant creates — energy highs/lows, sleep pattern, stress response, metabolic tendency. Not textbook — what their actual body experience tends to feel like.
 
-**RIGHT NOW in ${new Date().getFullYear()}: The honest truth about ${ctx.name}'s current period**
-[3-4 sentences — what ${ctx.currentDasha}/${ctx.currentAntardasha} specifically brings for this person. What is being demanded? What is possible? What mistake to avoid? Be DIRECT — not every dasha is easy, say so honestly]
+**The health areas needing attention right now**
+6th house ${ctx.sixthHouseSign} + planets in 6th — name the SPECIFIC body systems at risk for ${ctx.name}. Honest but not alarming.
 
-**The coming shift: ${ctx.nextDasha} Dasha starting ~${ctx.nextDashaYear}**
-[2-3 sentences — what changes when ${ctx.nextDasha} takes over. What new energy, theme, or opportunity opens? What challenge does ${ctx.nextDasha} bring that ${ctx.name} should prepare for?]
+**How ${ctx.currentDasha} is affecting ${ctx.name}'s body in ${new Date().getFullYear()}**
+What this dasha planet does to health specifically. What symptoms or states ${ctx.name} may be noticing. What the body is signaling.
 
-**The specific ages that matter most for ${ctx.name}**
-[3-4 sentences — name actual ages: Saturn return, Jupiter return years, the ${ctx.nextDasha} start year, any Rahu/Ketu returns at age 18-19 and 36-37. Tell ${ctx.name} what each age window means for their specific chart]
+**📅 When does this health pressure ease**
+Give a year. If ${ctx.name} is in a health-challenging dasha (Saturn, Rahu, Mars), when does it shift? "The ${ctx.currentDasha} dasha runs until [year from ${ctx.currentDashaYears}]. After that, ${ctx.nextDasha} dasha brings [better/different health signature] because..." Give ${ctx.name} a timeline.
+
+**3 specific daily habits for ${ctx.name}'s chart**
+One for body (${ctx.lagnaSign} Lagna), one for mind (Moon in ${ctx.moonSign}), one for current dasha energy. Not generic — genuinely chart-specific.
+
+End with: "⚠️ For entertainment & informational purposes only. NOT medical advice."`,
+
+  timeline: (ctx) => `You are speaking to ${ctx.name} about their life's timeline — past, present, future.
+
+Data:
+- Born ${ctx.dob} | Age ~${ctx.currentAge}
+- Current dasha: ${ctx.currentDasha} (${ctx.currentDashaYears}) / Antardasha: ${ctx.currentAntardasha}
+- Next dasha: ${ctx.nextDasha} starts ~${ctx.nextDashaYear}
+- Saturn Return: ~age ${parseInt(ctx.dob.split('-')[0],10)+29 - (new Date().getFullYear() - parseInt(ctx.dob.split('-')[0],10) > 30 ? 0 : new Date().getFullYear() - parseInt(ctx.dob.split('-')[0],10) > 29 ? 0 : 0)} (year ~${parseInt(ctx.dob.split('-')[0],10)+29})
+- Jupiter Returns: ~ages 12, 24, 36, 48 (years ~${parseInt(ctx.dob.split('-')[0],10)+36}, ~${parseInt(ctx.dob.split('-')[0],10)+48})
+- Sade Sati: ${ctx.sadeSatiActive ? 'ACTIVE NOW (intensified 7.5-year testing)' : 'Not currently active'}
+${ctx.concern ? `- Their concern: "${ctx.concern}"` : ''}
+
+Write 5 sections with bold headings:
+
+**What the past chapter built (and cost)**
+What the dasha before ${ctx.currentDasha} was doing. What foundation or wound it created. How it set up the current chapter.
+
+**RIGHT NOW — the honest truth about ${new Date().getFullYear()}**
+What ${ctx.currentDasha} / ${ctx.currentAntardasha} demands of ${ctx.name}. Both the difficulty AND the opportunity. What decision made now shapes the next 5 years.
+
+**📅 The turning point — when does ${ctx.name}'s life shift**
+This is the core section. Name specific years: "In ~${ctx.nextDashaYear}, ${ctx.nextDasha} dasha begins and brings [specific change] for ${ctx.name} because [why this planet changes things for their chart]." Also: if Saturn return is coming in ~${parseInt(ctx.dob.split('-')[0],10)+29}, what does it demand? If a Jupiter return is near, what does it open? Give at least 3 future years with meaning.
+
+**The ages that define ${ctx.name}'s life**
+Name 5 specific ages with what each means for this exact chart. Include the Saturn return year, next Jupiter return, dasha change points, and Rahu return at ~age 36-37.
+
+**What ${ctx.name} should do NOW**
+Based on the current dasha and what the next chapter brings — one concrete shift in the next 12 months that sets up the future well.
 
 End with: "⚠️ For entertainment & informational purposes only."`,
 
-  spiritual: (ctx) => `You are speaking soul-to-soul with ${ctx.name} about their deepest purpose.
+  spiritual: (ctx) => `You are speaking to ${ctx.name} about their soul's purpose and karmic path.
 
-${ctx.name}'s soul profile:
-- Atmakaraka (Soul planet): ${ctx.atmakaraka} — the planet with the highest degree, representing the soul's core desire and lesson
-- Rahu (North Node) in ${ctx.rahuSign} House ${ctx.rahuHouse}: what this soul is MEANT to move toward — it feels uncomfortable, foreign, destabilizing, but that discomfort is the path
-- Ketu (South Node) in ${ctx.ketuSign} House ${ctx.ketuHouse}: past-life mastery — deeply comfortable, but staying there creates stagnation
-- Moon Nakshatra: ${ctx.moonNakshatraName} — presiding deity: ${ctx.nakshatraDeity}
-- 9th house (dharma/faith): ${ctx.ninthHouseSign}
-- 12th house (moksha/liberation): ${ctx.twelfthHouseSign}
-- Current Dasha: ${ctx.currentDasha}
+Data:
+- Atmakaraka: ${ctx.atmakaraka} (soul planet — its house and position reveal the soul's core lesson)
+- Rahu in ${ctx.rahuSign} House ${ctx.rahuHouse}: the soul's direction this lifetime — unfamiliar, uncomfortable, essential
+- Ketu in ${ctx.ketuSign} House ${ctx.ketuHouse}: past-life mastery — comfortable default that eventually creates stagnation
+- Moon Nakshatra: ${ctx.moonNakshatraName} · deity: ${ctx.nakshatraDeity}
+- 9th house (dharma): ${ctx.ninthHouseSign} | 12th house (moksha): ${ctx.twelfthHouseSign}
+- Current dasha: ${ctx.currentDasha} | Age ~${ctx.currentAge}
+- Next dasha: ${ctx.nextDasha} ~${ctx.nextDashaYear}
 
-Write 4 sections with bold headings. Be profound but speak in plain language — no mystical jargon:
+Write 5 sections with bold headings. Plain language — no mystical jargon:
 
-**${ctx.name}'s soul mission in plain language**
-[2-3 sentences — translate Rahu in House ${ctx.rahuHouse}/${ctx.rahuSign} into a real-world description of what ${ctx.name} is here to BUILD, EXPERIENCE, and MASTER in this lifetime. Not "your north node calls you to…" — say WHAT it means in their actual life path]
+**${ctx.name}'s soul mission — what they are here to do**
+Translate Rahu in House ${ctx.rahuHouse}/${ctx.rahuSign} into plain real-world language. Not "your north node calls you toward..." — say exactly what this means in ${ctx.name}'s actual life choices, career direction, relationship patterns.
 
-**The past-life comfort zone Ketu keeps pulling ${ctx.name} back to**
-[2-3 sentences — what Ketu in House ${ctx.ketuHouse}/${ctx.ketuSign} represents as the overused talent or safety net. What does ${ctx.name} default to when life gets hard? Why does it feel comfortable but ultimately hollow?]
+**The comfort zone Ketu keeps pulling ${ctx.name} back to**
+What Ketu House ${ctx.ketuHouse}/${ctx.ketuSign} represents — the talent or safety that feels comfortable but ultimately prevents the soul's growth. What does ${ctx.name} default to under pressure that keeps them small?
 
-**The repeating karmic pattern in ${ctx.name}'s life**
-[2-3 sentences — what the Rahu-Ketu axis + ${ctx.atmakaraka} as Atmakaraka creates as a recurring life theme or lesson. What situation or relationship dynamic keeps showing up until ${ctx.name} genuinely integrates it?]
+**The karmic pattern that keeps repeating**
+What keeps showing up in ${ctx.name}'s life — in relationships, work, inner life — until they integrate the Rahu-Ketu lesson. Name the pattern directly.
 
-**The one practice that would most transform ${ctx.name}'s life**
-[2-3 sentences — based on ${ctx.moonNakshatraName} Nakshatra deity ${ctx.nakshatraDeity}, Atmakaraka ${ctx.atmakaraka}, and 9th house ${ctx.ninthHouseSign} — give one SPECIFIC, genuine spiritual or life practice (not generic meditation advice) that aligns with this chart]
+**📅 When does ${ctx.name}'s purpose become clearer or more activated**
+Based on ${ctx.nextDasha} starting ~${ctx.nextDashaYear} — what spiritual or purposeful opening does this create? Is there a specific age where the soul lesson becomes undeniable for ${ctx.name}? Name it.
+
+**The one practice that would transform ${ctx.name}'s life most**
+Based on ${ctx.moonNakshatraName} Nakshatra, ${ctx.atmakaraka} Atmakaraka, 9th house ${ctx.ninthHouseSign} — one SPECIFIC practice. Not "meditate" — something genuinely tailored to this exact chart.
 
 End with: "⚠️ For entertainment & informational purposes only."`,
 };
@@ -250,23 +261,25 @@ export async function POST(req: NextRequest) {
       messages: [
         {
           role: 'system',
-          content: `You are a master Vedic astrologer with 30 years experience giving deeply personal readings. 
-You speak directly to the person — using their name, their specific planets, their real life situation.
-You NEVER give generic planet descriptions. Every sentence is about THIS specific person.
-You balance honesty with compassion — you tell hard truths gently but clearly.
-You write in warm, conversational English — like a wise friend who also happens to know astrology.
-Format: Use **bold headings** exactly as instructed. No bullet points unless asked. Rich paragraphs.`,
+          content: `You are a master Vedic astrologer giving deeply personal, SPECIFIC readings.
+RULES:
+1. Use the person's name in every section.
+2. NEVER write generic planet descriptions — every sentence must be about THIS specific person.
+3. The 📅 timing sections are MANDATORY — you MUST give real years or year-ranges, not vague answers.
+4. Be honest about difficulties. Be honest about delays. Then show the path through.
+5. Write like a wise, warm friend who knows their chart — not a textbook.
+6. Use **bold headings** exactly as given. Rich paragraphs, no bullet points.
+7. The WORST answer is a vague non-answer. Always commit to a specific year or window.`,
         },
         { role: 'user', content: userPrompt },
       ],
-      max_tokens: 800,
+      max_tokens: 900,
       temperature: 0.75,
     });
 
     const text = completion.choices[0]?.message?.content || '';
     const tokensUsed = completion.usage?.total_tokens || 0;
 
-    // Fire-and-forget usage tracking
     fetch(`${req.nextUrl.origin}/api/usage-alert`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

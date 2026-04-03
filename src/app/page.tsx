@@ -171,6 +171,15 @@ export default function HomePage() {
           <p className="text-xs font-semibold" style={{ color: '#1A6B6B' }}>
             {t.footer_text || '© 2026 Univu'}
           </p>
+          <a
+            href="https://univu.vercel.app"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-block text-xs font-semibold hover:underline transition-opacity hover:opacity-80"
+            style={{ color: '#D4880A', letterSpacing: '0.05em' }}
+          >
+            🌐 univu.vercel.app
+          </a>
         </footer>
       </div>
     </div>
