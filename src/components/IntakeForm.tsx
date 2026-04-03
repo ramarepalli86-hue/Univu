@@ -78,26 +78,39 @@ function Sel({ val, onChange, req, children, grow = '1' }: {
 
 function DOBPicker({ value, onChange }: { value: string; onChange: (v: string) => void }) {
   const cy = new Date().getFullYear();
-  const [yr, mo, dy] = value ? value.split('-').map(Number) : [0, 0, 0];
-  const maxD = daysInMonth(mo, yr);
+  // Parse existing value for initial state
+  const parsed = value ? value.split('-').map(Number) : [0, 0, 0];
+  // Use internal state so partial selections (day without year, etc.) are preserved
+  const [selYr, setSelYr] = useState(parsed[0] || 0);
+  const [selMo, setSelMo] = useState(parsed[1] || 0);
+  const [selDy, setSelDy] = useState(parsed[2] || 0);
+
+  const maxD = daysInMonth(selMo, selYr);
   const years = Array.from({ length: cy - 1899 }, (_, i) => cy - i);
 
-  function emit(y: number, m: number, d: number) {
-    if (y && m && d) onChange(`${y}-${p2(m)}-${p2(Math.min(d, daysInMonth(m, y)))}`);
-    else onChange('');
+  function commit(y: number, m: number, d: number) {
+    if (y && m && d) {
+      const safeD = Math.min(d, daysInMonth(m, y));
+      onChange(`${y}-${p2(m)}-${p2(safeD)}`);
+    }
+    // Do NOT call onChange('') for partial — just keep internal state
   }
+
+  function onDay(v: string)  { const d = Number(v); setSelDy(d);  commit(selYr, selMo, d); }
+  function onMonth(v: string){ const m = Number(v); setSelMo(m);  commit(selYr, m, selDy); }
+  function onYear(v: string) { const y = Number(v); setSelYr(y);  commit(y, selMo, selDy); }
 
   return (
     <div className="flex gap-2">
-      <Sel val={dy || ''} onChange={v => emit(yr, mo, Number(v))} req grow="1">
+      <Sel val={selDy || ''} onChange={onDay} req grow="1">
         <option value="">Day</option>
         {Array.from({ length: maxD }, (_, i) => i + 1).map(d => <option key={d} value={d}>{p2(d)}</option>)}
       </Sel>
-      <Sel val={mo || ''} onChange={v => emit(yr, Number(v), dy)} req grow="1.6">
+      <Sel val={selMo || ''} onChange={onMonth} req grow="1.6">
         <option value="">Month</option>
         {MONTHS.map((m, i) => <option key={i+1} value={i+1}>{m}</option>)}
       </Sel>
-      <Sel val={yr || ''} onChange={v => emit(Number(v), mo, dy)} req grow="1.4">
+      <Sel val={selYr || ''} onChange={onYear} req grow="1.4">
         <option value="">Year</option>
         {years.map(y => <option key={y} value={y}>{y}</option>)}
       </Sel>
