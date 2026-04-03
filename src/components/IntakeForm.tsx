@@ -15,7 +15,7 @@ export interface IntakeFormData {
   birthCity: string;
   birthLat: number;
   birthLng: number;
-  gender: 'male' | 'female' | 'other';
+  gender: 'male' | 'female' | 'nonbinary' | 'they' | 'prefer_not';
   currentCity: string;
   currentLat: number;
   currentLng: number;
@@ -318,10 +318,12 @@ export default function IntakeForm({ t, locale, onLocaleChange, onSubmit, loadin
         {/* Gender */}
         <div>
           <Lbl>Gender</Lbl>
-          <div className="flex gap-2">
-            <Chip active={form.gender === 'male'}   onClick={() => upd('gender', 'male')}>♂ Male</Chip>
-            <Chip active={form.gender === 'female'} onClick={() => upd('gender', 'female')}>♀ Female</Chip>
-            <Chip active={form.gender === 'other'}  onClick={() => upd('gender', 'other')}>⚥ Other</Chip>
+          <div className="flex flex-wrap gap-2">
+            <Chip active={form.gender === 'male'}        onClick={() => upd('gender', 'male')}>♂ Male</Chip>
+            <Chip active={form.gender === 'female'}      onClick={() => upd('gender', 'female')}>♀ Female</Chip>
+            <Chip active={form.gender === 'nonbinary'}   onClick={() => upd('gender', 'nonbinary')}>⚧ Non-binary</Chip>
+            <Chip active={form.gender === 'they'}        onClick={() => upd('gender', 'they')}>🏳️‍🌈 They/Them</Chip>
+            <Chip active={form.gender === 'prefer_not'}  onClick={() => upd('gender', 'prefer_not')}>🤍 Prefer not to say</Chip>
           </div>
         </div>
 

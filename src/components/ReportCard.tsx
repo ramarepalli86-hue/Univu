@@ -147,7 +147,7 @@ function NakshatraBanner({ reading }: { reading: FullReading }) {
   return (
     <div className="rounded-2xl overflow-hidden border" style={{ borderColor: 'rgba(26,107,107,0.2)', background: 'linear-gradient(135deg,rgba(26,107,107,0.08),rgba(212,136,10,0.06))' }}>
       <div className="flex items-center gap-4 p-4 sm:p-5">
-        <div className="flex-shrink-0 w-16 h-16 sm:w-20 sm:h-20 rounded-2xl flex items-center justify-center text-4xl sm:text-5xl" style={{ background: 'rgba(26,107,107,0.1)', border: '1px solid rgba(26,107,107,0.2)' }}>
+        <div className="flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center text-2xl" style={{ background: 'rgba(26,107,107,0.1)', border: '1px solid rgba(26,107,107,0.2)' }}>
           {sym}
         </div>
         <div className="flex-1 min-w-0">
@@ -163,16 +163,16 @@ function NakshatraBanner({ reading }: { reading: FullReading }) {
         </div>
       </div>
       {/* Nakshatra strip — show all 27 nakshatras, highlight current */}
-      <div className="flex overflow-x-auto px-4 pb-3 gap-1.5" style={{ scrollbarWidth: 'none' }}>
-        {Object.keys(NAKSHATRA_SYMBOL).map((n, i) => {
+      <div className="flex overflow-x-auto px-3 pb-2 gap-1" style={{ scrollbarWidth: 'none' }}>
+        {Object.keys(NAKSHATRA_SYMBOL).map((n) => {
           const isCurrent = n === nk;
           return (
-            <div key={n} className="flex-shrink-0 text-center" style={{ opacity: isCurrent ? 1 : 0.35 }}>
-              <div className="w-8 h-8 rounded-lg flex items-center justify-center text-base mb-0.5"
+            <div key={n} className="flex-shrink-0 text-center" style={{ opacity: isCurrent ? 1 : 0.3 }}>
+              <div className="w-6 h-6 rounded-md flex items-center justify-center text-xs mb-0.5"
                 style={{ background: isCurrent ? `linear-gradient(135deg,${TEAL},${TEAL_L})` : 'rgba(26,107,107,0.06)', border: isCurrent ? `1px solid ${TEAL}` : '1px solid transparent' }}>
                 {NAKSHATRA_SYMBOL[n]}
               </div>
-              {isCurrent && <div className="w-1.5 h-1.5 rounded-full mx-auto" style={{ background: AMBER }} />}
+              {isCurrent && <div className="w-1 h-1 rounded-full mx-auto" style={{ background: AMBER }} />}
             </div>
           );
         })}
@@ -606,7 +606,7 @@ export default function ReportCard({ t: _t, reading }: ReportCardProps) {
 
           {tab === 'story' && (
             <div className="-m-5 sm:-m-6 rounded-2xl overflow-hidden">
-              <StoryAnimator name={reading.name} storyText={reading.storyNarrative} storyEvents={reading.storyEvents}
+              <StoryAnimator name={reading.name} gender={reading.gender} storyText={reading.storyNarrative} storyEvents={reading.storyEvents}
                 lagnaSign={reading.lagnaSign} moonSign={reading.moonSign} sunSign={reading.sunSign}
                 birthYear={birthYear} planets={reading.planets} currentDasha={reading.currentDasha} />
             </div>

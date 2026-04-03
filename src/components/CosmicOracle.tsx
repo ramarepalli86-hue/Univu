@@ -94,7 +94,7 @@ export default function CosmicOracle({ chartContext }: AstroChatProps) {
       {/* Floating button */}
       <button
         onClick={() => setOpen(o => !o)}
-        className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full flex items-center justify-center shadow-xl transition-transform hover:scale-105 active:scale-95"
+        className="fixed bottom-20 sm:bottom-6 right-4 sm:right-6 z-[9999] w-14 h-14 rounded-full flex items-center justify-center shadow-xl transition-transform hover:scale-105 active:scale-95"
         style={{ background: `linear-gradient(135deg, ${TEAL}, #2A8A8A)`, boxShadow: `0 4px 20px rgba(26,107,107,0.45)` }}
         aria-label="Open Cosmic Oracle chat"
       >
@@ -119,7 +119,7 @@ export default function CosmicOracle({ chartContext }: AstroChatProps) {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 24, scale: 0.95 }}
             transition={{ duration: 0.2 }}
-            className="fixed bottom-24 right-4 sm:right-6 z-50 w-[calc(100vw-2rem)] sm:w-[380px] rounded-2xl overflow-hidden shadow-2xl"
+            className="fixed bottom-36 sm:bottom-24 right-4 sm:right-6 z-[9999] w-[calc(100vw-2rem)] sm:w-[380px] rounded-2xl overflow-hidden shadow-2xl"
             style={{ maxHeight: '72vh', display: 'flex', flexDirection: 'column', background: '#FFFDF8', border: `1px solid rgba(26,107,107,0.2)` }}
           >
             {/* Header */}

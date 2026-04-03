@@ -24,6 +24,7 @@ interface StoryScene {
 
 interface StoryAnimatorProps {
   name: string;
+  gender?: string;
   storyText: string;
   storyEvents?: StoryEvent[];
   lagnaSign?: string;
@@ -48,6 +49,15 @@ const PLANET_DATA: Record<string, { symbol: string; color: string; emoji: string
   Ketu:    { symbol: '☋',  color: '#806040', emoji: '🌒' },
   Lagna:   { symbol: '⬆',  color: '#88FFCC', emoji: '⬆️' },
 };
+
+// ─── Pronoun Helper ───────────────────────────────────────────────────────────
+
+function getPronouns(gender?: string) {
+  if (gender === 'female') return { sub: 'she', obj: 'her', pos: 'her', ref: 'herself' };
+  if (gender === 'nonbinary' || gender === 'they' || gender === 'prefer_not')
+    return { sub: 'they', obj: 'them', pos: 'their', ref: 'themselves' };
+  return { sub: 'he', obj: 'him', pos: 'his', ref: 'himself' };
+}
 
 // ─── Animated SVG Characters ──────────────────────────────────────────────────
 
@@ -362,7 +372,7 @@ function CharacterFigure({ pose, color }: { pose: StoryScene['characterPose']; c
 // ─── Scene Builder ────────────────────────────────────────────────────────────
 
 function buildScenesFromData(
-  name: string, storyText: string, _events: StoryEvent[],
+  name: string, gender: string | undefined, storyText: string, _events: StoryEvent[],
   lagnaSign: string, _moonSign: string, _sunSign: string,
   _birthYear: number, planets: Array<{ name: string; rashi: string; house: number }>,
   _currentDasha: string
@@ -388,12 +398,13 @@ function buildScenesFromData(
   return sceneConfigs.map((cfg, i) => {
     const planetData = PLANET_DATA[cfg.planet] || PLANET_DATA['Moon'];
     const chapterText = chapters[i]?.text || paragraphs[i] || '';
+    const pr = getPronouns(gender);
     return {
       id: i,
       chapter: cfg.chapter,
       title: cfg.title,
       subtitle: cfg.subtitle,
-      narrativeText: chapterText.slice(0, 320) || `The ${cfg.title.toLowerCase()} — a chapter of profound significance in the cosmic journey of ${name}.`,
+      narrativeText: chapterText.slice(0, 320) || `The ${cfg.title.toLowerCase()} — a chapter of profound significance in the cosmic journey of ${name}. ${pr.sub.charAt(0).toUpperCase() + pr.sub.slice(1)} walks a path written in the stars.`,
       planet: cfg.planet,
       planetSymbol: planetData.symbol,
       planetColor: cfg.accentColor,
@@ -543,7 +554,7 @@ function SceneNav({ scenes, current, onSelect }: {
 // ─── Main StoryAnimator Component ────────────────────────────────────────────
 
 export default function StoryAnimator({
-  name, storyText, storyEvents = [], lagnaSign = 'Aries',
+  name, gender, storyText, storyEvents = [], lagnaSign = 'Aries',
   moonSign = 'Cancer', sunSign = 'Leo', birthYear = 1990,
   planets = [], currentDasha = 'Jupiter',
 }: StoryAnimatorProps) {
@@ -555,7 +566,7 @@ export default function StoryAnimator({
   const [isSpeaking, setIsSpeaking] = useState(false);
   const autoPlayRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const scenes = buildScenesFromData(name, storyText, storyEvents, lagnaSign, moonSign, sunSign, birthYear, planets, currentDasha);
+  const scenes = buildScenesFromData(name, gender, storyText, storyEvents, lagnaSign, moonSign, sunSign, birthYear, planets, currentDasha);
 
   // Enrich a scene with GPT-4o-mini
   const enrichScene = useCallback(async (sceneIdx: number) => {
@@ -568,7 +579,7 @@ export default function StoryAnimator({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          name, sceneIndex: sceneIdx, sceneTitle: scene.title,
+          name, gender, sceneIndex: sceneIdx, sceneTitle: scene.title,
           lifeAge: scene.lifeAge, lagnaSign, moonSign, sunSign,
           birthYear, birthCity: '', currentDasha, planet: scene.planet,
           planets,
@@ -585,7 +596,7 @@ export default function StoryAnimator({
     } finally {
       setLoadingScene(null);
     }
-  }, [enrichedTexts, loadingScene, scenes, name, lagnaSign, moonSign, sunSign, birthYear, currentDasha, planets]);
+  }, [enrichedTexts, loadingScene, scenes, name, gender, lagnaSign, moonSign, sunSign, birthYear, currentDasha, planets]);
 
   // Auto-enrich current scene when it changes
   useEffect(() => {
@@ -683,7 +694,7 @@ export default function StoryAnimator({
           <span className="text-[10px] text-emerald-400">✨ AI-enhanced</span>
         </div>
       )}
-      <div className={`relative ${isFullscreen ? 'h-screen' : 'h-[65vh] min-h-[480px]'}`}>
+      <div className={`relative ${isFullscreen ? 'h-screen' : 'h-[78vh] min-h-[560px]'}`}>
         <AnimatePresence mode="wait">
           <motion.div key={currentScene} className="absolute inset-0"
             initial={{ opacity: 0, x: 60 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -60 }}

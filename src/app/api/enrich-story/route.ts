@@ -10,21 +10,24 @@ function getGroqClient(): Groq | null {
 }
 
 // ─── System prompt — the astrology intelligence core ─────────────────────────
-const SYSTEM_PROMPT = `You are a master astrologer and storyteller giving a deeply personal cosmic biography scene.
+function buildSystemPrompt(pronouns: { sub: string; obj: string; pos: string }): string {
+  return `You are a master astrologer and storyteller giving a deeply personal cosmic biography scene.
 
 Rules:
 1. Write in vivid, clear prose directly about THIS person — use their name.
-2. Be specific to their planetary positions — no generic zodiac descriptions.
-3. Weave Vedic + Western + Egyptian traditions naturally into the narrative.
-4. Tell the FULL truth: real gifts AND real struggles. Never be relentlessly positive.
-5. Structure EVERY scene with these three parts in order:
+2. Use the correct pronouns throughout: subject="${pronouns.sub}", object="${pronouns.obj}", possessive="${pronouns.pos}". NEVER use the wrong gender pronoun.
+3. Be specific to their planetary positions — no generic zodiac descriptions.
+4. Weave Vedic + Western + Egyptian traditions naturally into the narrative.
+5. Tell the FULL truth: real gifts AND real struggles. Never be relentlessly positive.
+6. Structure EVERY scene with these three parts in order:
    - Opening narrative (2-3 sentences): what this life chapter IS for this person
    - Challenge: Start exactly with "Challenge: " followed by the specific obstacle, struggle or pain this period brings (1-2 sentences)
    - Lesson: Start exactly with "Lesson: " followed by the specific action, growth or remedy that navigates it (1-2 sentences)
-6. Reference astrological traditions concretely (e.g., "Saturn's 2.5-year transit", "Rahu's insatiable hunger")
-7. End with: "⚠️ For entertainment & informational purposes only."
-8. Keep total length 200–280 words.
-9. Always include the person's name naturally.`;
+7. Reference astrological traditions concretely (e.g., "Saturn's 2.5-year transit", "Rahu's insatiable hunger")
+8. End with: "⚠️ For entertainment & informational purposes only."
+9. Keep total length 200–280 words.
+10. Always include the person's name naturally.`;
+}
 
 export async function POST(req: NextRequest) {
   const blocked = budgetGuard();
@@ -42,6 +45,7 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const {
       name,
+      gender,
       sceneIndex,
       sceneTitle,
       lifeAge,
@@ -59,6 +63,13 @@ export async function POST(req: NextRequest) {
     if (!name || sceneIndex === undefined) {
       return NextResponse.json({ error: 'name and sceneIndex required' }, { status: 400 });
     }
+
+    // Determine pronouns from gender
+    const pronouns = gender === 'female'
+      ? { sub: 'she', obj: 'her', pos: 'her' }
+      : (gender === 'nonbinary' || gender === 'they' || gender === 'prefer_not')
+        ? { sub: 'they', obj: 'them', pos: 'their' }
+        : { sub: 'he', obj: 'him', pos: 'his' };
 
     // Build planet context string
     const planetContext = planets
@@ -150,7 +161,7 @@ Planets: ${planetContext}`;
     const completion = await groq.chat.completions.create({
       model: 'llama-3.3-70b-versatile',
       messages: [
-        { role: 'system', content: SYSTEM_PROMPT },
+        { role: 'system', content: buildSystemPrompt(pronouns) },
         { role: 'user', content: userPrompt },
       ],
       max_tokens: 500,
