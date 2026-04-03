@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import StarField from '@/components/StarField';
 import DisclaimerBanner from '@/components/DisclaimerBanner';
@@ -9,6 +9,89 @@ import AgeGate from '@/components/AgeGate';
 import ReportCard, { ReadingResult } from '@/components/ReportCard';
 import AstroChat from '@/components/AstroChat';
 import { Locale, getTranslations, detectLocale } from '@/i18n';
+
+function FeedbackWidget() {
+  const [stars, setStars] = useState(0);
+  const [hover, setHover] = useState(0);
+  const [comment, setComment] = useState('');
+  const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!stars) return;
+    setSubmitting(true);
+    // Fire-and-forget to a free endpoint — or just local success state
+    try {
+      await fetch('https://formspree.io/f/feedback-univu', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ stars, comment }),
+      });
+    } catch { /* ignore network errors — still show success */ }
+    setSubmitted(true);
+    setSubmitting(false);
+  }
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.3 }}
+      className="mt-10 rounded-2xl p-6 text-center"
+      style={{ background: 'rgba(26,107,107,0.05)', border: '1px solid rgba(26,107,107,0.15)' }}
+    >
+      {submitted ? (
+        <div>
+          <p className="text-2xl mb-2">🙏</p>
+          <p className="font-semibold" style={{ color: '#1A6B6B' }}>Thank you for your feedback!</p>
+          <p className="text-xs mt-1" style={{ color: '#8A8278' }}>It helps us improve Univu for everyone.</p>
+        </div>
+      ) : (
+        <form onSubmit={handleSubmit}>
+          <p className="text-sm font-semibold mb-3" style={{ color: '#1A6B6B' }}>How was your reading?</p>
+          {/* Stars */}
+          <div className="flex justify-center gap-2 mb-4">
+            {[1,2,3,4,5].map(n => (
+              <button
+                key={n}
+                type="button"
+                onClick={() => setStars(n)}
+                onMouseEnter={() => setHover(n)}
+                onMouseLeave={() => setHover(0)}
+                className="text-2xl transition-transform hover:scale-110"
+                style={{ color: n <= (hover || stars) ? '#D4880A' : '#D1C5B0' }}
+              >
+                ★
+              </button>
+            ))}
+          </div>
+          {/* Comment */}
+          <textarea
+            value={comment}
+            onChange={e => setComment(e.target.value)}
+            placeholder="Tell us what you loved or how we can improve… (optional)"
+            rows={3}
+            className="w-full text-sm px-3 py-2.5 rounded-xl resize-none outline-none mb-3"
+            style={{
+              background: 'rgba(255,255,255,0.8)',
+              border: '1px solid rgba(26,107,107,0.2)',
+              color: '#1F2937',
+            }}
+          />
+          <button
+            type="submit"
+            disabled={!stars || submitting}
+            className="px-6 py-2 rounded-xl text-sm font-semibold text-white transition-opacity disabled:opacity-40"
+            style={{ background: 'linear-gradient(135deg, #1A6B6B, #2A8A8A)' }}
+          >
+            {submitting ? 'Sending…' : 'Send Feedback'}
+          </button>
+        </form>
+      )}
+    </motion.div>
+  );
+}
 
 export default function HomePage() {
   const [locale, setLocale] = useState<Locale>('en');
@@ -172,6 +255,7 @@ export default function HomePage() {
                 ← Back to Home
               </button>
               <ReportCard t={t} reading={reading} />
+              <FeedbackWidget />
             </motion.div>
           )}
         </AnimatePresence>
