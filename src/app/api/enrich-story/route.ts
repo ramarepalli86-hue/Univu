@@ -4,8 +4,10 @@ import Groq from 'groq-sdk';
 // ─── Groq client — lazy initialized so missing key won't crash build ──────────
 // FREE tier: 14,400 requests/day. Sign up free at https://console.groq.com
 function getGroqClient(): Groq | null {
-  if (!process.env.GROQ_API_KEY) return null;
-  return new Groq({ apiKey: process.env.GROQ_API_KEY });
+  // Key name: Grok_Univu_Key (prefix pattern for future keys e.g. OpenAI_Univu_Key)
+  const apiKey = process.env.Grok_Univu_Key || process.env.GROQ_API_KEY;
+  if (!apiKey) return null;
+  return new Groq({ apiKey });
 }
 
 // ─── System prompt — the astrology intelligence core ─────────────────────────
@@ -37,7 +39,7 @@ export async function POST(req: NextRequest) {
     const groq = getGroqClient();
     if (!groq) {
       return NextResponse.json(
-        { error: 'Groq API key not configured', enriched: null },
+        { error: 'API key not configured. Set Grok_Univu_Key in environment variables.', enriched: null },
         { status: 503 }
       );
     }
