@@ -193,15 +193,26 @@ export default function IntakeForm({ t, locale, onLocaleChange, onSubmit, loadin
     navigator.geolocation.getCurrentPosition(async pos => {
       const { latitude: lat, longitude: lng } = pos.coords;
       try {
-        const r = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`);
+        const r = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&addressdetails=1`);
         const d = await r.json();
         const city = d.address?.city || d.address?.town || d.address?.village || d.address?.county || '';
         const state = d.address?.state || '';
-        const cc = (d.address?.country_code || '').toUpperCase();
-        const label = [city, state, cc].filter(Boolean).join(', ');
-        setForm(p => ({ ...p, currentCity: label, currentLat: lat, currentLng: lng }));
+        const country = d.address?.country || '';
+        const label = [city, state, country].filter(Boolean).join(', ');
+        // Store both display label AND lat/lng via the CityEntry
+        setForm(p => ({
+          ...p,
+          currentCity: label,
+          currentLat: lat,
+          currentLng: lng,
+        }));
       } catch {
-        setForm(p => ({ ...p, currentCity: `${lat.toFixed(2)}, ${lng.toFixed(2)}`, currentLat: lat, currentLng: lng }));
+        setForm(p => ({
+          ...p,
+          currentCity: `${lat.toFixed(4)}, ${lng.toFixed(4)}`,
+          currentLat: lat,
+          currentLng: lng,
+        }));
       }
       setGpsLoading(false);
     }, err => {
