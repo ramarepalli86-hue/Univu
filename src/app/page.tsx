@@ -310,7 +310,7 @@ export default function HomePage() {
       {/* Floating AI chat — always visible, injects chart context when reading is available */}
       <AstroChat chartContext={reading
         ? [
-            reading.name ? `Name: ${reading.name}` : '',
+            // PII: name is NOT included in chart context sent to AI
             reading.lagnaSign ? `Lagna (Rising): ${reading.lagnaSign}` : '',
             reading.moonSign ? `Moon sign: ${reading.moonSign}` : '',
             reading.sunSign ? `Sun sign: ${reading.sunSign}` : '',

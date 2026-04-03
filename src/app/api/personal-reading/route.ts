@@ -262,12 +262,18 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'section and context required' }, { status: 400 });
     }
 
+    // ── PII: replace real name with an anonymous token before sending to the AI ──
+    const anonContext: ReadingContext = {
+      ...context,
+      name: 'the Seeker',  // real name never reaches the AI model
+    };
+
     const promptFn = SECTION_PROMPTS[section];
     if (!promptFn) {
       return NextResponse.json({ error: 'Unknown section: ' + section }, { status: 400 });
     }
 
-    const userPrompt = promptFn(context);
+    const userPrompt = promptFn(anonContext);
 
     const completion = await groq.chat.completions.create({
       model: 'llama-3.3-70b-versatile',

@@ -7,7 +7,6 @@ export async function POST(req: NextRequest) {
 
     const {
       name, dob, timeOfBirth, birthLat, birthLng, birthCity,
-      currentLat, currentLng, currentCity,
       gender, maritalStatus, employment, concern, chartType, language,
     } = body;
 
@@ -35,9 +34,10 @@ export async function POST(req: NextRequest) {
       birthLat: parseFloat(birthLat) || 28.6139,
       birthLng: parseFloat(birthLng) || 77.2090,
       birthCity: birthCity.trim(),
-      currentLat: parseFloat(currentLat) || parseFloat(birthLat) || 28.6139,
-      currentLng: parseFloat(currentLng) || parseFloat(birthLng) || 77.2090,
-      currentCity: (currentCity || birthCity || '').trim(),
+      // currentCity/currentLat/currentLng removed — not required for chart calc
+      currentLat: parseFloat(birthLat) || 28.6139,
+      currentLng: parseFloat(birthLng) || 77.2090,
+      currentCity: birthCity.trim(),
       gender,
       maritalStatus: maritalStatus || 'single',
       employment: employment || 'employed',

@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { IoSparkles, IoLocate } from 'react-icons/io5';
+import { IoSparkles } from 'react-icons/io5';
 import LanguageSelector from './LanguageSelector';
 import CityAutocomplete from './CityAutocomplete';
 import { Locale } from '@/i18n';
@@ -16,9 +16,6 @@ export interface IntakeFormData {
   birthLat: number;
   birthLng: number;
   gender: 'male' | 'female' | 'nonbinary' | 'they' | 'prefer_not';
-  currentCity: string;
-  currentLat: number;
-  currentLng: number;
   chartType: 'north' | 'south';
   tradition: 'vedic' | 'western' | 'chinese' | 'egyptian' | 'mayan' | 'all';
   maritalStatus: 'single' | 'married' | 'divorced' | 'widowed';
@@ -167,13 +164,10 @@ export default function IntakeForm({ t, locale, onLocaleChange, onSubmit, loadin
     name: '', dob: '', timeOfBirth: '',
     birthCity: '', birthLat: 0, birthLng: 0,
     gender: 'male',
-    currentCity: '', currentLat: 0, currentLng: 0,
     chartType: 'north', tradition: 'all',
     maritalStatus: 'single', employment: 'employed',
     concern: '', consent: false, language: locale,
   });
-  const [gpsLoading, setGpsLoading] = useState(false);
-  const [gpsError, setGpsError] = useState('');
 
   const upd = useCallback((f: keyof IntakeFormData, v: string | boolean | number) =>
     setForm(p => ({ ...p, [f]: v })), []);
@@ -181,44 +175,6 @@ export default function IntakeForm({ t, locale, onLocaleChange, onSubmit, loadin
   function onBirth(val: string, e?: CityEntry) {
     if (e) setForm(p => ({ ...p, birthCity: val, birthLat: e.lat, birthLng: e.lng }));
     else upd('birthCity', val);
-  }
-  function onCurrent(val: string, e?: CityEntry) {
-    if (e) setForm(p => ({ ...p, currentCity: val, currentLat: e.lat, currentLng: e.lng }));
-    else upd('currentCity', val);
-  }
-
-  function detectGPS() {
-    if (!navigator.geolocation) { setGpsError('Geolocation not supported'); return; }
-    setGpsLoading(true); setGpsError('');
-    navigator.geolocation.getCurrentPosition(async pos => {
-      const { latitude: lat, longitude: lng } = pos.coords;
-      try {
-        const r = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&addressdetails=1`);
-        const d = await r.json();
-        const city = d.address?.city || d.address?.town || d.address?.village || d.address?.county || '';
-        const state = d.address?.state || '';
-        const country = d.address?.country || '';
-        const label = [city, state, country].filter(Boolean).join(', ');
-        // Store both display label AND lat/lng via the CityEntry
-        setForm(p => ({
-          ...p,
-          currentCity: label,
-          currentLat: lat,
-          currentLng: lng,
-        }));
-      } catch {
-        setForm(p => ({
-          ...p,
-          currentCity: `${lat.toFixed(4)}, ${lng.toFixed(4)}`,
-          currentLat: lat,
-          currentLng: lng,
-        }));
-      }
-      setGpsLoading(false);
-    }, err => {
-      setGpsError(err.code === 1 ? 'Location permission denied' : 'Could not detect location');
-      setGpsLoading(false);
-    }, { timeout: 10000 });
   }
 
   function handleSubmit(e: React.FormEvent) { e.preventDefault(); if (!form.consent) return; onSubmit({ ...form, language: locale }); }
@@ -351,22 +307,7 @@ export default function IntakeForm({ t, locale, onLocaleChange, onSubmit, loadin
           </div>
         </div>
 
-        {/* Current Location + GPS */}
-        <div>
-          <div className="flex items-center justify-between mb-1.5">
-            <Lbl>Current Location</Lbl>
-            <button type="button" onClick={detectGPS} disabled={gpsLoading}
-              className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg transition-all"
-              style={{ background: TEAL_BG, color: TEAL, border: `1px solid ${TEAL_BR}` }}>
-              {gpsLoading
-                ? <span className="w-3 h-3 border border-current border-t-transparent rounded-full animate-spin inline-block" />
-                : <IoLocate size={13} />}
-              {gpsLoading ? 'Detecting…' : 'Use My Location'}
-            </button>
-          </div>
-          <CityAutocomplete value={form.currentCity} onChange={onCurrent} placeholder="Search or use GPS ↑" />
-          {gpsError && <p className="text-xs mt-1" style={{ color: '#B84A00' }}>{gpsError}</p>}
-        </div>
+        {/* Current Location + GPS — REMOVED for privacy */}
 
         {/* Concern */}
         <div>
@@ -378,13 +319,25 @@ export default function IntakeForm({ t, locale, onLocaleChange, onSubmit, loadin
             onBlur={e => { e.target.style.borderColor = BORDER; e.target.style.boxShadow = 'none'; }} />
         </div>
 
+        {/* PII Disclosure */}
+        <div className="rounded-xl p-4 space-y-2" style={{ background: 'rgba(212,136,10,0.06)', border: '1px solid rgba(212,136,10,0.22)' }}>
+          <p className="text-xs font-bold uppercase tracking-wider" style={{ color: AMBER }}>🔒 Privacy &amp; Data Notice</p>
+          <ul className="text-xs space-y-1 list-none" style={{ color: TEXT_MID }}>
+            <li>• <strong>No data is stored.</strong> Your details are used only to generate your reading and are discarded immediately after.</li>
+            <li>• <strong>Name anonymised.</strong> Before being sent to the AI model, your name is replaced with a token so the AI never receives or retains it.</li>
+            <li>• <strong>No account, no tracking.</strong> We do not store cookies, create profiles, or share your data with third parties.</li>
+            <li>• <strong>What is sent to the AI:</strong> birth date, birth city (latitude/longitude), gender, marital status, employment status, and your question — never your name or exact location.</li>
+            <li>• Your birth location is used only to compute planetary positions and is not logged.</li>
+          </ul>
+        </div>
+
         {/* Consent */}
         <div className="rounded-xl p-4" style={{ background: TEAL_BG, border: `1px solid ${TEAL_BR}` }}>
           <label className="flex items-start gap-3 cursor-pointer">
             <input type="checkbox" checked={form.consent} onChange={e => upd('consent', e.target.checked)}
               className="mt-0.5 w-4 h-4 flex-shrink-0 rounded" style={{ accentColor: TEAL }} />
             <span className="text-sm leading-relaxed" style={{ color: TEXT_MID }}>
-              I understand this reading is for entertainment and informational purposes only. I will consult a qualified astrologer for personal decisions.
+              I understand this reading is for entertainment and informational purposes only. I have read the privacy notice above and consent to my birth data being used solely to compute this reading.
             </span>
           </label>
         </div>
