@@ -245,7 +245,7 @@ export default function HomePage() {
                 ? { background: 'linear-gradient(135deg,#1A6B6B,#2A8A8A)', color: '#fff', boxShadow: '0 2px 10px rgba(26,107,107,0.3)' }
                 : { color: '#1A6B6B', border: '1px solid rgba(26,107,107,0.3)', background: 'transparent' }
               }
-            >🪔 Telugu Panchangam</button>
+            >🪔 {({ hi:'पंचांग', te:'పంచాంగం', ta:'பஞ்சாங்கம்', ml:'പഞ്ചാംഗം', kn:'ಪಂಚಾಂಗ', mr:'पंचांग', bn:'পঞ্চাঙ্গ', pa:'ਪੰਚਾਂਗ', gu:'પંચાંગ', or:'ପଞ୍ଚାଙ୍ଗ', as:'পঞ্চাং' } as Record<string,string>)[locale] ?? 'Panchangam'}</button>
           </div>
         </motion.header>
 
