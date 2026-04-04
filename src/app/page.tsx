@@ -9,6 +9,7 @@ import AgeGate from '@/components/AgeGate';
 import ReportCard, { ReadingResult } from '@/components/ReportCard';
 import AstroChat from '@/components/CosmicOracle';
 import Panchangam from '@/components/Panchangam';
+import LanguageSelector from '@/components/LanguageSelector';
 import { Locale, getTranslations, detectLocale } from '@/i18n';
 
 function FeedbackWidget() {
@@ -228,26 +229,30 @@ export default function HomePage() {
             ))}
           </div>
 
-          {/* ── Top-level nav: Astrology vs Panchangam ── */}
-          <div className="flex gap-2 justify-center mt-6">
-            <button
-              onClick={() => setView('astrology')}
-              className="px-5 py-2.5 text-sm font-semibold rounded-xl transition-all"
-              style={view === 'astrology'
-                ? { background: 'linear-gradient(135deg,#1A6B6B,#2A8A8A)', color: '#fff', boxShadow: '0 2px 10px rgba(26,107,107,0.3)' }
-                : { color: '#1A6B6B', border: '1px solid rgba(26,107,107,0.3)', background: 'transparent' }
-              }
-            >🔮 My Astrology Reading</button>
-            <button
-              onClick={() => setView('panchangam')}
-              className="px-5 py-2.5 text-sm font-semibold rounded-xl transition-all"
-              style={view === 'panchangam'
-                ? { background: 'linear-gradient(135deg,#1A6B6B,#2A8A8A)', color: '#fff', boxShadow: '0 2px 10px rgba(26,107,107,0.3)' }
-                : { color: '#1A6B6B', border: '1px solid rgba(26,107,107,0.3)', background: 'transparent' }
-              }
-            >🪔 {({ hi:'पंचांग', te:'పంచాంగం', ta:'பஞ்சாங்கம்', ml:'പഞ്ചാംഗം', kn:'ಪಂಚಾಂಗ', mr:'पंचांग', bn:'পঞ্চাঙ্গ', pa:'ਪੰਚਾਂਗ', gu:'પંચાંગ', or:'ପଞ୍ଚାଙ୍ଗ', as:'পঞ্চাং' } as Record<string,string>)[locale] ?? 'Panchangam'}</button>
+          {/* ── Top-level nav: Astrology vs Panchangam + Language selector ── */}
+          <div className="flex flex-col items-center gap-3 mt-6">
+            <div className="flex gap-2 justify-center">
+              <button
+                onClick={() => setView('astrology')}
+                className="px-5 py-2.5 text-sm font-semibold rounded-xl transition-all"
+                style={view === 'astrology'
+                  ? { background: 'linear-gradient(135deg,#1A6B6B,#2A8A8A)', color: '#fff', boxShadow: '0 2px 10px rgba(26,107,107,0.3)' }
+                  : { color: '#1A6B6B', border: '1px solid rgba(26,107,107,0.3)', background: 'transparent' }
+                }
+              >🔮 My Astrology Reading</button>
+              <button
+                onClick={() => setView('panchangam')}
+                className="px-5 py-2.5 text-sm font-semibold rounded-xl transition-all"
+                style={view === 'panchangam'
+                  ? { background: 'linear-gradient(135deg,#1A6B6B,#2A8A8A)', color: '#fff', boxShadow: '0 2px 10px rgba(26,107,107,0.3)' }
+                  : { color: '#1A6B6B', border: '1px solid rgba(26,107,107,0.3)', background: 'transparent' }
+                }
+              >🩔 {({ hi:'पंचांग', te:'పంచాంగం', ta:'பஞ்சாங்கம்', ml:'പഞ്ചാംഗം', kn:'ಪಂಚಾಂಗ', mr:'पंचांग', bn:'পঞ্চাঙ্গ', pa:'ਪੰਚਾਂਗ', gu:'પંਚાਂਗ', or:'ପଞ୍ଚାଙ୍ଗ', as:'পঞ্চাং' } as Record<string,string>)[locale] ?? 'Panchangam'}</button>
+            </div>
+            {/* Language selector — always visible, affects both Astrology and Panchangam views */}
+            <LanguageSelector current={locale} onChange={handleLocaleChange} />
           </div>
-        </motion.header>
+          </motion.header>
 
         {view === 'panchangam' ? (
           <motion.div key="panchangam" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>

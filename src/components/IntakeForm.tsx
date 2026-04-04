@@ -3,7 +3,6 @@
 import { useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { IoSparkles } from 'react-icons/io5';
-import LanguageSelector from './LanguageSelector';
 import CityAutocomplete from './CityAutocomplete';
 import { Locale } from '@/i18n';
 import { CityEntry } from '@/lib/cities';
@@ -207,7 +206,6 @@ export default function IntakeForm({ t, locale, onLocaleChange, onSubmit, loadin
             <h2 className="text-lg font-semibold" style={{ fontFamily: 'Cinzel, Georgia, serif', color: TEAL }}>Your Cosmic Blueprint</h2>
             <p className="text-xs mt-0.5" style={{ color: TEXT_MUTED }}>Fill in your details for a personalised reading</p>
           </div>
-          <LanguageSelector current={locale} onChange={onLocaleChange} />
         </div>
 
         {/* Tradition */}
