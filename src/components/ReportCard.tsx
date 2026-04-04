@@ -393,9 +393,62 @@ const PLANET_NAMES_I18N: Record<string, Record<string, string>> = {
   Ketu:    { hi:'केतु', te:'కేతువు', ta:'கேது', ml:'കേതു', kn:'ಕೇತು', mr:'केतू', bn:'কেতু' },
 };
 
+// Regional names for the Panchanga heading
+const PANCHANGA_TITLE: Record<string, string> = {
+  hi: 'पंचांग', te: 'పంచాంగం', ta: 'பஞ்சாங்கம்', ml: 'പഞ്ചാംഗം',
+  kn: 'ಪಂಚಾಂಗ', mr: 'पंचांग', bn: 'পঞ্চাঙ্গ', pa: 'ਪੰਚਾਂਗ',
+  gu: 'પંચાંગ', or: 'ପଞ୍ଚାଙ୍ଗ', as: 'পঞ্চাং',
+};
+
+// Yoga names in native scripts
+const YOGA_NAMES_I18N: Record<string, Record<string, string>> = {
+  Vishkambha: { hi:'विष्कम्भ', te:'విష్కంభ', ta:'விஷ்கம்ப', ml:'വിഷ്കംഭ', kn:'ವಿಷ್ಕಂಭ', mr:'विष्कंभ' },
+  Preeti:     { hi:'प्रीति', te:'ప్రీతి', ta:'பிரீதி', ml:'പ്രീതി', kn:'ಪ್ರೀತಿ', mr:'प्रीति' },
+  Ayushman:   { hi:'आयुष्मान', te:'ఆయుష్మాన్', ta:'ஆயுஷ்மான்', ml:'ആയുഷ്മാൻ', kn:'ಆಯುಷ್ಮಾನ್', mr:'आयुष्मान' },
+  Saubhagya:  { hi:'सौभाग्य', te:'సౌభాగ్య', ta:'சௌபாக்கியம்', ml:'സൗഭാഗ്യ', kn:'ಸೌಭಾಗ್ಯ', mr:'सौभाग्य' },
+  Shobhana:   { hi:'शोभन', te:'శోభన', ta:'சோபன', ml:'ശോഭന', kn:'ಶೋಭನ', mr:'शोभन' },
+  Atiganda:   { hi:'अतिगण्ड', te:'అతిగండ', ta:'அதிகண்ட', ml:'അതിഗണ്ഡ', kn:'ಅತಿಗಂಡ', mr:'अतिगंड' },
+  Sukarma:    { hi:'सुकर्मा', te:'సుకర్మ', ta:'சுகர்மா', ml:'സുകർമ', kn:'ಸುಕರ್ಮ', mr:'सुकर्मा' },
+  Dhriti:     { hi:'धृति', te:'ధృతి', ta:'திருதி', ml:'ധൃതി', kn:'ಧೃತಿ', mr:'धृती' },
+  Shoola:     { hi:'शूल', te:'శూల', ta:'சூல', ml:'ശൂല', kn:'ಶೂಲ', mr:'शूल' },
+  Ganda:      { hi:'गण्ड', te:'గండ', ta:'கண்ட', ml:'ഗണ്ഡ', kn:'ಗಂಡ', mr:'गंड' },
+  Vriddhi:    { hi:'वृद्धि', te:'వృద్ధి', ta:'விருத்தி', ml:'വൃദ്ധി', kn:'ವೃದ್ಧಿ', mr:'वृद्धि' },
+  Dhruva:     { hi:'ध्रुव', te:'ధ్రువ', ta:'திருவ', ml:'ധ്രുവ', kn:'ಧ್ರುವ', mr:'ध्रुव' },
+  Vyaghata:   { hi:'व्याघात', te:'వ్యాఘాత', ta:'வியாகாத', ml:'വ്യാഘാത', kn:'ವ್ಯಾಘಾತ', mr:'व्याघात' },
+  Harshana:   { hi:'हर्षण', te:'హర్షణ', ta:'அர்ஷண', ml:'ഹർഷണ', kn:'ಹರ್ಷಣ', mr:'हर्षण' },
+  Vajra:      { hi:'वज्र', te:'వజ్ర', ta:'வஜ்ர', ml:'വജ്ര', kn:'ವಜ್ರ', mr:'वज्र' },
+  Siddhi:     { hi:'सिद्धि', te:'సిద్ధి', ta:'சித்தி', ml:'സിദ്ധി', kn:'ಸಿದ್ಧಿ', mr:'सिद्धी' },
+  Vyatipata:  { hi:'व्यतीपात', te:'వ్యతీపాత', ta:'வியதீபாத', ml:'വ്യതീപാത', kn:'ವ್ಯತೀಪಾತ', mr:'व्यतीपात' },
+  Variyan:    { hi:'वरीयान', te:'వరీయాన్', ta:'வரீயான்', ml:'വരീയാൻ', kn:'ವರೀಯಾನ್', mr:'वरीयान' },
+  Parigha:    { hi:'परिघ', te:'పరిఘ', ta:'பரிக', ml:'പരിഘ', kn:'ಪರಿಘ', mr:'परिघ' },
+  Shiva:      { hi:'शिव', te:'శివ', ta:'சிவ', ml:'ശിവ', kn:'ಶಿವ', mr:'शिव' },
+  Siddha:     { hi:'सिद्ध', te:'సిద్ధ', ta:'சித்த', ml:'സിദ്ധ', kn:'ಸಿದ್ಧ', mr:'सिद्ध' },
+  Sadhya:     { hi:'साध्य', te:'సాధ్య', ta:'சாத்திய', ml:'സാധ്യ', kn:'ಸಾಧ್ಯ', mr:'साध्य' },
+  Shubha:     { hi:'शुभ', te:'శుభ', ta:'சுப', ml:'ശുഭ', kn:'ಶುಭ', mr:'शुभ' },
+  Shukla:     { hi:'शुक्ल', te:'శుక్ల', ta:'சுக்ல', ml:'ശുക്ല', kn:'ಶುಕ್ಲ', mr:'शुक्ल' },
+  Brahma:     { hi:'ब्रह्म', te:'బ్రహ్మ', ta:'பிரம்ம', ml:'ബ്രഹ്മ', kn:'ಬ್ರಹ್ಮ', mr:'ब्रह्म' },
+  Indra:      { hi:'इन्द्र', te:'ఇంద్ర', ta:'இந்திர', ml:'ഇന്ദ്ര', kn:'ಇಂದ್ರ', mr:'इंद्र' },
+  Vaidhriti:  { hi:'वैधृति', te:'వైధృతి', ta:'வைதிருதி', ml:'വൈധൃതി', kn:'ವೈಧೃತಿ', mr:'वैधृती' },
+};
+
+// Karana names in native scripts
+const KARANA_NAMES_I18N: Record<string, Record<string, string>> = {
+  Bava:        { hi:'बव', te:'బవ', ta:'பவ', ml:'ബവ', kn:'ಬವ', mr:'बव' },
+  Balava:      { hi:'बालव', te:'బాలవ', ta:'பாலவ', ml:'ബാലവ', kn:'ಬಾಲವ', mr:'बालव' },
+  Kaulava:     { hi:'कौलव', te:'కౌలవ', ta:'கௌலவ', ml:'കൗലവ', kn:'ಕೌಲವ', mr:'कौलव' },
+  Taitila:     { hi:'तैतिल', te:'తైతిల', ta:'தைதில', ml:'തൈതില', kn:'ತೈತಿಲ', mr:'तैतिल' },
+  Gara:        { hi:'गर', te:'గర', ta:'கர', ml:'ഗര', kn:'ಗರ', mr:'गर' },
+  Vanija:      { hi:'वणिज', te:'వణిజ', ta:'வணிஜ', ml:'വണിജ', kn:'ವಣಿಜ', mr:'वणिज' },
+  Vishti:      { hi:'विष्टि', te:'విష్టి', ta:'விஷ்டி', ml:'വിഷ്ടി', kn:'ವಿಷ್ಟಿ', mr:'विष्टी' },
+  Shakuni:     { hi:'शकुनि', te:'శకుని', ta:'சகுனி', ml:'ശകുനി', kn:'ಶಕುನಿ', mr:'शकुनि' },
+  Chatushpada: { hi:'चतुष्पद', te:'చతుష్పద', ta:'சதுஷ்பத', ml:'ചതുഷ്പദ', kn:'ಚತುಷ್ಪದ', mr:'चतुष्पाद' },
+  Naga:        { hi:'नाग', te:'నాగ', ta:'நாக', ml:'നാഗ', kn:'ನಾಗ', mr:'नाग' },
+  Kimstughna:  { hi:'किंस्तुघ्न', te:'కింస్తుఘ్న', ta:'கிம்ஸ்துக்ன', ml:'കിംസ്തുഘ്ന', kn:'ಕಿಂಸ್ತುಘ್ನ', mr:'किंस्तुघ्न' },
+};
+
 /** Return the localised version of a Panchanga term, falling back to English */
 function localisePanch(
-  type: 'label' | 'tithi' | 'nakshatra' | 'vara' | 'planet',
+  type: 'label' | 'tithi' | 'nakshatra' | 'vara' | 'planet' | 'yoga' | 'karana',
   key: string,
   lang: string
 ): string {
@@ -405,6 +458,8 @@ function localisePanch(
   if (type === 'nakshatra')return NAKSHATRA_NAMES_I18N[key]?.[locale] ?? key;
   if (type === 'vara')     return VARA_NAMES_I18N[key]?.[locale] ?? key;
   if (type === 'planet')   return PLANET_NAMES_I18N[key]?.[locale] ?? key;
+  if (type === 'yoga')     return YOGA_NAMES_I18N[key]?.[locale] ?? key;
+  if (type === 'karana')   return KARANA_NAMES_I18N[key]?.[locale] ?? key;
   return key;
 }
 
@@ -763,13 +818,13 @@ export default function ReportCard({ t: _t, reading }: ReportCardProps) {
               </div>
 
               <div>
-                <h3 className="text-base font-bold mb-3" style={{ color:TEAL }}>🪷 {lang && ['hi','te','ta','ml','kn','mr','bn','pa','gu','or','as'].includes(lang) ? localisePanch('label','Tithi',lang).replace(/तिथि|తిథి|திதி|തിഥി|ತಿಥಿ|तिथी|তিথি|ਤਿਥੀ|તિથિ|ତିଥି|তিথি/, '') : '' }Panchanga at Birth</h3>
+                <h3 className="text-base font-bold mb-3" style={{ color:TEAL }}>🪷 {PANCHANGA_TITLE[lang?.split('-')[0]] ?? 'Panchanga'} at Birth</h3>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                   {([
                     [localisePanch('label','Tithi',lang),           localisePanch('tithi',    reading.panchanga.tithi.name,    lang)],
                     [localisePanch('label','Nakshatra',lang),        localisePanch('nakshatra',reading.panchanga.nakshatra,      lang)],
-                    [localisePanch('label','Yoga',lang),             reading.panchanga.yoga],
-                    [localisePanch('label','Karana',lang),           reading.panchanga.karana],
+                    [localisePanch('label','Yoga',lang),             localisePanch('yoga',     reading.panchanga.yoga,           lang)],
+                    [localisePanch('label','Karana',lang),           localisePanch('karana',   reading.panchanga.karana,         lang)],
                     [localisePanch('label','Day (Vara)',lang),        localisePanch('vara',     reading.panchanga.vara,           lang)],
                     [localisePanch('label','Atmakaraka',lang),       localisePanch('planet',   reading.atmakaraka.planet,        lang)],
                   ] as [string,string][]).map(([k,v]) => <StatBadge key={k} label={k} value={v} />)}
