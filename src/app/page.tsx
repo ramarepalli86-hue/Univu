@@ -251,7 +251,7 @@ export default function HomePage() {
 
         {view === 'panchangam' ? (
           <motion.div key="panchangam" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
-            <Panchangam />
+            <Panchangam locale={locale} />
           </motion.div>
         ) : (
           <AnimatePresence mode="wait">
