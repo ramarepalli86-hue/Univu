@@ -1,11 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-// Set MAINTENANCE_MODE=true in Vercel environment variables (Production) to activate.
-// Locally and on preview deploys this is never set, so the app runs normally.
-const MAINTENANCE = process.env.MAINTENANCE_MODE === 'true';
+// MAINTENANCE MODE — set to false and redeploy when ready to launch.
+// Local dev (localhost) is always exempt.
+const MAINTENANCE = true;
 
 export function middleware(req: NextRequest) {
-  if (!MAINTENANCE) return NextResponse.next();
+  const host = req.headers.get('host') ?? '';
+  const isLocal = host.startsWith('localhost') || host.startsWith('127.0.0.1');
+
+  if (!MAINTENANCE || isLocal) return NextResponse.next();
 
   const { pathname } = req.nextUrl;
 
