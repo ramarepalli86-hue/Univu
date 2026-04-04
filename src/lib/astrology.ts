@@ -1835,6 +1835,7 @@ export interface ReadingInput {
   employment: string;
   concern: string;
   chartType: 'north' | 'south';
+  vedicSystem: 'parashari' | 'kp' | 'jaimini' | 'lal_kitab';
   tradition: 'vedic' | 'western' | 'chinese' | 'egyptian' | 'mayan' | 'all';
   language: string;
 }
@@ -1858,6 +1859,7 @@ export interface FullReading {
   moonNakshatraPada: number;
   planets: PlanetPosition[];
   chartType: 'north' | 'south';
+  vedicSystem: 'parashari' | 'kp' | 'jaimini' | 'lal_kitab';
   panchanga: Panchanga;
   dashaTimeline: DashaPeriod[];
   currentDasha: string;
@@ -2017,6 +2019,7 @@ export function generateFullReading(input: ReadingInput): FullReading {
     gender: input.gender,
     tradition: input.tradition ?? 'all',
     language: input.language ?? 'en',
+    vedicSystem: input.vedicSystem ?? 'parashari',
     lagnaRashi,
     lagnaSign,
     moonRashi,

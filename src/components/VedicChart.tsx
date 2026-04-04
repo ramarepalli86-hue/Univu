@@ -97,7 +97,7 @@ function SouthChart({ signPlanets, ascendant }: {
 
   return (
     <div className="space-y-3">
-      <h3 className="section-heading">🕉️ South Indian Kundali</h3>
+      <h3 className="section-heading">🕉️ South Indian Layout</h3>
       <div className="grid grid-cols-4 border-2 border-copper-300 rounded-lg overflow-hidden max-w-xs mx-auto bg-warm-50">
         {[0, 1, 2, 3].map((row) =>
           [0, 1, 2, 3].map((col) => {
@@ -169,7 +169,7 @@ function NorthChart({ signPlanets, ascIdx, ascendant }: {
 
   return (
     <div className="space-y-3">
-      <h3 className="section-heading">🕉️ North Indian Kundali</h3>
+      <h3 className="section-heading">🕉️ North Indian Layout</h3>
       <motion.div
         initial={{ scale: 0.9, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}

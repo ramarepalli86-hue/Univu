@@ -21,14 +21,14 @@ const AMBER  = '#D4880A';
 const TEAL_L = '#2A8A8A';
 
 const TABS = [
-  { id: 'overview',   label: '✨ Overview'   },
-  { id: 'love',       label: '💞 Love'       },
-  { id: 'career',     label: '🏆 Career'     },
-  { id: 'health',     label: '🌿 Health'     },
-  { id: 'timeline',   label: '🗓 Timeline'   },
-  { id: 'spiritual',  label: '🔮 Purpose'    },
-  { id: 'charts',     label: '🪐 Charts'     },
-  { id: 'story',      label: '🎬 Story'      },
+  { id: 'overview',   label: '✨ Cosmic Snapshot' },
+  { id: 'love',       label: '💞 Love & Bonds'    },
+  { id: 'career',     label: '🏆 Wealth & Path'   },
+  { id: 'health',     label: '🌿 Vitality'         },
+  { id: 'timeline',   label: '🗓 Life Cycles'      },
+  { id: 'spiritual',  label: '🔮 Purpose'          },
+  { id: 'charts',     label: '🪐 Sky Charts'       },
+  { id: 'story',      label: '🎬 Story'            },
 ] as const;
 type TabId = typeof TABS[number]['id'];
 
@@ -233,6 +233,7 @@ function buildContext(reading: FullReading): ReadingContext {
     planetsIn6: reading.planets.filter(p=>p.house===6).map(p=>p.name).join(', ') || 'None',
     atmakaraka: reading.atmakaraka?.planet ?? 'Sun',
     sadeSatiActive: reading.sadeSati?.isActive ?? false,
+    vedicSystem: reading.vedicSystem ?? 'parashari',
   };
 }
 

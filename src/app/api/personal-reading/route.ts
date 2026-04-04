@@ -244,6 +244,7 @@ export interface ReadingContext {
   planetsIn6: string;
   atmakaraka: string;
   sadeSatiActive: boolean;
+  vedicSystem: 'parashari' | 'kp' | 'jaimini' | 'lal_kitab';
 }
 
 export async function POST(req: NextRequest) {
@@ -279,21 +280,30 @@ export async function POST(req: NextRequest) {
 
     const userPrompt = promptFn(anonContext);
 
+    const vedicSystemLabel: Record<string, string> = {
+      parashari: 'Parashari (classical — Vimshottari Dasha, natural house rulerships, graha strengths)',
+      kp:        'KP System (Krishnamurti Paddhati — sub-lord theory, cusp-based predictions, event-timing precision)',
+      jaimini:   'Jaimini (Chara Dasha, Karakamsha, Argala, Pada Lagna — soul-level karmic readings)',
+      lal_kitab: 'Lal Kitab (folk Vedic — Pucca/Kachcha houses, debts across lifetimes, practical remedies)',
+    };
+    const systemInstruction = vedicSystemLabel[context.vedicSystem] || vedicSystemLabel.parashari;
+
     const completion = await groq.chat.completions.create({
       model: 'llama-3.3-70b-versatile',
       messages: [
         {
           role: 'system',
-          content: `You are a master Vedic astrologer giving deeply personal, SPECIFIC readings.
+          content: `You are a master Vedic astrologer giving deeply personal, SPECIFIC readings using the ${systemInstruction} system.
 RULES:
 1. The person's name is "the Seeker". Use ONLY "the Seeker" — NEVER invent or substitute any other name (e.g. Emily, Alex, Priya, John). Do not use any name other than "the Seeker".
-2. Use the correct pronouns based on gender — male: he/him/his, female: she/her/hers, nonbinary/they/prefer_not: they/them/their. NEVER misuse pronouns.
+2. Use the correct pronouns based on gender — male: he/him/his, female: she/her/hers, other: they/them/their. NEVER misuse pronouns.
 3. NEVER write generic planet descriptions — every sentence must be about THIS specific person.
 4. The 📅 timing sections are MANDATORY — you MUST give real years or year-ranges, not vague answers.
 5. Be honest about difficulties. Be honest about delays. Then show the path through.
 6. Write like a wise, warm friend who knows their chart — not a textbook.
 7. Use **bold headings** exactly as given. Rich paragraphs, no bullet points.
-8. The WORST answer is a vague non-answer. Always commit to a specific year or window.`,
+8. The WORST answer is a vague non-answer. Always commit to a specific year or window.
+9. Apply the ${systemInstruction.split(' (')[0]} system's specific rules — do NOT blend with other systems unless asked.`,
         },
         { role: 'user', content: userPrompt },
       ],

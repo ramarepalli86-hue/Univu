@@ -70,7 +70,7 @@ export async function POST(req: NextRequest) {
     // Determine pronouns from gender
     const pronouns = gender === 'female'
       ? { sub: 'she', obj: 'her', pos: 'her' }
-      : (gender === 'nonbinary' || gender === 'they' || gender === 'prefer_not')
+      : gender === 'other'
         ? { sub: 'they', obj: 'them', pos: 'their' }
         : { sub: 'he', obj: 'him', pos: 'his' };
 

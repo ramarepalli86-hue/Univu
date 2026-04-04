@@ -15,8 +15,9 @@ export interface IntakeFormData {
   birthCity: string;
   birthLat: number;
   birthLng: number;
-  gender: 'male' | 'female' | 'nonbinary' | 'they' | 'prefer_not';
+  gender: 'male' | 'female' | 'other';
   chartType: 'north' | 'south';
+  vedicSystem: 'parashari' | 'kp' | 'jaimini' | 'lal_kitab';
   tradition: 'vedic' | 'western' | 'chinese' | 'egyptian' | 'mayan' | 'all';
   maritalStatus: 'single' | 'married' | 'divorced' | 'widowed';
   employment: 'employed' | 'self-employed' | 'student' | 'unemployed' | 'retired';
@@ -164,7 +165,7 @@ export default function IntakeForm({ t, locale, onLocaleChange, onSubmit, loadin
     name: '', dob: '', timeOfBirth: '',
     birthCity: '', birthLat: 0, birthLng: 0,
     gender: 'male',
-    chartType: 'north', tradition: 'all',
+    chartType: 'north', vedicSystem: 'parashari', tradition: 'all',
     maritalStatus: 'single', employment: 'employed',
     concern: '', consent: false, language: locale,
   });
@@ -256,11 +257,23 @@ export default function IntakeForm({ t, locale, onLocaleChange, onSubmit, loadin
 
         {/* Vedic chart style */}
         {showVedicStyle && (
-          <div>
-            <Lbl>Vedic Chart Style</Lbl>
-            <div className="flex gap-2">
-              <Chip active={form.chartType === 'north'} onClick={() => upd('chartType', 'north')}>🔷 North Indian</Chip>
-              <Chip active={form.chartType === 'south'} onClick={() => upd('chartType', 'south')}>🔶 South Indian</Chip>
+          <div className="space-y-3">
+            <div>
+              <Lbl>Vedic Astrology System</Lbl>
+              <p className="text-xs mb-2" style={{ color: TEXT_MUTED }}>Affects how your chart is interpreted</p>
+              <div className="grid grid-cols-2 gap-2">
+                <Chip active={form.vedicSystem === 'parashari'} onClick={() => upd('vedicSystem', 'parashari')}>🕉️ Parashari <span className="block text-[10px] opacity-60">Classical · most common</span></Chip>
+                <Chip active={form.vedicSystem === 'kp'}        onClick={() => upd('vedicSystem', 'kp')}>🎯 KP System <span className="block text-[10px] opacity-60">Precision · event timing</span></Chip>
+                <Chip active={form.vedicSystem === 'jaimini'}   onClick={() => upd('vedicSystem', 'jaimini')}>📜 Jaimini <span className="block text-[10px] opacity-60">Ancient · Chara Dasha</span></Chip>
+                <Chip active={form.vedicSystem === 'lal_kitab'} onClick={() => upd('vedicSystem', 'lal_kitab')}>📖 Lal Kitab <span className="block text-[10px] opacity-60">Folk · remedies focus</span></Chip>
+              </div>
+            </div>
+            <div>
+              <Lbl>Vedic Chart Layout</Lbl>
+              <div className="flex gap-2">
+                <Chip active={form.chartType === 'north'} onClick={() => upd('chartType', 'north')}>🔷 North Indian</Chip>
+                <Chip active={form.chartType === 'south'} onClick={() => upd('chartType', 'south')}>🔶 South Indian</Chip>
+              </div>
             </div>
           </div>
         )}
@@ -275,11 +288,9 @@ export default function IntakeForm({ t, locale, onLocaleChange, onSubmit, loadin
         <div>
           <Lbl>Gender</Lbl>
           <div className="flex flex-wrap gap-2">
-            <Chip active={form.gender === 'male'}        onClick={() => upd('gender', 'male')}>♂ Male</Chip>
-            <Chip active={form.gender === 'female'}      onClick={() => upd('gender', 'female')}>♀ Female</Chip>
-            <Chip active={form.gender === 'nonbinary'}   onClick={() => upd('gender', 'nonbinary')}>⚧ Non-binary</Chip>
-            <Chip active={form.gender === 'they'}        onClick={() => upd('gender', 'they')}>🏳️‍🌈 They/Them</Chip>
-            <Chip active={form.gender === 'prefer_not'}  onClick={() => upd('gender', 'prefer_not')}>🤍 Prefer not to say</Chip>
+            <Chip active={form.gender === 'male'}   onClick={() => upd('gender', 'male')}>♂ Male</Chip>
+            <Chip active={form.gender === 'female'} onClick={() => upd('gender', 'female')}>♀ Female</Chip>
+            <Chip active={form.gender === 'other'}  onClick={() => upd('gender', 'other')}>○ Other</Chip>
           </div>
         </div>
 

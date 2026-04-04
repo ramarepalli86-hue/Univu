@@ -11,7 +11,7 @@ export async function POST(req: NextRequest) {
 
     const {
       name, dob, timeOfBirth, birthLat, birthLng, birthCity,
-      gender, maritalStatus, employment, concern, chartType, tradition, language,
+      gender, maritalStatus, employment, concern, chartType, vedicSystem, tradition, language,
     } = body;
 
     // Sanitise all string inputs
@@ -53,6 +53,7 @@ export async function POST(req: NextRequest) {
       employment: sanitise(employment, 30) || 'employed',
       concern: safeConcern,
       chartType: chartType === 'south' ? 'south' : 'north',
+      vedicSystem: (['parashari','kp','jaimini','lal_kitab'].includes(vedicSystem) ? vedicSystem : 'parashari') as 'parashari' | 'kp' | 'jaimini' | 'lal_kitab',
       tradition: tradition || 'all',
       language: sanitise(language, 10) || 'en',
     };
