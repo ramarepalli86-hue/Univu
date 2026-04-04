@@ -7,6 +7,7 @@ import WesternChart from './WesternChart';
 import StoryAnimator from './StoryAnimator';
 import type { FullReading } from '@/lib/astrology';
 import type { ReadingContext } from '@/app/api/personal-reading/route';
+import { LANGUAGES } from '@/i18n';
 
 export type ReadingResult = FullReading;
 
@@ -419,6 +420,7 @@ const P_SYMBOLS: Record<string,string> = { Sun:'☀️',Moon:'🌙',Mars:'♂',M
 
 export default function ReportCard({ t: _t, reading }: ReportCardProps) {
   const [tab, setTab] = useState<TabId>('overview');
+  const [lang, setLang] = useState<string>(reading.language ?? 'en');
   const birthYear = parseInt(reading.dob?.split('-')[0] || '1990', 10);
   const AI_TABS: TabId[] = ['overview','love','career','health','timeline','spiritual'];
   const trad = reading.tradition ?? 'all';
@@ -437,10 +439,28 @@ export default function ReportCard({ t: _t, reading }: ReportCardProps) {
           {reading.name}&apos;s Cosmic Blueprint
         </h1>
         <p className="text-sm mt-1" style={{ color:'#6B7280' }}>Born {reading.dob} · {reading.birthCity}</p>
-        {/* Tradition pill */}
-        <span className="inline-block mt-2 text-xs font-semibold px-3 py-1 rounded-full" style={{ background:'rgba(26,107,107,0.1)', color: TEAL, border:'1px solid rgba(26,107,107,0.2)' }}>
-          {trad === 'all' ? '🌍 All Traditions' : trad === 'vedic' ? '🕉️ Vedic' : trad === 'western' ? '♈ Western' : trad === 'chinese' ? '☯️ Chinese' : trad === 'egyptian' ? '𓂀 Egyptian' : '☀️ Mayan'}
-        </span>
+        {/* Tradition pill + Language selector row */}
+        <div className="flex items-center justify-center gap-3 mt-2 flex-wrap">
+          <span className="inline-block text-xs font-semibold px-3 py-1 rounded-full" style={{ background:'rgba(26,107,107,0.1)', color: TEAL, border:'1px solid rgba(26,107,107,0.2)' }}>
+            {trad === 'all' ? '🌍 All Traditions' : trad === 'vedic' ? '🕉️ Vedic' : trad === 'western' ? '♈ Western' : trad === 'chinese' ? '☯️ Chinese' : trad === 'egyptian' ? '𓂀 Egyptian' : '☀️ Mayan'}
+          </span>
+          {/* Live language selector — changes Panchanga script instantly */}
+          <div className="relative">
+            <select
+              value={lang}
+              onChange={e => setLang(e.target.value)}
+              className="text-xs pl-6 pr-7 py-1 rounded-full font-medium appearance-none cursor-pointer"
+              style={{ background:'rgba(26,107,107,0.07)', color: TEAL, border:'1px solid rgba(26,107,107,0.2)', outline:'none' }}
+              aria-label="Panchanga language"
+            >
+              {LANGUAGES.map(l => (
+                <option key={l.code} value={l.code}>{l.native}</option>
+              ))}
+            </select>
+            <span className="absolute left-2 top-1/2 -translate-y-1/2 pointer-events-none text-xs">🌐</span>
+            <span className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-[10px]" style={{ color: TEAL }}>▾</span>
+          </div>
+        </div>
       </div>
 
       {/* ── Legal Disclaimer Banner ── */}
@@ -742,15 +762,15 @@ export default function ReportCard({ t: _t, reading }: ReportCardProps) {
               </div>
 
               <div>
-                <h3 className="text-base font-bold mb-3" style={{ color:TEAL }}>🪷 {reading.language && ['hi','te','ta','ml','kn','mr','bn','pa','gu','or','as'].includes(reading.language) ? localisePanch('label','Tithi',reading.language).replace(/तिथि|తిథి|திதி|തിഥി|ತಿಥಿ|तिथी|তিথি|ਤਿਥੀ|તિથિ|ତିଥି|তিথি/, '') : '' }Panchanga at Birth</h3>
+                <h3 className="text-base font-bold mb-3" style={{ color:TEAL }}>🪷 {lang && ['hi','te','ta','ml','kn','mr','bn','pa','gu','or','as'].includes(lang) ? localisePanch('label','Tithi',lang).replace(/तिथि|తిథి|திதி|തിഥി|ತಿಥಿ|तिथी|তিথি|ਤਿਥੀ|તિથિ|ତିଥି|তিথি/, '') : '' }Panchanga at Birth</h3>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                   {([
-                    [localisePanch('label','Tithi',reading.language??'en'),           localisePanch('tithi',    reading.panchanga.tithi.name,    reading.language??'en')],
-                    [localisePanch('label','Nakshatra',reading.language??'en'),        localisePanch('nakshatra',reading.panchanga.nakshatra,      reading.language??'en')],
-                    [localisePanch('label','Yoga',reading.language??'en'),             reading.panchanga.yoga],
-                    [localisePanch('label','Karana',reading.language??'en'),           reading.panchanga.karana],
-                    [localisePanch('label','Day (Vara)',reading.language??'en'),        localisePanch('vara',     reading.panchanga.vara,           reading.language??'en')],
-                    [localisePanch('label','Atmakaraka',reading.language??'en'),       localisePanch('planet',   reading.atmakaraka.planet,        reading.language??'en')],
+                    [localisePanch('label','Tithi',lang),           localisePanch('tithi',    reading.panchanga.tithi.name,    lang)],
+                    [localisePanch('label','Nakshatra',lang),        localisePanch('nakshatra',reading.panchanga.nakshatra,      lang)],
+                    [localisePanch('label','Yoga',lang),             reading.panchanga.yoga],
+                    [localisePanch('label','Karana',lang),           reading.panchanga.karana],
+                    [localisePanch('label','Day (Vara)',lang),        localisePanch('vara',     reading.panchanga.vara,           lang)],
+                    [localisePanch('label','Atmakaraka',lang),       localisePanch('planet',   reading.atmakaraka.planet,        lang)],
                   ] as [string,string][]).map(([k,v]) => <StatBadge key={k} label={k} value={v} />)}
                 </div>
               </div>
