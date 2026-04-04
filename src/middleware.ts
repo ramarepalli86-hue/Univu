@@ -1,8 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-// MAINTENANCE MODE — set to false and redeploy when ready to launch.
-// Local dev (localhost) is always exempt.
-const MAINTENANCE = true;
+// ─── MAINTENANCE MODE ────────────────────────────────────────────────────────
+// Prod (univu.vercel.app) shows the Coming Soon page until this is set to false.
+// localhost is ALWAYS exempt — dev works normally regardless of this flag.
+//
+// TO LAUNCH:
+//   1. Change `true` → `false` below
+//   2. git add -A && git commit -m "chore: launch — disable maintenance mode"
+//   3. git push  (Vercel auto-deploys)
+// ────────────────────────────────────────────────────────────────────────────
+const MAINTENANCE = true; // ← flip to false when ready to go live
 
 export function middleware(req: NextRequest) {
   const host = req.headers.get('host') ?? '';

@@ -157,12 +157,7 @@ export default function HomePage() {
 
       <div className="relative z-10 max-w-5xl mx-auto px-4 py-8 sm:py-12">
         {/* Header */}
-        <motion.header
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-10"
-        >
+        <header className="text-center mb-10 animate-fade-in">
           {/* Logo — gradient pill matching the submit button style */}
           <div className="flex justify-center mb-5">
             <div className="relative inline-flex items-center gap-3 px-6 py-3 rounded-2xl"
@@ -252,12 +247,12 @@ export default function HomePage() {
             {/* Language selector — always visible, affects both Astrology and Panchangam views */}
             <LanguageSelector current={locale} onChange={handleLocaleChange} />
           </div>
-          </motion.header>
+          </header>
 
         {view === 'panchangam' ? (
-          <motion.div key="panchangam" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
+          <div className="animate-fade-in">
             <Panchangam locale={locale} />
-          </motion.div>
+          </div>
         ) : (
           <AnimatePresence mode="wait">
             {!reading ? (
