@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-// Set NEXT_PUBLIC_MAINTENANCE=true in Vercel environment variables to activate.
+// Set MAINTENANCE_MODE=true in Vercel environment variables (Production) to activate.
 // Locally and on preview deploys this is never set, so the app runs normally.
-const MAINTENANCE = process.env.NEXT_PUBLIC_MAINTENANCE === 'true';
+const MAINTENANCE = process.env.MAINTENANCE_MODE === 'true';
 
 export function middleware(req: NextRequest) {
   if (!MAINTENANCE) return NextResponse.next();
