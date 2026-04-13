@@ -60,6 +60,9 @@ interface VastuFormState {
   houseCity: string;
   houseLat: number;
   houseLng: number;
+  houseFacing: string;
+  floorLevel: string;
+  plotShape: string;
   personEnabled: boolean;
   personDob: string;
   personTime: string;
@@ -127,6 +130,9 @@ export default function VastuFengShui() {
     houseCity: '',
     houseLat: 0,
     houseLng: 0,
+    houseFacing: '',
+    floorLevel: '',
+    plotShape: '',
     personEnabled: false,
     personDob: '',
     personTime: '',
@@ -167,6 +173,9 @@ export default function VastuFengShui() {
         vastuHouseCity: form.houseCity,
         vastuHouseLat: form.houseLat,
         vastuHouseLng: form.houseLng,
+        vastuHouseFacing: form.houseFacing,
+        vastuFloorLevel: form.floorLevel,
+        vastuPlotShape: form.plotShape,
         vastuClimate: climateProfile(form.houseLat, form.houseCity),
         vastuSunWind: sunWindProfile(form.houseLat, form.houseLng),
         vastuPersonDob: form.personEnabled ? form.personDob : '',
@@ -278,6 +287,82 @@ export default function VastuFengShui() {
             ☀️ {sunWindProfile(form.houseLat, form.houseLng)}
           </p>
         )}
+      </div>
+
+      {/* ── House details: facing, floor, shape ── */}
+      <div className="grid sm:grid-cols-3 gap-3">
+        <div className="space-y-1.5">
+          <label className="block text-xs font-bold uppercase tracking-wider" style={{ color: TEAL }}>
+            🧭 Main Door Faces
+          </label>
+          <select
+            value={form.houseFacing}
+            onChange={e => upd('houseFacing', e.target.value)}
+            className={inpCls}
+            style={inpSt}
+            onFocus={e => Object.assign(e.target.style, focusSt)}
+            onBlur={e => { e.target.style.borderColor='#DDD8CE'; e.target.style.boxShadow='none'; }}
+          >
+            <option value="">Not sure / Skip</option>
+            <option value="North">North</option>
+            <option value="North-East">North-East</option>
+            <option value="East">East</option>
+            <option value="South-East">South-East</option>
+            <option value="South">South</option>
+            <option value="South-West">South-West</option>
+            <option value="West">West</option>
+            <option value="North-West">North-West</option>
+          </select>
+          <p className="text-[10px]" style={{ color: '#9CA3AF' }}>Direction your main entrance faces</p>
+        </div>
+
+        <div className="space-y-1.5">
+          <label className="block text-xs font-bold uppercase tracking-wider" style={{ color: TEAL }}>
+            🏢 Floor / Level
+          </label>
+          <select
+            value={form.floorLevel}
+            onChange={e => upd('floorLevel', e.target.value)}
+            className={inpCls}
+            style={inpSt}
+            onFocus={e => Object.assign(e.target.style, focusSt)}
+            onBlur={e => { e.target.style.borderColor='#DDD8CE'; e.target.style.boxShadow='none'; }}
+          >
+            <option value="">Not sure / Skip</option>
+            <option value="Independent house">Independent House</option>
+            <option value="Ground floor">Ground Floor</option>
+            <option value="1st floor">1st Floor</option>
+            <option value="2nd floor">2nd Floor</option>
+            <option value="3rd floor">3rd Floor</option>
+            <option value="4th-6th floor">4th–6th Floor</option>
+            <option value="7th-10th floor">7th–10th Floor</option>
+            <option value="Above 10th floor">Above 10th Floor</option>
+          </select>
+          <p className="text-[10px]" style={{ color: '#9CA3AF' }}>House type or apartment floor</p>
+        </div>
+
+        <div className="space-y-1.5">
+          <label className="block text-xs font-bold uppercase tracking-wider" style={{ color: TEAL }}>
+            📐 Plot / Home Shape
+          </label>
+          <select
+            value={form.plotShape}
+            onChange={e => upd('plotShape', e.target.value)}
+            className={inpCls}
+            style={inpSt}
+            onFocus={e => Object.assign(e.target.style, focusSt)}
+            onBlur={e => { e.target.style.borderColor='#DDD8CE'; e.target.style.boxShadow='none'; }}
+          >
+            <option value="">Not sure / Skip</option>
+            <option value="Square">Square</option>
+            <option value="Rectangle">Rectangle</option>
+            <option value="L-shaped">L-Shaped</option>
+            <option value="T-shaped">T-Shaped</option>
+            <option value="Irregular">Irregular / Odd Shape</option>
+            <option value="Circular">Circular / Curved</option>
+          </select>
+          <p className="text-[10px]" style={{ color: '#9CA3AF' }}>Shape of the plot or apartment layout</p>
+        </div>
       </div>
 
       {/* ── OPTIONAL: Person details ── */}
