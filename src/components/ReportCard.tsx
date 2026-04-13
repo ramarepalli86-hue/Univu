@@ -1,10 +1,11 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import VedicChart from './VedicChart';
 import WesternChart from './WesternChart';
 import StoryAnimator from './StoryAnimator';
+import CityAutocomplete from './CityAutocomplete';
 import type { FullReading } from '@/lib/astrology';
 import type { ReadingContext } from '@/app/api/personal-reading/route';
 import { LANGUAGES } from '@/i18n';
@@ -27,6 +28,8 @@ const TABS = [
   { id: 'health',     label: '🌿 Vitality'         },
   { id: 'timeline',   label: '🗓 Life Cycles'      },
   { id: 'spiritual',  label: '🔮 Purpose'          },
+  { id: 'weekly',     label: '📅 This Week'        },
+  { id: 'vastu',      label: '🏠 Vastu'            },
   { id: 'charts',     label: '🪐 Sky Charts'       },
   { id: 'story',      label: '🎬 Story'            },
 ] as const;
@@ -209,6 +212,9 @@ function buildContext(reading: FullReading): ReadingContext {
   }
   return {
     name: reading.name, dob: reading.dob, birthCity: reading.birthCity,
+    currentCity: reading.currentCity ?? reading.birthCity,
+    currentLat: reading.currentLat ?? 0,
+    currentLng: reading.currentLng ?? 0,
     gender: reading.gender, maritalStatus: (reading as FullReading & { maritalStatus?: string }).maritalStatus ?? 'single',
     employment: (reading as FullReading & { employment?: string }).employment ?? 'employed',
     concern: (reading as FullReading & { concern?: string }).concern ?? '',
@@ -244,6 +250,321 @@ function ConcernBanner({ concern }: { concern: string }) {
       <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: AMBER }}>📌 Your Question</p>
       <p className="text-sm font-medium italic" style={{ color: '#374151' }}>&ldquo;{concern}&rdquo;</p>
       <p className="text-[11px] mt-1.5" style={{ color: '#9CA3AF' }}>The AI reading below addresses this directly.</p>
+    </div>
+  );
+}
+
+// ─── Vastu Section ─────────────────────────────────────────────────────────────
+// Standalone Vastu tab with its own mini-form.
+// House city is MANDATORY. Person DOB and Partner DOB are OPTIONAL.
+
+interface VastuFormState {
+  // House / property
+  houseCity: string;
+  houseLat: number;
+  houseLng: number;
+  // Person (pre-filled from main reading, but editable)
+  personEnabled: boolean;
+  personDob: string;
+  personTime: string;
+  personBirthCity: string;
+  personBirthLat: number;
+  personBirthLng: number;
+  // Partner
+  partnerEnabled: boolean;
+  partnerDob: string;
+  partnerTime: string;
+  partnerBirthCity: string;
+  partnerBirthLat: number;
+  partnerBirthLng: number;
+}
+
+// Derive hemisphere + climate from latitude
+function climateProfile(lat: number, cityName: string): string {
+  const absLat = Math.abs(lat);
+  const hem = lat >= 0 ? 'Northern Hemisphere' : 'Southern Hemisphere';
+  let zone = '';
+  if (absLat < 10)       zone = 'equatorial — consistently hot, very high humidity year-round, heavy rainfall, no distinct winter';
+  else if (absLat < 23)  zone = 'tropical — hot summers, warm winters, monsoon or dry season pattern, intense solar radiation';
+  else if (absLat < 35)  zone = 'subtropical — hot dry summers, mild winters, occasional frost, high solar gain in summer';
+  else if (absLat < 50)  zone = 'temperate — four distinct seasons, cold winters (often below 5°C), warm summers, moderate humidity';
+  else if (absLat < 60)  zone = 'cool temperate — long dark cold winters (can drop to −15°C), short summers, significant seasonal depression risk, low solar angle in winter';
+  else                   zone = 'subarctic/polar — extreme winters, minimal daylight for months, very low solar angle year-round, severe cold, insulation is critical';
+  return `${cityName} is in the ${hem}, ${zone}.`;
+}
+
+// Derive prevailing wind and sun path from lat/lng
+function sunWindProfile(lat: number, lng: number): string {
+  const hem = lat >= 0 ? 'N' : 'S';
+  // Sun path: in Northern Hemisphere sun arcs through South; in Southern through North
+  const sunArc = hem === 'N'
+    ? `Sun rises in the East, tracks across the SOUTHERN sky, and sets in the West. The South-facing wall gets maximum sunlight year-round.`
+    : `Sun rises in the East, tracks across the NORTHERN sky, and sets in the West. The North-facing wall gets maximum sunlight year-round.`;
+  // Prevailing winds — approximate by longitude band & latitude
+  let wind = '';
+  if (Math.abs(lat) < 10) wind = 'Prevailing winds: equatorial doldrums — variable, often calm or from the East (Trade winds). Ventilation must be designed deliberately.';
+  else if (Math.abs(lat) < 30) wind = `Prevailing winds: ${hem === 'N' ? 'NE Trade Winds' : 'SE Trade Winds'} — steady flow from the ${hem === 'N' ? 'Northeast' : 'Southeast'}. Orient openings to capture this breeze.`;
+  else if (Math.abs(lat) < 60) wind = `Prevailing winds: ${hem === 'N' ? 'Westerlies — winds arrive predominantly from the West/Southwest' : 'Westerlies — winds arrive predominantly from the West/Northwest'}. West/SW walls face the most wind-driven rain. Orient openings East or South to capture gentle breeze.`;
+  else wind = 'Prevailing winds: polar easterlies — cold winds from the East/NE. Buildings need insulation on the East/North face. Triple-glaze east-facing windows.';
+  return `${sunArc} ${wind}`;
+}
+
+function VastuSection({ reading }: { reading: FullReading }) {
+  const [form, setForm] = useState<VastuFormState>({
+    houseCity: reading.currentCity ?? '',
+    houseLat: reading.currentLat ?? 0,
+    houseLng: reading.currentLng ?? 0,
+    personEnabled: true,
+    personDob: reading.dob ?? '',
+    personTime: '',
+    personBirthCity: reading.birthCity ?? '',
+    personBirthLat: 0,
+    personBirthLng: 0,
+    partnerEnabled: false,
+    partnerDob: '',
+    partnerTime: '',
+    partnerBirthCity: '',
+    partnerBirthLat: 0,
+    partnerBirthLng: 0,
+  });
+  const [submitted, setSubmitted] = useState(false);
+  const [text, setText] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const resultRef = useRef<HTMLDivElement>(null);
+
+  const upd = <K extends keyof VastuFormState>(k: K, v: VastuFormState[K]) =>
+    setForm(p => ({ ...p, [k]: v }));
+
+  async function handleGenerate() {
+    if (!form.houseCity || form.houseLat === 0) {
+      setError('Please select the city/location of the house first.');
+      return;
+    }
+    setError('');
+    setLoading(true);
+    setText('');
+    try {
+      const ctx = buildContext(reading);
+      // Enrich context with Vastu-specific data
+      const vastuCtx = {
+        ...ctx,
+        currentCity: form.houseCity,
+        currentLat: form.houseLat,
+        currentLng: form.houseLng,
+        vastuHouseCity: form.houseCity,
+        vastuHouseLat: form.houseLat,
+        vastuHouseLng: form.houseLng,
+        vastuClimate: climateProfile(form.houseLat, form.houseCity),
+        vastuSunWind: sunWindProfile(form.houseLat, form.houseLng),
+        vastuPersonDob: form.personEnabled ? form.personDob : '',
+        vastuPersonTime: form.personEnabled ? form.personTime : '',
+        vastuPersonBirthCity: form.personEnabled ? form.personBirthCity : '',
+        vastuPartnerDob: form.partnerEnabled ? form.partnerDob : '',
+        vastuPartnerTime: form.partnerEnabled ? form.partnerTime : '',
+        vastuPartnerBirthCity: form.partnerEnabled ? form.partnerBirthCity : '',
+        vastuMode: !form.personEnabled ? 'place-only' : form.partnerEnabled ? 'couple' : 'person',
+      };
+      const res = await fetch('/api/personal-reading', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ section: 'vastu', context: vastuCtx }),
+      });
+      if (res.ok) {
+        const d = await res.json();
+        if (d.text) {
+          const firstName = reading.name.trim().split(/\s+/)[0];
+          setText(d.text.replace(/\bthe Seeker\b/g, firstName).replace(/\bThe Seeker\b/g, firstName));
+          setSubmitted(true);
+          setTimeout(() => resultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+        }
+      } else setError('Could not generate Vastu reading. Try again.');
+    } catch { setError('Network error. Try again.'); }
+    finally { setLoading(false); }
+  }
+
+  const TEAL_LOC = '#1A6B6B';
+  const AMBER_LOC = '#D4880A';
+  const inpCls = 'w-full px-3 py-2.5 rounded-xl text-sm outline-none transition-all';
+  const inpSt: React.CSSProperties = { border: '1.5px solid #DDD8CE', background: '#fff', color: '#1E1B17' };
+  const focusSt: React.CSSProperties = { borderColor: TEAL_LOC, boxShadow: '0 0 0 3px rgba(26,107,107,0.12)' };
+
+  return (
+    <div className="space-y-5">
+      {/* Header */}
+      <div>
+        <h2 className="text-lg font-bold" style={{ fontFamily:'Cinzel,Georgia,serif', color: TEAL_LOC }}>🏠 Vastu Compass</h2>
+        <p className="text-xs mt-1" style={{ color:'#6B7280' }}>
+          Location-aware Vastu — adjusted for your city's actual sun path, prevailing winds, and climate. Vedic principles meet real environmental science.
+        </p>
+      </div>
+
+      {/* Mode selector */}
+      <div className="rounded-xl p-4 space-y-3" style={{ background:'rgba(26,107,107,0.05)', border:'1px solid rgba(26,107,107,0.15)' }}>
+        <p className="text-xs font-bold uppercase tracking-wider" style={{ color: TEAL_LOC }}>What kind of Vastu reading?</p>
+        <div className="grid grid-cols-3 gap-2">
+          {[
+            { label: '🏙️ Place Only', sub: 'Just the house location', val: 'place' },
+            { label: '🧘 For Me', sub: 'My chart + house location', val: 'person' },
+            { label: '👫 For Us', sub: 'Both partners + house', val: 'couple' },
+          ].map(opt => {
+            const active = opt.val === 'place'
+              ? !form.personEnabled
+              : opt.val === 'person'
+              ? form.personEnabled && !form.partnerEnabled
+              : form.personEnabled && form.partnerEnabled;
+            return (
+              <button key={opt.val} type="button"
+                onClick={() => {
+                  if (opt.val === 'place')  { upd('personEnabled', false); upd('partnerEnabled', false); }
+                  if (opt.val === 'person') { upd('personEnabled', true);  upd('partnerEnabled', false); }
+                  if (opt.val === 'couple') { upd('personEnabled', true);  upd('partnerEnabled', true);  }
+                }}
+                className="rounded-xl p-2.5 text-left border transition-all"
+                style={active
+                  ? { background:'linear-gradient(135deg,rgba(26,107,107,0.12),rgba(212,136,10,0.08))', border:`1.5px solid ${TEAL_LOC}` }
+                  : { background:'#FAFAF8', border:'1.5px solid #E5E7EB' }}>
+                <div className="text-xs font-bold" style={{ color: active ? TEAL_LOC : '#4A4540' }}>{opt.label}</div>
+                <div className="text-[10px] mt-0.5" style={{ color:'#9CA3AF' }}>{opt.sub}</div>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* ── MANDATORY: House / property city ── */}
+      <div className="space-y-1.5">
+        <label className="block text-xs font-bold uppercase tracking-wider" style={{ color: TEAL_LOC }}>
+          🏠 City / Location of the House <span style={{ color:'#EF4444' }}>*</span>
+        </label>
+        <CityAutocomplete
+          value={form.houseCity}
+          onChange={(val, entry) => {
+            upd('houseCity', val);
+            if (entry) { upd('houseLat', entry.lat); upd('houseLng', entry.lng); }
+          }}
+          placeholder="Type the city where the home is or will be built…"
+        />
+        {form.houseLat !== 0 && (
+          <p className="text-[10px]" style={{ color: TEAL_LOC }}>
+            📍 {climateProfile(form.houseLat, form.houseCity)}
+          </p>
+        )}
+        {form.houseLat !== 0 && (
+          <p className="text-[10px]" style={{ color:'#6B7280' }}>
+            ☀️ {sunWindProfile(form.houseLat, form.houseLng)}
+          </p>
+        )}
+      </div>
+
+      {/* ── OPTIONAL: Person details ── */}
+      {form.personEnabled && (
+        <div className="rounded-xl p-4 space-y-3" style={{ background:'rgba(26,107,107,0.04)', border:'1px solid rgba(26,107,107,0.12)' }}>
+          <p className="text-xs font-bold uppercase tracking-wider" style={{ color: TEAL_LOC }}>👤 Your Details (optional — improves personalisation)</p>
+          <p className="text-[10px]" style={{ color:'#9CA3AF' }}>Pre-filled from your main reading. You can change these for a different person.</p>
+          <div className="grid sm:grid-cols-3 gap-3">
+            <div>
+              <label className="block text-[10px] font-semibold mb-1 uppercase tracking-wide" style={{ color:'#4A4540' }}>Date of Birth</label>
+              <input type="date" value={form.personDob} onChange={e => upd('personDob', e.target.value)}
+                className={inpCls} style={inpSt}
+                onFocus={e => Object.assign(e.target.style, focusSt)}
+                onBlur={e => { e.target.style.borderColor='#DDD8CE'; e.target.style.boxShadow='none'; }} />
+            </div>
+            <div>
+              <label className="block text-[10px] font-semibold mb-1 uppercase tracking-wide" style={{ color:'#4A4540' }}>Time of Birth</label>
+              <input type="time" value={form.personTime} onChange={e => upd('personTime', e.target.value)}
+                className={inpCls} style={inpSt}
+                onFocus={e => Object.assign(e.target.style, focusSt)}
+                onBlur={e => { e.target.style.borderColor='#DDD8CE'; e.target.style.boxShadow='none'; }} />
+            </div>
+            <div>
+              <label className="block text-[10px] font-semibold mb-1 uppercase tracking-wide" style={{ color:'#4A4540' }}>Birth City</label>
+              <CityAutocomplete
+                value={form.personBirthCity}
+                onChange={(val, entry) => {
+                  upd('personBirthCity', val);
+                  if (entry) { upd('personBirthLat', entry.lat); upd('personBirthLng', entry.lng); }
+                }}
+                placeholder="Birth city…"
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── OPTIONAL: Partner details ── */}
+      {form.partnerEnabled && (
+        <div className="rounded-xl p-4 space-y-3" style={{ background:'rgba(212,136,10,0.05)', border:'1px solid rgba(212,136,10,0.18)' }}>
+          <p className="text-xs font-bold uppercase tracking-wider" style={{ color: AMBER_LOC }}>💑 Partner&apos;s Details (optional)</p>
+          <p className="text-[10px]" style={{ color:'#9CA3AF' }}>For couples buying or building a home together — Vastu will balance both charts.</p>
+          <div className="grid sm:grid-cols-3 gap-3">
+            <div>
+              <label className="block text-[10px] font-semibold mb-1 uppercase tracking-wide" style={{ color:'#4A4540' }}>Date of Birth</label>
+              <input type="date" value={form.partnerDob} onChange={e => upd('partnerDob', e.target.value)}
+                className={inpCls} style={inpSt}
+                onFocus={e => Object.assign(e.target.style, focusSt)}
+                onBlur={e => { e.target.style.borderColor='#DDD8CE'; e.target.style.boxShadow='none'; }} />
+            </div>
+            <div>
+              <label className="block text-[10px] font-semibold mb-1 uppercase tracking-wide" style={{ color:'#4A4540' }}>Time of Birth</label>
+              <input type="time" value={form.partnerTime} onChange={e => upd('partnerTime', e.target.value)}
+                className={inpCls} style={inpSt}
+                onFocus={e => Object.assign(e.target.style, focusSt)}
+                onBlur={e => { e.target.style.borderColor='#DDD8CE'; e.target.style.boxShadow='none'; }} />
+            </div>
+            <div>
+              <label className="block text-[10px] font-semibold mb-1 uppercase tracking-wide" style={{ color:'#4A4540' }}>Birth City</label>
+              <CityAutocomplete
+                value={form.partnerBirthCity}
+                onChange={(val, entry) => {
+                  upd('partnerBirthCity', val);
+                  if (entry) { upd('partnerBirthLat', entry.lat); upd('partnerBirthLng', entry.lng); }
+                }}
+                placeholder="Partner's birth city…"
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Error */}
+      {error && <p className="text-xs font-medium px-3 py-2 rounded-lg" style={{ background:'rgba(239,68,68,0.08)', color:'#DC2626', border:'1px solid rgba(239,68,68,0.2)' }}>{error}</p>}
+
+      {/* Generate button */}
+      {!submitted && (
+        <button onClick={handleGenerate} disabled={loading || !form.houseCity}
+          className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl font-semibold text-sm transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+          style={{ background:`linear-gradient(135deg,${TEAL_LOC} 0%,#1E8080 40%,${AMBER_LOC} 100%)`, color:'#fff', boxShadow:'0 4px 20px rgba(26,107,107,0.28)' }}>
+          {loading
+            ? <><span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> Analysing your space…</>
+            : '🏠 Generate My Vastu Reading'}
+        </button>
+      )}
+
+      {/* Result */}
+      {text && (
+        <div ref={resultRef} className="space-y-4 pt-2">
+          <div className="flex items-center justify-between">
+            <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: TEAL_LOC }}>
+              🏠 Vastu Reading · {form.houseCity}
+            </p>
+            <button onClick={() => { setText(''); setSubmitted(false); }}
+              className="text-[10px] px-3 py-1 rounded-full border font-medium"
+              style={{ color: TEAL_LOC, borderColor:'rgba(26,107,107,0.3)' }}>
+              ← New Reading
+            </button>
+          </div>
+          <PersonalText text={text} />
+          <p className="text-xs mt-3 pt-3 border-t text-center" style={{ color:'#9CA3AF', borderColor:'rgba(0,0,0,0.07)' }}>
+            For entertainment &amp; information only · Not professional structural or architectural advice · Consult a qualified Vastu consultant before making structural changes
+          </p>
+        </div>
+      )}
+
+      {loading && !text && (
+        <div className="pt-2">
+          <ReadingSkeleton />
+        </div>
+      )}
     </div>
   );
 }
@@ -478,7 +799,7 @@ export default function ReportCard({ t: _t, reading }: ReportCardProps) {
   const [tab, setTab] = useState<TabId>('overview');
   const [lang, setLang] = useState<string>(reading.language ?? 'en');
   const birthYear = parseInt(reading.dob?.split('-')[0] || '1990', 10);
-  const AI_TABS: TabId[] = ['overview','love','career','health','timeline','spiritual'];
+  const AI_TABS: TabId[] = ['overview','love','career','health','timeline','spiritual','weekly'];
   const trad = reading.tradition ?? 'all';
   const isVedic    = trad === 'vedic'    || trad === 'all';
   const isWestern  = trad === 'western'  || trad === 'all';
@@ -594,6 +915,7 @@ export default function ReportCard({ t: _t, reading }: ReportCardProps) {
           className="rounded-2xl p-5 sm:p-6 border" style={{ background:'#FFFDF8', borderColor:'#E5E7EB', minHeight:'320px' }}>
 
           {AI_TABS.includes(tab) && <AISection sectionId={tab} reading={reading} />}
+          {tab === 'vastu' && <VastuSection reading={reading} />}
 
           {tab === 'charts' && (
             <div className="space-y-6">

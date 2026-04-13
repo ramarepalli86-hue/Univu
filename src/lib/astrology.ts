@@ -1845,6 +1845,8 @@ export interface FullReading {
   dob: string;
   birthCity: string;
   currentCity: string;
+  currentLat: number;
+  currentLng: number;
   gender: string;
   tradition: 'vedic' | 'western' | 'chinese' | 'egyptian' | 'mayan' | 'all';
   language: string;
@@ -2016,6 +2018,8 @@ export function generateFullReading(input: ReadingInput): FullReading {
     dob: input.dob,
     birthCity: input.birthCity,
     currentCity: input.currentCity,
+    currentLat: input.currentLat,
+    currentLng: input.currentLng,
     gender: input.gender,
     tradition: input.tradition ?? 'all',
     language: input.language ?? 'en',

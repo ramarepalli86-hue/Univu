@@ -11,6 +11,7 @@ export async function POST(req: NextRequest) {
 
     const {
       name, dob, timeOfBirth, birthLat, birthLng, birthCity,
+      currentCity: rawCurrentCity, currentLat: rawCurrentLat, currentLng: rawCurrentLng,
       gender, maritalStatus, employment, concern, chartType, vedicSystem, tradition, language,
     } = body;
 
@@ -18,6 +19,7 @@ export async function POST(req: NextRequest) {
     const safeName     = sanitise(name, 100);
     const safeDob      = sanitise(dob, 12);
     const safeBirthCity= sanitise(birthCity, 150);
+    const safeCurrentCity = sanitise(rawCurrentCity || birthCity, 150);
     const safeGender   = sanitise(gender, 30);
     const safeConcern  = sanitise(concern, 500);
 
@@ -45,9 +47,9 @@ export async function POST(req: NextRequest) {
       birthLat: parseFloat(birthLat) || 28.6139,
       birthLng: parseFloat(birthLng) || 77.2090,
       birthCity: safeBirthCity,
-      currentLat: parseFloat(birthLat) || 28.6139,
-      currentLng: parseFloat(birthLng) || 77.2090,
-      currentCity: safeBirthCity,
+      currentLat: parseFloat(rawCurrentLat) || parseFloat(birthLat) || 28.6139,
+      currentLng: parseFloat(rawCurrentLng) || parseFloat(birthLng) || 77.2090,
+      currentCity: safeCurrentCity,
       gender: safeGender,
       maritalStatus: sanitise(maritalStatus, 30) || 'single',
       employment: sanitise(employment, 30) || 'employed',

@@ -196,12 +196,151 @@ Based on ${ctx.nextDasha} starting ~${ctx.nextDashaYear} — what spiritual or p
 Based on ${ctx.moonNakshatraName} Nakshatra, ${ctx.atmakaraka} Atmakaraka, 9th house ${ctx.ninthHouseSign} — one SPECIFIC practice. Not "meditate" — something genuinely tailored to this exact chart.
 
 End with: "⚠️ For entertainment & informational purposes only."`,
+
+  weekly: (ctx) => `You are speaking directly to ${ctx.name} about the week immediately ahead — starting from today, ${new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}.
+
+Chart data:
+- ${ctx.lagnaSign} Ascendant | ${ctx.moonSign} Moon | ${ctx.sunSign} Sun
+- Moon Nakshatra: ${ctx.moonNakshatraName} Pada ${ctx.moonNakshatraPada}
+- Current dasha: ${ctx.currentDasha} / ${ctx.currentAntardasha} (${ctx.currentDashaYears})
+- Venus in House ${ctx.venusHouse} | Mars in House ${ctx.marsHouse} | Jupiter in House ${ctx.jupiterHouse}
+- Saturn in ${ctx.saturnSign} House ${ctx.saturnHouse}
+- Manglik: ${ctx.isManglik ? 'YES' : 'No'} | Sade Sati: ${ctx.sadeSatiActive ? 'ACTIVE' : 'Not active'}
+- Age ~${ctx.currentAge} | ${ctx.maritalStatus} | ${ctx.employment}
+${ctx.concern ? `- Their focus: "${ctx.concern}"` : ''}
+
+Write a personalised week-ahead forecast with the following sections using bold headings.
+Every single sentence must be specific to ${ctx.name}'s chart — NEVER generic horoscope language.
+
+**Monday–Tuesday: The opening energy**
+What planetary energy dominates the first half of the week for ${ctx.name} given their current ${ctx.currentDasha}/${ctx.currentAntardasha} dasha. What is the right approach for work, communication, and decisions these two days? Name one specific action to take and one to avoid.
+
+**Wednesday–Thursday: The pivot point**
+Mid-week energy shift. What changes? How should ${ctx.name} adapt? This is often the best time for key decisions or conversations — is it this week, for ${ctx.name}'s chart? Why or why not.
+
+**Friday–Weekend: Rest, opportunity, or intensity?**
+Based on ${ctx.moonSign} Moon and current dasha — what does the weekend hold for ${ctx.name}? Social, romantic, creative, rest, or push? Give a specific tone for Saturday and Sunday.
+
+**📅 The single most important window this week**
+Name one specific day and time window (e.g. "Wednesday afternoon") that is the most powerful for ${ctx.name} this week, based on their dasha and natal chart. What should they do in that window?
+
+**What to focus on vs. what to let go this week**
+One concrete focus based on ${ctx.concern ? `"${ctx.concern}" and ` : ''}the current planetary energy. One thing to release or not force this week.
+
+**This week's mantra or intention for ${ctx.name}**
+A single, specific sentence — not generic. Rooted in their ${ctx.moonNakshatraName} Nakshatra energy and current dasha. Something they can actually say to themselves.
+
+End with: "⚠️ For entertainment & informational purposes only. Week of ${new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}."`,
+
+  vastu: (ctx) => {
+    // Pull Vastu-specific enrichment fields (passed via context object)
+    const c = ctx as ReadingContext & {
+      vastuHouseCity?: string;
+      vastuHouseLat?: number;
+      vastuHouseLng?: number;
+      vastuClimate?: string;
+      vastuSunWind?: string;
+      vastuPersonDob?: string;
+      vastuPersonTime?: string;
+      vastuPersonBirthCity?: string;
+      vastuPartnerDob?: string;
+      vastuPartnerTime?: string;
+      vastuPartnerBirthCity?: string;
+      vastuMode?: string;
+    };
+    const houseCity   = c.vastuHouseCity  || c.currentCity || c.birthCity;
+    const houseLat    = c.vastuHouseLat   ?? 0;
+    const houseLng    = c.vastuHouseLng   ?? 0;
+    const climate     = c.vastuClimate    || `House is located in ${houseCity}.`;
+    const sunWind     = c.vastuSunWind    || '';
+    const mode        = c.vastuMode       || 'person';
+    const personDob   = c.vastuPersonDob  || '';
+    const partnerDob  = c.vastuPartnerDob || '';
+    const isCouple    = mode === 'couple' && !!partnerDob;
+    const hasPersonal = mode !== 'place-only' && (!!personDob || !!c.lagnaSign);
+
+    const personalBlock = hasPersonal ? `
+PERSONAL CHART (${ctx.name || 'the Seeker'}):
+- Lagna (Ascendant): ${c.lagnaSign} | Moon Sign: ${c.moonSign} | Sun Sign: ${c.sunSign}
+- Atmakaraka (soul planet): ${c.atmakaraka}
+- Current Dasha: ${c.currentDasha} / ${c.currentAntardasha}
+- Manglik: ${c.isManglik ? 'YES — Mars direction (South) needs specific handling' : 'No'}
+- Sade Sati: ${c.sadeSatiActive ? 'ACTIVE — Saturn pressure on the Moon/West zone' : 'Not active'}
+- Jupiter in ${c.jupiterSign} House ${c.jupiterHouse} | Saturn in ${c.saturnSign} House ${c.saturnHouse}
+- Venus in ${c.venusSign} House ${c.venusHouse} | Mars in ${c.marsSign} House ${c.marsHouse}
+- Rahu in ${c.rahuSign} House ${c.rahuHouse} | Ketu in ${c.ketuSign} House ${c.ketuHouse}
+${personDob ? `- DOB for Vastu: ${personDob}${c.vastuPersonTime ? ` at ${c.vastuPersonTime}` : ''}${c.vastuPersonBirthCity ? ` · born in ${c.vastuPersonBirthCity}` : ''}` : ''}` : '';
+
+    const partnerBlock = isCouple ? `
+PARTNER'S CHART (details provided):
+- Partner DOB: ${partnerDob}${c.vastuPartnerTime ? ` at ${c.vastuPartnerTime}` : ''}${c.vastuPartnerBirthCity ? ` · born in ${c.vastuPartnerBirthCity}` : ''}
+- Note: Derive the partner's dominant planet from their birth year and provide compatible Vastu zone recommendations.` : '';
+
+    return `You are an expert Vastu Shastra consultant who also understands environmental science, architecture, and biophilic design. You give LOCATION-SPECIFIC Vastu advice — not generic Indian-home templates.
+
+═══════════════════════════════════════════
+HOUSE LOCATION: ${houseCity}
+Coordinates: ${houseLat.toFixed(4)}°, ${houseLng.toFixed(4)}°
+CLIMATE & ENVIRONMENT: ${climate}
+SUN PATH & WIND: ${sunWind}
+═══════════════════════════════════════════
+${personalBlock}${partnerBlock}
+
+CRITICAL RULE — LOCATION-FIRST THINKING:
+Traditional Vastu was designed for the Indian subcontinent (20–30°N latitude), where the sun always arcs through the SOUTH sky and the NE/East receives cool morning light. These assumptions BREAK in different locations:
+- In the Southern Hemisphere, the sun arcs NORTH — the entire direction logic for solar gain REVERSES.
+- In high-latitude cold countries (above 50°N), the South wall is the MOST PRECIOUS solar asset — blocking it is a serious mistake. North rooms are cold and dark in winter.
+- In tropical/equatorial cities, the primary concern is cross-ventilation and shade, not solar gain.
+- Prevailing wind direction varies by geography — the traditional NE-open-corridor advice only works where NE winds are prevailing.
+
+You must adapt ALL Vastu direction advice to the ACTUAL conditions of ${houseCity}. Do not parrot Indian-centric Vastu if the location is in the Southern Hemisphere, Northern Europe, the Americas, or East Asia. Be explicit when you deviate from traditional Indian Vastu because the location demands it.
+
+Write 6 sections with bold headings. Be specific, science-backed, and practical. Every recommendation must reference WHY it works for ${houseCity}'s specific latitude, climate, and sun/wind pattern.
+
+**Understanding ${houseCity}'s Vastu Canvas**
+Start by explaining what makes this specific location unique for Vastu. What does the latitude mean for solar gain? What is the dominant climate challenge — heat, cold, humidity, wind? How does this modify the traditional Vastu direction map? Name which traditional Vastu principles apply directly, and which need to be reversed or modified for this location. This section sets the frame — be precise and educational.
+
+**The Main Entrance and Primary Orientation**
+${hasPersonal ? `Based on ${c.lagnaSign} Ascendant and the current ${c.currentDasha} dasha — ` : ''}which direction should the main door face for maximum positive energy AND maximum practical benefit in ${houseCity}'s climate? Give a specific compass direction. Then explain: (1) which Vastu deity/energy governs this direction, (2) what this direction receives in terms of sunlight and wind in ${houseCity} specifically, and (3) what to place near the entrance (specific plants, threshold elements, colors, or materials) that thrive in this climate. If the best Vastu direction conflicts with the best climate direction for ${houseCity}, say so directly and give the priority recommendation.
+
+**Room-by-Room Placement for ${houseCity}**
+For each room below, give a specific compass direction suited to BOTH Vastu principles AND ${houseCity}'s climate reality:
+- **Master bedroom**: Which direction — and why does this work for both the planetary ruler of that zone and the thermal comfort in ${houseCity}? ${hasPersonal ? `With ${c.moonSign} Moon, the bedroom needs to support emotional restoration.` : ''}
+- **Kitchen / fire zone**: The kitchen generates heat. In ${houseCity}'s climate, which direction minimises overheating OR maximises warmth as needed? How does this align with the SE fire zone of Vastu?
+- **Study / workspace**: Where does natural light fall at working hours in ${houseCity}? Which direction maximises focus energy in Vastu AND provides good natural light?
+- **Prayer / meditation corner**: Quietest zone, away from street noise. Which Vastu zone and why?
+- **Living room**: Social energy zone — which direction for ${houseCity} gets the best afternoon or evening light for gathering?
+
+**Light, Air, and Living Plants — The Science of Pure Energy**
+${climate.includes('cold') || climate.includes('dark') || climate.includes('subarctic') || climate.includes('temperate')
+  ? `WINTER WELLBEING PRIORITY: ${houseCity} has limited daylight in winter. Seasonal Affective Disorder (SAD) risk is real. Address this directly:`
+  : `TROPICAL VENTILATION PRIORITY: Address heat, humidity, and air quality directly:`}
+- **Natural light maximisation**: Which walls should have the largest windows for ${houseCity}'s sun path? Which rooms suffer most from low winter light and how to remedy this (skylights, light tubes, reflective surfaces)?
+- **Cross-ventilation design**: Given the prevailing wind direction for ${houseCity}, where should windows and openings be on opposite walls to create natural airflow?
+- **Living plants for this climate**: Name 3–4 specific plants that (a) thrive in ${houseCity}'s climate, (b) improve indoor air quality, and (c) carry Vastu positive energy. Give exact placement for each. ${climate.includes('cold') || climate.includes('subarctic') ? 'For cold-climate homes, specify which are suitable as indoor plants year-round.' : ''}
+- **Colour psychology + planetary resonance**: Which wall colors work for ${houseCity}'s light quality (bright equatorial light vs. soft northern light) AND align with ${hasPersonal ? c.lagnaSign + ' Lagna energy' : 'universal Vastu harmony'}?
+
+**${isCouple ? 'Couple Compatibility — Balancing Two Charts in One Space' : hasPersonal ? `${ctx.name || 'Your'} Personal Vastu Priority` : 'Energy Flow and Dosha Correction'}**
+${isCouple
+  ? `Two people, two dominant energies, one home. Based on the charts provided: identify the dominant planet for each partner. Where do their energies complement each other spatially? Where might there be friction (e.g. one needs a quiet North study, the other needs an energetic South workspace)? How should the home be zoned so both thrive? Name 2 specific design choices that honor both charts. Then name the one zone that should be the couple's shared sanctuary and why.`
+  : hasPersonal
+  ? `Based on ${c.lagnaSign} Ascendant and ${c.currentDasha} dasha — what is the most important Vastu zone to activate or heal RIGHT NOW? ${c.sadeSatiActive ? 'Sade Sati is active — the West/Saturn zone needs specific attention.' : c.isManglik ? 'Manglik dosha means the South/Mars zone carries extra intensity — specific remedies needed.' : `The ${c.currentDasha} dasha planet governs a specific direction that should be strengthened now.`} Give 1 specific zone, explain the dosha or opportunity, and provide the remedy.`
+  : `Without personal chart data, focus on universal Vastu and ${houseCity}'s environmental factors. Name the 2 most common Vastu doshas people create in ${houseCity}-style homes (e.g., blocking the South wall in a cold-climate home, or poor cross-ventilation in a humid zone). Give the corrective action for each.`}
+
+**Your 7-Day Action Plan for ${houseCity}**
+Practical changes anyone can implement immediately — no structural work required. Numbered list of 7 specific actions, each tied to either a Vastu principle, the planetary energy of that zone, or ${houseCity}'s specific environmental need. Include at least 2 items specific to the climate challenge of ${houseCity} (e.g. for cold cities: maximising winter light; for tropical: airflow and shade). Each item: one sentence with the action, one sentence with WHY it works here.
+
+End with: "⚠️ For entertainment & informational purposes only. Vastu recommendations are traditional wisdom blended with environmental science — not professional structural, architectural, or interior design advice. Consult a licensed architect for any structural modifications."`;
+  },
 };
 
 export interface ReadingContext {
   name: string;
   dob: string;
   birthCity: string;
+  currentCity: string;
+  currentLat: number;
+  currentLng: number;
   gender: string;
   maritalStatus: string;
   employment: string;

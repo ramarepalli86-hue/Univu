@@ -14,6 +14,9 @@ export interface IntakeFormData {
   birthCity: string;
   birthLat: number;
   birthLng: number;
+  currentCity: string;
+  currentLat: number;
+  currentLng: number;
   gender: 'male' | 'female' | 'other';
   chartType: 'north' | 'south';
   vedicSystem: 'parashari' | 'kp' | 'jaimini' | 'lal_kitab';
@@ -163,6 +166,7 @@ export default function IntakeForm({ t, locale, onLocaleChange, onSubmit, loadin
   const [form, setForm] = useState<IntakeFormData>({
     name: '', dob: '', timeOfBirth: '',
     birthCity: '', birthLat: 0, birthLng: 0,
+    currentCity: '', currentLat: 0, currentLng: 0,
     gender: 'male',
     chartType: 'north', vedicSystem: 'parashari', tradition: 'all',
     maritalStatus: 'single', employment: 'employed',
@@ -175,6 +179,11 @@ export default function IntakeForm({ t, locale, onLocaleChange, onSubmit, loadin
   function onBirth(val: string, e?: CityEntry) {
     if (e) setForm(p => ({ ...p, birthCity: val, birthLat: e.lat, birthLng: e.lng }));
     else upd('birthCity', val);
+  }
+
+  function onCurrentCity(val: string, e?: CityEntry) {
+    if (e) setForm(p => ({ ...p, currentCity: val, currentLat: e.lat, currentLng: e.lng }));
+    else upd('currentCity', val);
   }
 
   function handleSubmit(e: React.FormEvent) { e.preventDefault(); if (!form.consent) return; onSubmit({ ...form, language: locale }); }
@@ -280,6 +289,13 @@ export default function IntakeForm({ t, locale, onLocaleChange, onSubmit, loadin
         <div>
           <Lbl>Place of Birth</Lbl>
           <CityAutocomplete value={form.birthCity} onChange={onBirth} placeholder="Start typing a city…" />
+        </div>
+
+        {/* Current city — for Vastu & weekly readings */}
+        <div>
+          <Lbl>Where do you currently live? <span style={{ color: TEXT_MUTED, textTransform: 'none', fontWeight: 400, letterSpacing: 0 }}>(for Vastu &amp; weekly readings)</span></Lbl>
+          <CityAutocomplete value={form.currentCity} onChange={onCurrentCity} placeholder="Current city or city where home will be built…" />
+          <p className="text-xs mt-1" style={{ color: TEXT_MUTED }}>Used to adjust Vastu advice for your local sun path, wind direction, and climate. Leave blank to use birth city.</p>
         </div>
 
         {/* Gender */}
