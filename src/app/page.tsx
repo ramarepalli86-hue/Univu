@@ -9,6 +9,8 @@ import AgeGate from '@/components/AgeGate';
 import ReportCard, { ReadingResult } from '@/components/ReportCard';
 import AstroChat from '@/components/CosmicOracle';
 import Panchangam from '@/components/Panchangam';
+import WeeklyForecast from '@/components/WeeklyForecast';
+import VastuFengShui from '@/components/VastuFengShui';
 import LanguageSelector from '@/components/LanguageSelector';
 import { Locale, getTranslations, detectLocale } from '@/i18n';
 
@@ -101,7 +103,7 @@ export default function HomePage() {
   const [reading, setReading] = useState<ReadingResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [view, setView] = useState<'astrology'|'panchangam'>('astrology');
+  const [view, setView] = useState<'astrology'|'weekly'|'vastu'|'panchangam'>('astrology');
 
   useEffect(() => {
     const detected = detectLocale();
@@ -224,36 +226,61 @@ export default function HomePage() {
             ))}
           </div>
 
-          {/* ── Top-level nav: Astrology vs Panchangam + Language selector ── */}
+          {/* Top-level nav: 4 tabs */}
           <div className="flex flex-col items-center gap-3 mt-6">
-            <div className="flex gap-2 justify-center">
-              <button
-                onClick={() => setView('astrology')}
-                className="px-5 py-2.5 text-sm font-semibold rounded-xl transition-all"
+            <div className="flex flex-wrap gap-2 justify-center">
+              <button onClick={() => setView('astrology')}
+                className="px-4 py-2.5 text-xs sm:text-sm font-semibold rounded-xl transition-all"
                 style={view === 'astrology'
                   ? { background: 'linear-gradient(135deg,#1A6B6B,#2A8A8A)', color: '#fff', boxShadow: '0 2px 10px rgba(26,107,107,0.3)' }
                   : { color: '#1A6B6B', border: '1px solid rgba(26,107,107,0.3)', background: 'transparent' }
                 }
-              >🔮 My Astrology Reading</button>
-              <button
-                onClick={() => setView('panchangam')}
-                className="px-5 py-2.5 text-sm font-semibold rounded-xl transition-all"
+              >{"\uD83D\uDD2E"} My Astrology</button>
+              <button onClick={() => setView('weekly')}
+                className="px-4 py-2.5 text-xs sm:text-sm font-semibold rounded-xl transition-all"
+                style={view === 'weekly'
+                  ? { background: 'linear-gradient(135deg,#1A6B6B,#2A8A8A)', color: '#fff', boxShadow: '0 2px 10px rgba(26,107,107,0.3)' }
+                  : { color: '#1A6B6B', border: '1px solid rgba(26,107,107,0.3)', background: 'transparent' }
+                }
+              >{"\uD83D\uDCC5"} Weekly Forecast</button>
+              <button onClick={() => setView('vastu')}
+                className="px-4 py-2.5 text-xs sm:text-sm font-semibold rounded-xl transition-all"
+                style={view === 'vastu'
+                  ? { background: 'linear-gradient(135deg,#1A6B6B,#2A8A8A)', color: '#fff', boxShadow: '0 2px 10px rgba(26,107,107,0.3)' }
+                  : { color: '#1A6B6B', border: '1px solid rgba(26,107,107,0.3)', background: 'transparent' }
+                }
+              >{"\uD83C\uDFE0"} Vastu & Feng Shui</button>
+              <button onClick={() => setView('panchangam')}
+                className="px-4 py-2.5 text-xs sm:text-sm font-semibold rounded-xl transition-all"
                 style={view === 'panchangam'
                   ? { background: 'linear-gradient(135deg,#1A6B6B,#2A8A8A)', color: '#fff', boxShadow: '0 2px 10px rgba(26,107,107,0.3)' }
                   : { color: '#1A6B6B', border: '1px solid rgba(26,107,107,0.3)', background: 'transparent' }
                 }
-              >🩔 {({ hi:'पंचांग', te:'పంచాంగం', ta:'பஞ்சாங்கம்', ml:'പഞ്ചാംഗം', kn:'ಪಂಚಾಂಗ', mr:'पंचांग', bn:'পঞ্চাঙ্গ', pa:'ਪੰਚਾਂਗ', gu:'પંਚાਂਗ', or:'ପଞ୍ଚାଙ୍ଗ', as:'পঞ্চাং' } as Record<string,string>)[locale] ?? 'Panchangam'}</button>
+              >{"\uD83E\uDEB7"} Panchangam</button>
             </div>
-            {/* Language selector — always visible, affects both Astrology and Panchangam views */}
             <LanguageSelector current={locale} onChange={handleLocaleChange} />
           </div>
           </header>
 
-        {view === 'panchangam' ? (
+        {view === 'panchangam' && (
           <div className="animate-fade-in">
             <Panchangam locale={locale} />
           </div>
-        ) : (
+        )}
+
+        {view === 'weekly' && (
+          <div className="animate-fade-in">
+            <WeeklyForecast />
+          </div>
+        )}
+
+        {view === 'vastu' && (
+          <div className="animate-fade-in">
+            <VastuFengShui />
+          </div>
+        )}
+
+        {view === 'astrology' && (
           <AnimatePresence mode="wait">
             {!reading ? (
             <motion.div key="form" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, y: -20 }}>

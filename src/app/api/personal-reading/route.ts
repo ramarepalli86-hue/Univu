@@ -232,6 +232,177 @@ A single, specific sentence — not generic. Rooted in their ${ctx.moonNakshatra
 
 End with: "⚠️ For entertainment & informational purposes only. Week of ${new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}."`,
 
+  // ─── Weekly Sub-Tab: By Rashi (Vedic Moon Sign) ────────────────────────────
+  weekly_rashi: (ctx) => {
+    const c = ctx as ReadingContext & { weeklyRashi?: string; weeklyTimeframe?: string };
+    const rashi = c.weeklyRashi || ctx.moonSign;
+    const timeframe = c.weeklyTimeframe || 'current';
+    const dateLabel = new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+    const timeLabel = timeframe === 'next_week' ? 'the coming week (next week)'
+      : timeframe === 'month' ? 'the next 4 weeks ahead'
+      : `this current week starting ${dateLabel}`;
+    return `You are a master Vedic astrologer writing the weekly Rashi forecast for **${rashi}** (Vedic Moon Sign) for ${timeLabel}.
+
+IMPORTANT: This forecast is for EVERYONE whose Vedic Moon sign is ${rashi} — not a personal reading. Write in second person ("You will…").
+
+The current planetary transits as of ${dateLabel} influence all ${rashi} natives. Consider:
+- The Moon's transit through nakshatras this week and its effect on ${rashi}
+- Saturn's ongoing transit and aspect on ${rashi}
+- Jupiter's transit and its beneficial/challenging angle to ${rashi}
+- Any Mars, Venus, or Mercury sign changes happening ${timeLabel === 'this current week' ? 'this week' : 'in this period'}
+- Rahu-Ketu axis and its current influence on ${rashi}
+
+Write 5 sections with bold headings. Be specific to ${rashi} — every sentence must reference WHY ${rashi} specifically experiences this energy.
+
+**🌙 Overall Energy for ${rashi} — ${timeframe === 'month' ? 'This Month' : 'This Week'}**
+What is the dominant planetary energy affecting ${rashi} natives right now? Is this a week of action, patience, rest, or transformation? Name the specific transit causing this.
+
+**💼 Career & Finance for ${rashi}**
+How do the current transits affect the 10th house from ${rashi}? Job opportunities, money flow, boss relations, business decisions — what should ${rashi} natives expect and do?
+
+**💞 Love & Relationships for ${rashi}**
+Venus and Moon transits relative to ${rashi}'s 7th house — what happens in love, marriage, and close bonds this period?
+
+**⚡ Health & Energy for ${rashi}**
+Mars and Saturn transits affecting ${rashi}'s 6th and 8th houses — energy levels, stress points, and what to watch for physically and mentally.
+
+**✨ Lucky Day, Color & Mantra for ${rashi}**
+One specific day this period that is most auspicious for ${rashi}. One color to wear. One short mantra or intention rooted in the ruling planet of ${rashi}.
+
+End with: "⚠️ For entertainment & informational purposes only. Rashi forecast for ${rashi} · ${dateLabel}."`;
+  },
+
+  // ─── Weekly Sub-Tab: By Western Zodiac Sign ────────────────────────────────
+  weekly_zodiac: (ctx) => {
+    const c = ctx as ReadingContext & { weeklyZodiacSign?: string; weeklyTimeframe?: string };
+    const sign = c.weeklyZodiacSign || 'Aries';
+    const timeframe = c.weeklyTimeframe || 'current';
+    const dateLabel = new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+    const timeLabel = timeframe === 'next_week' ? 'the coming week (next week)'
+      : timeframe === 'month' ? 'the next 4 weeks ahead'
+      : `this current week starting ${dateLabel}`;
+    return `You are a skilled Western astrologer writing the weekly horoscope for **${sign}** for ${timeLabel}.
+
+IMPORTANT: This forecast is for EVERYONE born under the ${sign} Sun sign — not a personal reading. Write in second person ("You will…").
+
+Consider the current planetary transits as of ${dateLabel}:
+- Sun's current sign and aspect to ${sign}
+- Mercury's position (retrograde? sign change?) and how it affects ${sign}'s communication
+- Venus transit and its influence on ${sign}'s love and money houses
+- Mars transit and its energy impact on ${sign}
+- Jupiter and Saturn's slow transits and their long-term themes for ${sign}
+- Any significant aspects (squares, trines, oppositions) forming to ${sign}'s Sun position
+
+Write 5 sections with bold headings. Be specific to ${sign} — why ${sign} in particular feels this energy.
+
+**☀️ The Big Picture for ${sign} — ${timeframe === 'month' ? 'This Month' : 'This Week'}**
+What planetary aspects dominate ${sign}'s sky right now? Is this a period of opportunity, challenge, reflection, or breakthrough? Name the key transit.
+
+**💼 Career & Ambition for ${sign}**
+What do transiting planets to ${sign}'s 10th house (Midheaven) and 6th house indicate for professional life this period? Opportunities, obstacles, timing.
+
+**💞 Love & Connection for ${sign}**
+Venus and Mars transits relative to ${sign}'s 5th and 7th houses — what opens or challenges in love, dating, and committed partnerships?
+
+**🌿 Wellness & Self-Care for ${sign}**
+Energy levels, stress points, and the best self-care approach based on current transits hitting ${sign}'s vitality sectors.
+
+**🌟 Power Move of the ${timeframe === 'month' ? 'Month' : 'Week'} for ${sign}**
+One specific action ${sign} should take this period to ride the planetary wave most effectively. Be concrete and actionable.
+
+End with: "⚠️ For entertainment & informational purposes only. Western horoscope for ${sign} · ${dateLabel}."`;
+  },
+
+  // ─── Weekly Sub-Tab: By Chinese Zodiac Year ────────────────────────────────
+  weekly_chinese: (ctx) => {
+    const c = ctx as ReadingContext & { weeklyChineseAnimal?: string; weeklyTimeframe?: string };
+    const animal = c.weeklyChineseAnimal || 'Dragon';
+    const timeframe = c.weeklyTimeframe || 'current';
+    const dateLabel = new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+    const currentYear = new Date().getFullYear();
+    const timeLabel = timeframe === 'next_week' ? 'the coming week (next week)'
+      : timeframe === 'month' ? 'the next 4 weeks ahead'
+      : `this current week starting ${dateLabel}`;
+    return `You are a master Chinese astrologer writing the weekly forecast for people born in the Year of the **${animal}** for ${timeLabel}.
+
+IMPORTANT: This forecast is for EVERYONE born in a ${animal} year — not a personal reading. Write in second person ("You will…").
+
+The year ${currentYear} is governed by specific elemental and animal energies. Consider:
+- How ${currentYear}'s ruling animal interacts with the ${animal} sign (compatible, conflicting, or neutral)
+- The current lunar month and its elemental influence on ${animal} natives
+- The Five Elements cycle and what element is active this week/month
+- Traditional Chinese astrological concepts: Tai Sui (Grand Duke Jupiter), San Sha (Three Killings), and their direction this year relative to ${animal}
+
+Write 5 sections with bold headings. Be specific to the ${animal} — explain WHY ${animal} people feel this energy.
+
+**☯️ Overall Fortune for ${animal} — ${timeframe === 'month' ? 'This Month' : 'This Week'}**
+What is the dominant energy for ${animal} natives in ${currentYear}? Is this a period of growth, caution, opportunity, or consolidation? How does the current lunar phase affect ${animal}?
+
+**💰 Wealth & Career for ${animal}**
+Financial outlook and career energy for ${animal} this period. Which days are best for important business decisions? Any risks to avoid?
+
+**❤️ Love & Relationships for ${animal}**
+Romantic and social energy for ${animal} natives. Is this a good time for new connections, deepening bonds, or giving space? What element supports harmony?
+
+**🏥 Health & Vitality for ${animal}**
+Which organs or body systems need attention for ${animal} this period based on Five Element theory? Energy levels, rest needs, and wellness tips.
+
+**🍀 Lucky Elements for ${animal} This ${timeframe === 'month' ? 'Month' : 'Week'}**
+- Lucky numbers (2-3 specific numbers)
+- Lucky colors (2 colors with WHY they balance ${animal}'s energy)
+- Lucky direction for important activities
+- Best and worst days of the period for ${animal}
+
+End with: "⚠️ For entertainment & informational purposes only. Chinese zodiac forecast for ${animal} · ${dateLabel}."`;
+  },
+
+  // ─── Weekly Sub-Tab: Personal Week (by DOB, chart-specific) ────────────────
+  weekly_personal: (ctx) => {
+    const c = ctx as ReadingContext & { weeklyTimeframe?: string };
+    const timeframe = c.weeklyTimeframe || 'current';
+    const dateLabel = new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+    const timeLabel = timeframe === 'next_week' ? 'the coming week (next week)'
+      : timeframe === 'month' ? 'the next 4 weeks ahead'
+      : `this current week starting ${dateLabel}`;
+    return `You are speaking directly to ${ctx.name} about ${timeLabel}.
+
+This is a DEEPLY PERSONAL forecast based on ${ctx.name}'s exact birth chart — not a generic sign forecast.
+
+Chart data:
+- ${ctx.lagnaSign} Ascendant | ${ctx.moonSign} Moon | ${ctx.sunSign} Sun
+- Moon Nakshatra: ${ctx.moonNakshatraName} Pada ${ctx.moonNakshatraPada}
+- Current dasha: ${ctx.currentDasha} / ${ctx.currentAntardasha} (${ctx.currentDashaYears})
+- Venus in ${ctx.venusSign} House ${ctx.venusHouse} | Mars in ${ctx.marsSign} House ${ctx.marsHouse}
+- Jupiter in ${ctx.jupiterSign} House ${ctx.jupiterHouse} | Saturn in ${ctx.saturnSign} House ${ctx.saturnHouse}
+- Rahu in ${ctx.rahuSign} House ${ctx.rahuHouse} | Ketu in ${ctx.ketuSign} House ${ctx.ketuHouse}
+- Manglik: ${ctx.isManglik ? 'YES' : 'No'} | Sade Sati: ${ctx.sadeSatiActive ? 'ACTIVE' : 'Not active'}
+- Age ~${ctx.currentAge} | ${ctx.maritalStatus} | ${ctx.employment}
+- Atmakaraka: ${ctx.atmakaraka}
+${ctx.concern ? `- Their focus: "${ctx.concern}"` : ''}
+
+Write a personalised forecast for ${timeLabel}. Every single sentence must be specific to ${ctx.name}'s chart — NEVER generic horoscope language.
+
+**🔮 The Planetary Weather for ${ctx.name} — ${timeframe === 'month' ? 'This Month' : 'This Week'}**
+What specific transits are hitting ${ctx.name}'s natal chart this period? Which house is most activated? What does ${ctx.currentDasha}/${ctx.currentAntardasha} dasha demand RIGHT NOW?
+
+**💼 Work & Money — What ${ctx.name} Should Do**
+Based on the 10th house lord and current transits to ${ctx.name}'s career axis — is this a push week, a waiting week, or a pivot week? One specific action for work. One thing to avoid financially.
+
+**💞 Relationships & Emotional Life**
+How does the Moon's transit through nakshatras this period interact with ${ctx.name}'s natal ${ctx.moonNakshatraName} Moon? What emotional tone dominates? What should ${ctx.name} express, and what should they hold?
+
+**⚡ Energy, Health & Daily Rhythm**
+Based on Mars in House ${ctx.marsHouse} and the Lagna lord's current strength — ${ctx.name}'s physical energy pattern this period. Best days for exercise vs. rest. Any health caution from the transits.
+
+**📅 The Key Moment This ${timeframe === 'month' ? 'Month' : 'Week'}**
+Name one specific day (or 2-3 day window) that is the most powerful for ${ctx.name}. What should they do in that window? What planetary alignment creates this opportunity?
+
+**🕉️ ${ctx.name}'s ${timeframe === 'month' ? 'Monthly' : 'Weekly'} Intention**
+A single, specific intention rooted in ${ctx.moonNakshatraName} Nakshatra energy, ${ctx.atmakaraka} Atmakaraka, and the current dasha. Not generic — deeply personal.
+
+End with: "⚠️ For entertainment & informational purposes only. Personal forecast for ${timeLabel} · ${dateLabel}."`;
+  },
+
   vastu: (ctx) => {
     // Pull Vastu-specific enrichment fields (passed via context object)
     const c = ctx as ReadingContext & {
@@ -276,13 +447,15 @@ PARTNER'S CHART (details provided):
 - Partner DOB: ${partnerDob}${c.vastuPartnerTime ? ` at ${c.vastuPartnerTime}` : ''}${c.vastuPartnerBirthCity ? ` · born in ${c.vastuPartnerBirthCity}` : ''}
 - Note: Derive the partner's dominant planet from their birth year and provide compatible Vastu zone recommendations.` : '';
 
-    return `You are an expert Vastu Shastra consultant who also understands environmental science, architecture, and biophilic design. You give LOCATION-SPECIFIC Vastu advice — not generic Indian-home templates.
+    return `You are an expert in THREE spatial harmony traditions: (1) Indian Vastu Shastra, (2) Chinese Feng Shui (Form School + Compass School), and (3) modern environmental science (biophilic design, circadian architecture, building biology). You give LOCATION-SPECIFIC advice that weaves all three wisdoms — not generic templates.
+
+Your approach: For each recommendation, explain what Vastu says, what Feng Shui says, and what environmental science confirms — showing where the traditions agree and where they differ for THIS specific location. Always frame positively: self-improvement, harmony, empowerment — NEVER fear-based ("bad luck", "disaster", "you must do this or suffer").
 
 ═══════════════════════════════════════════
 HOUSE LOCATION: ${houseCity}
-Coordinates: ${houseLat.toFixed(4)}°, ${houseLng.toFixed(4)}°
-CLIMATE & ENVIRONMENT: ${climate}
-SUN PATH & WIND: ${sunWind}
+${houseLat !== 0 ? `Coordinates: ${houseLat.toFixed(4)}°, ${houseLng.toFixed(4)}°` : 'Coordinates: not provided — use the city name to infer hemisphere, climate zone, and sun path.'}
+CLIMATE & ENVIRONMENT: ${climate || `House is located in ${houseCity}. Infer climate from the city name.`}
+SUN PATH & WIND: ${sunWind || 'Infer from the city name and hemisphere.'}
 ═══════════════════════════════════════════
 ${personalBlock}${partnerBlock}
 
@@ -300,37 +473,50 @@ Write 6 sections with bold headings. Be specific, science-backed, and practical.
 **Understanding ${houseCity}'s Vastu Canvas**
 Start by explaining what makes this specific location unique for Vastu. What does the latitude mean for solar gain? What is the dominant climate challenge — heat, cold, humidity, wind? How does this modify the traditional Vastu direction map? Name which traditional Vastu principles apply directly, and which need to be reversed or modified for this location. This section sets the frame — be precise and educational.
 
-**The Main Entrance and Primary Orientation**
-${hasPersonal ? `Based on ${c.lagnaSign} Ascendant and the current ${c.currentDasha} dasha — ` : ''}which direction should the main door face for maximum positive energy AND maximum practical benefit in ${houseCity}'s climate? Give a specific compass direction. Then explain: (1) which Vastu deity/energy governs this direction, (2) what this direction receives in terms of sunlight and wind in ${houseCity} specifically, and (3) what to place near the entrance (specific plants, threshold elements, colors, or materials) that thrive in this climate. If the best Vastu direction conflicts with the best climate direction for ${houseCity}, say so directly and give the priority recommendation.
+**Understanding ${houseCity}'s Vastu & Feng Shui Canvas**
+Start by explaining what makes this specific location unique for spatial harmony. What does the latitude mean for solar gain? What is the dominant climate challenge — heat, cold, humidity, wind? How does this modify the traditional Vastu direction map AND the Feng Shui Bagua? Name which traditional principles from BOTH Vastu and Feng Shui apply directly, and which need adaptation for this location. Where do Vastu and Feng Shui AGREE about this location? Where do they DIFFER? This section sets the frame — be precise and educational.
 
-**Room-by-Room Placement for ${houseCity}**
-For each room below, give a specific compass direction suited to BOTH Vastu principles AND ${houseCity}'s climate reality:
-- **Master bedroom**: Which direction — and why does this work for both the planetary ruler of that zone and the thermal comfort in ${houseCity}? ${hasPersonal ? `With ${c.moonSign} Moon, the bedroom needs to support emotional restoration.` : ''}
-- **Kitchen / fire zone**: The kitchen generates heat. In ${houseCity}'s climate, which direction minimises overheating OR maximises warmth as needed? How does this align with the SE fire zone of Vastu?
-- **Study / workspace**: Where does natural light fall at working hours in ${houseCity}? Which direction maximises focus energy in Vastu AND provides good natural light?
-- **Prayer / meditation corner**: Quietest zone, away from street noise. Which Vastu zone and why?
-- **Living room**: Social energy zone — which direction for ${houseCity} gets the best afternoon or evening light for gathering?
+**The Main Entrance — Vastu vs. Feng Shui vs. Science**
+${hasPersonal ? `Based on ${c.lagnaSign} Ascendant and the current ${c.currentDasha} dasha — ` : ''}which direction should the main door face? Explain:
+- **Vastu says**: Which direction and which deity/energy governs this direction.
+- **Feng Shui says**: What the Compass School (Luo Pan) and Form School recommend for ${houseCity}.
+- **Science says**: What this direction receives in terms of sunlight and wind in ${houseCity} specifically.
+Then give the PRIORITY recommendation: which advice to follow when the traditions conflict for this location. What to place near the entrance (specific plants, threshold elements, colors, or materials) that thrive in this climate.
 
-**Light, Air, and Living Plants — The Science of Pure Energy**
+**Room-by-Room Placement — The Three-Wisdom Approach**
+For each room, give a specific compass direction suited to Vastu, Feng Shui, AND ${houseCity}'s climate reality:
+- **Master bedroom**: Vastu direction + Feng Shui Bagua zone + thermal comfort in ${houseCity}. ${hasPersonal ? `With ${c.moonSign} Moon, the bedroom needs to support emotional restoration.` : ''} Which head direction for sleeping — Vastu vs. Feng Shui recommendation?
+- **Kitchen / fire zone**: Vastu SE fire zone vs. Feng Shui fire element placement vs. practical heat management in ${houseCity}'s climate.
+- **Study / workspace**: Vastu zone vs. Feng Shui career/knowledge area (Gen/Kan trigrams). Where does natural light fall at working hours in ${houseCity}?
+- **Prayer / meditation corner**: Vastu NE Ishanya vs. Feng Shui spiritual zone. Quietest area for ${houseCity}.
+- **Living room**: Social energy zone — Vastu vs. Feng Shui "Ming Tang" (bright hall) concept. Best direction for ${houseCity}'s afternoon/evening light.
+
+**Light, Air, Plants & Water — Science Meets Ancient Wisdom**
 ${climate.includes('cold') || climate.includes('dark') || climate.includes('subarctic') || climate.includes('temperate')
   ? `WINTER WELLBEING PRIORITY: ${houseCity} has limited daylight in winter. Seasonal Affective Disorder (SAD) risk is real. Address this directly:`
   : `TROPICAL VENTILATION PRIORITY: Address heat, humidity, and air quality directly:`}
-- **Natural light maximisation**: Which walls should have the largest windows for ${houseCity}'s sun path? Which rooms suffer most from low winter light and how to remedy this (skylights, light tubes, reflective surfaces)?
-- **Cross-ventilation design**: Given the prevailing wind direction for ${houseCity}, where should windows and openings be on opposite walls to create natural airflow?
-- **Living plants for this climate**: Name 3–4 specific plants that (a) thrive in ${houseCity}'s climate, (b) improve indoor air quality, and (c) carry Vastu positive energy. Give exact placement for each. ${climate.includes('cold') || climate.includes('subarctic') ? 'For cold-climate homes, specify which are suitable as indoor plants year-round.' : ''}
-- **Colour psychology + planetary resonance**: Which wall colors work for ${houseCity}'s light quality (bright equatorial light vs. soft northern light) AND align with ${hasPersonal ? c.lagnaSign + ' Lagna energy' : 'universal Vastu harmony'}?
+- **Natural light**: Vastu's "Jyoti" (light) principles + Feng Shui's "Yang energy" through windows + circadian science on daylight exposure. Which walls need the largest windows for ${houseCity}'s sun path?
+- **Cross-ventilation**: Vastu's "Vayu" (wind) corridors + Feng Shui's "Qi flow" paths + building science on stack ventilation. Given ${houseCity}'s prevailing winds, where to place openings.
+- **Living plants**: Name 4 specific plants that (a) thrive in ${houseCity}'s climate, (b) improve indoor air quality (NASA study), (c) carry Vastu positive energy, and (d) are auspicious in Feng Shui. Give exact room placement for each.
+- **Water features**: Feng Shui places great emphasis on water for wealth (aquariums, fountains). Where does Vastu agree? Where should water be placed in ${houseCity} — and where is it harmful? Science-backed humidity considerations.
+- **Colors**: Which wall colors work for ${houseCity}'s light quality AND align with ${hasPersonal ? c.lagnaSign + ' Lagna energy' : 'universal harmony'}? Compare Vastu color rules with Feng Shui Five Element color theory.
 
-**${isCouple ? 'Couple Compatibility — Balancing Two Charts in One Space' : hasPersonal ? `${ctx.name || 'Your'} Personal Vastu Priority` : 'Energy Flow and Dosha Correction'}**
+**${isCouple ? 'Couple Compatibility — Balancing Two Charts in One Space' : hasPersonal ? `${ctx.name || 'Your'} Personal Harmony Priority` : 'Energy Flow and Dosha/Sha Qi Correction'}**
 ${isCouple
-  ? `Two people, two dominant energies, one home. Based on the charts provided: identify the dominant planet for each partner. Where do their energies complement each other spatially? Where might there be friction (e.g. one needs a quiet North study, the other needs an energetic South workspace)? How should the home be zoned so both thrive? Name 2 specific design choices that honor both charts. Then name the one zone that should be the couple's shared sanctuary and why.`
+  ? `Two people, two dominant energies, one home. Based on the charts provided: identify the dominant planet for each partner. Where do their energies complement each other spatially? In Feng Shui terms, what are their Kua numbers and compatible directions? How should the home be zoned so both thrive? Name 2 specific design choices that honor both charts. Then name the one zone that should be the couple's shared sanctuary and why.`
   : hasPersonal
-  ? `Based on ${c.lagnaSign} Ascendant and ${c.currentDasha} dasha — what is the most important Vastu zone to activate or heal RIGHT NOW? ${c.sadeSatiActive ? 'Sade Sati is active — the West/Saturn zone needs specific attention.' : c.isManglik ? 'Manglik dosha means the South/Mars zone carries extra intensity — specific remedies needed.' : `The ${c.currentDasha} dasha planet governs a specific direction that should be strengthened now.`} Give 1 specific zone, explain the dosha or opportunity, and provide the remedy.`
-  : `Without personal chart data, focus on universal Vastu and ${houseCity}'s environmental factors. Name the 2 most common Vastu doshas people create in ${houseCity}-style homes (e.g., blocking the South wall in a cold-climate home, or poor cross-ventilation in a humid zone). Give the corrective action for each.`}
+  ? `Based on ${c.lagnaSign} Ascendant and ${c.currentDasha} dasha — what is the most important zone to activate RIGHT NOW? In Vastu terms: ${c.sadeSatiActive ? 'Sade Sati is active — the West/Saturn zone needs attention.' : c.isManglik ? 'Manglik dosha means the South/Mars zone carries extra intensity.' : `The ${c.currentDasha} dasha planet governs a specific direction.`} In Feng Shui terms: which Bagua area needs activation? Give 1 specific zone, explain the opportunity from both traditions, and provide 3 practical remedies (1 Vastu, 1 Feng Shui, 1 science-based).`
+  : `Without personal chart data, focus on universal Vastu + Feng Shui and ${houseCity}'s environmental factors. Name the 3 most common spatial harmony mistakes people create in ${houseCity}-style homes (1 Vastu dosha, 1 Feng Shui sha qi, 1 building science issue). Give the corrective action for each.`}
 
-**Your 7-Day Action Plan for ${houseCity}**
-Practical changes anyone can implement immediately — no structural work required. Numbered list of 7 specific actions, each tied to either a Vastu principle, the planetary energy of that zone, or ${houseCity}'s specific environmental need. Include at least 2 items specific to the climate challenge of ${houseCity} (e.g. for cold cities: maximising winter light; for tropical: airflow and shade). Each item: one sentence with the action, one sentence with WHY it works here.
+**Your 7-Day Transformation Plan for ${houseCity}**
+Practical changes anyone can implement immediately — no structural work required. Numbered list of 7 specific actions:
+- At least 2 from Vastu tradition (with the principle name)
+- At least 2 from Feng Shui tradition (with the concept name, e.g. "Bagua activation", "Five Elements cure")
+- At least 2 from environmental science (specific to ${houseCity}'s climate — e.g. maximising winter light, airflow, humidity control)
+- 1 that bridges all three traditions
+Each item: one sentence with the action, one sentence with WHY it works for ${houseCity} specifically. Frame everything positively — empowerment and harmony, never fear.
 
-End with: "⚠️ For entertainment & informational purposes only. Vastu recommendations are traditional wisdom blended with environmental science — not professional structural, architectural, or interior design advice. Consult a licensed architect for any structural modifications."`;
+End with: "⚠️ For entertainment & informational purposes only. Vastu and Feng Shui recommendations are traditional wisdom blended with environmental science — not professional structural, architectural, or interior design advice. Consult a licensed architect for any structural modifications."`;
   },
 };
 
@@ -427,6 +613,10 @@ export async function POST(req: NextRequest) {
     };
     const systemInstruction = vedicSystemLabel[context.vedicSystem] || vedicSystemLabel.parashari;
 
+    // Vastu and monthly forecasts need more space; standard readings use 900 tokens
+    const isLargeSection = section === 'vastu' || (section.startsWith('weekly_') && (context as unknown as Record<string,unknown>).weeklyTimeframe === 'month');
+    const maxTokens = isLargeSection ? 1200 : 900;
+
     const completion = await groq.chat.completions.create({
       model: 'llama-3.3-70b-versatile',
       messages: [
@@ -442,11 +632,12 @@ RULES:
 6. Write like a wise, warm friend who knows their chart — not a textbook.
 7. Use **bold headings** exactly as given. Rich paragraphs, no bullet points.
 8. The WORST answer is a vague non-answer. Always commit to a specific year or window.
-9. Apply the ${systemInstruction.split(' (')[0]} system's specific rules — do NOT blend with other systems unless asked.`,
+9. Apply the ${systemInstruction.split(' (')[0]} system's specific rules — do NOT blend with other systems unless asked.
+10. Frame everything positively: self-improvement, empowerment, growth. NEVER use fear-based language.`,
         },
         { role: 'user', content: userPrompt },
       ],
-      max_tokens: 900,
+      max_tokens: maxTokens,
       temperature: 0.75,
     });
 

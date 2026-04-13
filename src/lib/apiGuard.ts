@@ -17,7 +17,7 @@ import { NextRequest, NextResponse } from 'next/server';
 // ─── Rate Limit Store ────────────────────────────────────────
 // Key: IP address   Value: { count, windowStart }
 const RL_WINDOW_MS  = 60_000;   // 1-minute window
-const RL_MAX_REQ    = 20;       // max 20 requests per IP per minute
+const RL_MAX_REQ    = 100;      // max 100 requests per IP per minute (supports >500 users)
 const RL_STORE      = new Map<string, { count: number; windowStart: number }>();
 
 function getRateLimitResult(ip: string): { allowed: boolean; remaining: number } {

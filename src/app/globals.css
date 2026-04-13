@@ -15,7 +15,7 @@
   body::before {
     content: '';
     position: fixed;
-    inset: 0;
+    top: 0; right: 0; bottom: 0; left: 0; /* Safari/IE compat — avoid inset shorthand */
     background:
       radial-gradient(ellipse at 15% 0%,   rgba(212,136,10,0.10) 0%, transparent 55%),
       radial-gradient(ellipse at 85% 100%, rgba(180,90,20,0.08)   0%, transparent 55%),
@@ -197,4 +197,19 @@
 select option {
   background: #FDFCF9;
   color: #1E1B17;
+}
+
+/* ── Safari / older browser fixes ──────────────────────────────────────── */
+/* Safari requires -webkit-backdrop-filter; Tailwind only emits backdrop-filter */
+@supports (-webkit-backdrop-filter: blur(1px)) {
+  .backdrop-blur-sm  { -webkit-backdrop-filter: blur(4px);  backdrop-filter: blur(4px); }
+  .backdrop-blur-md  { -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
+  .backdrop-blur-lg  { -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); }
+  .backdrop-blur-xl  { -webkit-backdrop-filter: blur(24px); backdrop-filter: blur(24px); }
+  .backdrop-blur-2xl { -webkit-backdrop-filter: blur(40px); backdrop-filter: blur(40px); }
+}
+
+/* Tailwind inset-0 generates `inset:0` — Safari <14.1 and IE need explicit props */
+.inset-0 {
+  top: 0; right: 0; bottom: 0; left: 0;
 }

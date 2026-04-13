@@ -29,7 +29,7 @@ const TABS = [
   { id: 'timeline',   label: '🗓 Life Cycles'      },
   { id: 'spiritual',  label: '🔮 Purpose'          },
   { id: 'weekly',     label: '📅 This Week'        },
-  { id: 'vastu',      label: '🏠 Vastu'            },
+  { id: 'vastu',      label: '🏠 Vastu & Feng Shui' },
   { id: 'charts',     label: '🪐 Sky Charts'       },
   { id: 'story',      label: '🎬 Story'            },
 ] as const;
@@ -254,6 +254,286 @@ function ConcernBanner({ concern }: { concern: string }) {
   );
 }
 
+// ─── Weekly Report Section (4 sub-tabs) ──────────────────────────────────────
+
+const VEDIC_RASHIS = [
+  'Mesha (Aries)','Vrishabha (Taurus)','Mithuna (Gemini)',
+  'Karka (Cancer)','Simha (Leo)','Kanya (Virgo)',
+  'Tula (Libra)','Vrischika (Scorpio)','Dhanu (Sagittarius)',
+  'Makara (Capricorn)','Kumbha (Aquarius)','Meena (Pisces)',
+];
+const WESTERN_SIGNS = [
+  'Aries','Taurus','Gemini','Cancer','Leo','Virgo',
+  'Libra','Scorpio','Sagittarius','Capricorn','Aquarius','Pisces',
+];
+const CHINESE_ANIMALS = [
+  'Rat','Ox','Tiger','Rabbit','Dragon','Snake',
+  'Horse','Goat','Monkey','Rooster','Dog','Pig',
+];
+
+const RASHI_EMOJI: Record<string,string> = {
+  'Mesha (Aries)':'♈','Vrishabha (Taurus)':'♉','Mithuna (Gemini)':'♊',
+  'Karka (Cancer)':'♋','Simha (Leo)':'♌','Kanya (Virgo)':'♍',
+  'Tula (Libra)':'♎','Vrischika (Scorpio)':'♏','Dhanu (Sagittarius)':'♐',
+  'Makara (Capricorn)':'♑','Kumbha (Aquarius)':'♒','Meena (Pisces)':'♓',
+};
+const ZODIAC_EMOJI: Record<string,string> = {
+  Aries:'♈',Taurus:'♉',Gemini:'♊',Cancer:'♋',Leo:'♌',Virgo:'♍',
+  Libra:'♎',Scorpio:'♏',Sagittarius:'♐',Capricorn:'♑',Aquarius:'♒',Pisces:'♓',
+};
+const ANIMAL_EMOJI: Record<string,string> = {
+  Rat:'🐀',Ox:'🐂',Tiger:'🐅',Rabbit:'🐇',Dragon:'🐉',Snake:'🐍',
+  Horse:'🐎',Goat:'🐐',Monkey:'🐒',Rooster:'🐓',Dog:'🐕',Pig:'🐖',
+};
+
+type WeeklySubTab = 'rashi' | 'zodiac' | 'chinese' | 'personal';
+type WeeklyTimeframe = 'current' | 'next_week' | 'month';
+
+function WeeklyReportSection({ reading }: { reading: FullReading }) {
+  const [subTab, setSubTab] = useState<WeeklySubTab>('personal');
+  const [timeframe, setTimeframe] = useState<WeeklyTimeframe>('current');
+
+  // Default selections based on user's chart
+  const [selectedRashi, setSelectedRashi] = useState(reading.moonSign || VEDIC_RASHIS[0]);
+  const [selectedZodiac, setSelectedZodiac] = useState(reading.westernSunSign || WESTERN_SIGNS[0]);
+  const [selectedAnimal, setSelectedAnimal] = useState(reading.chineseZodiac?.animal || CHINESE_ANIMALS[0]);
+
+  // Fetch state
+  const [text, setText] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [lastKey, setLastKey] = useState('');
+
+  const fetchKey = `${subTab}_${timeframe}_${subTab === 'rashi' ? selectedRashi : subTab === 'zodiac' ? selectedZodiac : subTab === 'chinese' ? selectedAnimal : 'me'}`;
+
+  const handleGenerate = useCallback(async () => {
+    if (loading) return;
+    setLoading(true);
+    setText('');
+    try {
+      const ctx = buildContext(reading);
+      let sectionId = '';
+      const extCtx: Record<string, unknown> = { ...ctx, weeklyTimeframe: timeframe };
+
+      if (subTab === 'rashi') {
+        sectionId = 'weekly_rashi';
+        extCtx.weeklyRashi = selectedRashi;
+      } else if (subTab === 'zodiac') {
+        sectionId = 'weekly_zodiac';
+        extCtx.weeklyZodiacSign = selectedZodiac;
+      } else if (subTab === 'chinese') {
+        sectionId = 'weekly_chinese';
+        extCtx.weeklyChineseAnimal = selectedAnimal;
+      } else {
+        sectionId = 'weekly_personal';
+      }
+
+      const res = await fetch('/api/personal-reading', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ section: sectionId, context: extCtx }),
+      });
+      if (res.ok) {
+        const d = await res.json();
+        if (d.text) {
+          const firstName = reading.name.trim().split(/\s+/)[0];
+          setText(d.text.replace(/\bthe Seeker\b/g, firstName).replace(/\bThe Seeker\b/g, firstName));
+          setLastKey(fetchKey);
+        }
+      }
+    } catch { /* silent */ }
+    finally { setLoading(false); }
+  }, [subTab, timeframe, selectedRashi, selectedZodiac, selectedAnimal, reading, loading, fetchKey]);
+
+  // Auto-fetch for personal tab on first load
+  useEffect(() => {
+    if (subTab === 'personal' && !text && !loading && lastKey !== fetchKey) {
+      handleGenerate();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const SUB_TABS: { id: WeeklySubTab; label: string; icon: string }[] = [
+    { id: 'personal', label: 'My Week', icon: '🔮' },
+    { id: 'rashi', label: 'By Rashi', icon: '🕉️' },
+    { id: 'zodiac', label: 'By Zodiac', icon: '♈' },
+    { id: 'chinese', label: 'Chinese Year', icon: '☯️' },
+  ];
+
+  const TIMEFRAMES: { id: WeeklyTimeframe; label: string }[] = [
+    { id: 'current', label: '📅 This Week' },
+    { id: 'next_week', label: '➡️ Next Week' },
+    { id: 'month', label: '🗓 Full Month' },
+  ];
+
+  return (
+    <div className="space-y-4">
+      {/* Header */}
+      <div>
+        <h2 className="text-lg font-bold" style={{ fontFamily: 'Cinzel,Georgia,serif', color: TEAL }}>📅 Weekly Forecast</h2>
+        <p className="text-xs mt-1" style={{ color: '#6B7280' }}>
+          AI-powered forecasts — personal to your chart, by Vedic Rashi, Western Zodiac, or Chinese Year animal.
+        </p>
+      </div>
+
+      {/* Sub-tabs */}
+      <div className="flex flex-wrap gap-1.5 rounded-xl p-1" style={{ background: 'rgba(26,107,107,0.05)' }}>
+        {SUB_TABS.map(st => (
+          <button key={st.id} onClick={() => { setSubTab(st.id); setText(''); setLastKey(''); }}
+            className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium rounded-lg transition-all"
+            style={subTab === st.id
+              ? { background: `linear-gradient(135deg,${TEAL},${TEAL_L})`, color: '#fff', boxShadow: '0 2px 6px rgba(26,107,107,0.2)' }
+              : { color: '#6B7280' }}>
+            <span>{st.icon}</span> {st.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Timeframe selector */}
+      <div className="flex flex-wrap gap-1.5">
+        {TIMEFRAMES.map(tf => (
+          <button key={tf.id} onClick={() => { setTimeframe(tf.id); setText(''); setLastKey(''); }}
+            className="px-3 py-1.5 text-xs font-medium rounded-lg border transition-all"
+            style={timeframe === tf.id
+              ? { background: 'rgba(212,136,10,0.1)', color: AMBER, borderColor: 'rgba(212,136,10,0.3)' }
+              : { background: '#FAFAF8', color: '#6B7280', borderColor: '#E5E7EB' }}>
+            {tf.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Sign/Animal selector for rashi, zodiac, chinese */}
+      {subTab === 'rashi' && (
+        <div className="space-y-2">
+          <p className="text-xs font-bold uppercase tracking-wider" style={{ color: TEAL }}>
+            Select Vedic Moon Sign (Rashi)
+          </p>
+          <p className="text-[10px]" style={{ color: '#9CA3AF' }}>
+            Your Moon sign is <strong style={{ color: TEAL }}>{reading.moonSign}</strong> — highlighted below.
+          </p>
+          <div className="grid grid-cols-3 sm:grid-cols-4 gap-1.5">
+            {VEDIC_RASHIS.map(r => {
+              const isUser = r === reading.moonSign;
+              const isSel = r === selectedRashi;
+              return (
+                <button key={r} onClick={() => setSelectedRashi(r)}
+                  className="relative px-2 py-2 text-xs font-medium rounded-lg border transition-all text-left"
+                  style={isSel
+                    ? { background: `linear-gradient(135deg,rgba(26,107,107,0.12),rgba(212,136,10,0.08))`, borderColor: TEAL, color: TEAL }
+                    : { background: '#FAFAF8', borderColor: '#E5E7EB', color: '#4B5563' }}>
+                  <span className="mr-1">{RASHI_EMOJI[r] || '•'}</span>
+                  {r.split(' (')[0]}
+                  {isUser && <span className="absolute top-0.5 right-1 text-[8px]" style={{ color: AMBER }}>★ You</span>}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {subTab === 'zodiac' && (
+        <div className="space-y-2">
+          <p className="text-xs font-bold uppercase tracking-wider" style={{ color: TEAL }}>
+            Select Western Sun Sign
+          </p>
+          <p className="text-[10px]" style={{ color: '#9CA3AF' }}>
+            Your Sun sign is <strong style={{ color: TEAL }}>{reading.westernSunSign}</strong> — highlighted below.
+          </p>
+          <div className="grid grid-cols-3 sm:grid-cols-4 gap-1.5">
+            {WESTERN_SIGNS.map(s => {
+              const isUser = s === reading.westernSunSign;
+              const isSel = s === selectedZodiac;
+              return (
+                <button key={s} onClick={() => setSelectedZodiac(s)}
+                  className="relative px-2 py-2 text-xs font-medium rounded-lg border transition-all text-left"
+                  style={isSel
+                    ? { background: `linear-gradient(135deg,rgba(26,107,107,0.12),rgba(212,136,10,0.08))`, borderColor: TEAL, color: TEAL }
+                    : { background: '#FAFAF8', borderColor: '#E5E7EB', color: '#4B5563' }}>
+                  <span className="mr-1">{ZODIAC_EMOJI[s] || '•'}</span>
+                  {s}
+                  {isUser && <span className="absolute top-0.5 right-1 text-[8px]" style={{ color: AMBER }}>★ You</span>}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {subTab === 'chinese' && (
+        <div className="space-y-2">
+          <p className="text-xs font-bold uppercase tracking-wider" style={{ color: TEAL }}>
+            Select Chinese Zodiac Animal
+          </p>
+          <p className="text-[10px]" style={{ color: '#9CA3AF' }}>
+            Your animal is <strong style={{ color: TEAL }}>{reading.chineseZodiac?.animal}</strong> — highlighted below.
+          </p>
+          <div className="grid grid-cols-3 sm:grid-cols-4 gap-1.5">
+            {CHINESE_ANIMALS.map(a => {
+              const isUser = a === reading.chineseZodiac?.animal;
+              const isSel = a === selectedAnimal;
+              return (
+                <button key={a} onClick={() => setSelectedAnimal(a)}
+                  className="relative px-2 py-2 text-xs font-medium rounded-lg border transition-all text-left"
+                  style={isSel
+                    ? { background: `linear-gradient(135deg,rgba(26,107,107,0.12),rgba(212,136,10,0.08))`, borderColor: TEAL, color: TEAL }
+                    : { background: '#FAFAF8', borderColor: '#E5E7EB', color: '#4B5563' }}>
+                  <span className="mr-1">{ANIMAL_EMOJI[a] || '•'}</span>
+                  {a}
+                  {isUser && <span className="absolute top-0.5 right-1 text-[8px]" style={{ color: AMBER }}>★ You</span>}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {subTab === 'personal' && !text && !loading && (
+        <div className="rounded-xl p-4 border" style={{ background: 'rgba(26,107,107,0.04)', borderColor: 'rgba(26,107,107,0.15)' }}>
+          <p className="text-xs" style={{ color: '#6B7280' }}>
+            🔮 This reading uses your <strong>exact birth chart</strong> — {reading.lagnaSign} Lagna, {reading.moonSign} Moon, {reading.moonNakshatraName} Nakshatra, {reading.currentDasha}/{reading.currentAntardasha} dasha — for a deeply personal forecast.
+          </p>
+        </div>
+      )}
+
+      {/* Generate button */}
+      {(subTab !== 'personal' || (!text && !loading)) && lastKey !== fetchKey && (
+        <button onClick={handleGenerate} disabled={loading}
+          className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+          style={{ background: `linear-gradient(135deg,${TEAL} 0%,#1E8080 40%,${AMBER} 100%)`, color: '#fff', boxShadow: '0 4px 20px rgba(26,107,107,0.28)' }}>
+          {loading
+            ? <><span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> Consulting the stars…</>
+            : subTab === 'personal' ? '🔮 Generate My Personal Forecast'
+            : subTab === 'rashi' ? `🕉️ Get ${selectedRashi.split(' (')[0]} Rashi Forecast`
+            : subTab === 'zodiac' ? `♈ Get ${selectedZodiac} Horoscope`
+            : `☯️ Get ${selectedAnimal} Forecast`}
+        </button>
+      )}
+
+      {/* Loading */}
+      {loading && <ReadingSkeleton />}
+
+      {/* Result */}
+      {text && (
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: TEAL }}>
+              {subTab === 'personal' ? '🔮 Personal Forecast' : subTab === 'rashi' ? `🕉️ ${selectedRashi}` : subTab === 'zodiac' ? `♈ ${selectedZodiac}` : `☯️ ${selectedAnimal}`}
+              {' · '}{timeframe === 'current' ? 'This Week' : timeframe === 'next_week' ? 'Next Week' : 'Full Month'}
+            </p>
+            <button onClick={() => { setText(''); setLastKey(''); }}
+              className="text-[10px] px-3 py-1 rounded-full border font-medium"
+              style={{ color: TEAL, borderColor: 'rgba(26,107,107,0.3)' }}>
+              ← New Forecast
+            </button>
+          </div>
+          <PersonalText text={text} />
+          <p className="text-xs mt-3 pt-3 border-t text-center" style={{ color: '#9CA3AF', borderColor: 'rgba(0,0,0,0.07)' }}>
+            For entertainment &amp; information only · Not professional advice · Consult a qualified professional before making any major life decision
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─── Vastu Section ─────────────────────────────────────────────────────────────
 // Standalone Vastu tab with its own mini-form.
 // House city is MANDATORY. Person DOB and Partner DOB are OPTIONAL.
@@ -392,9 +672,9 @@ function VastuSection({ reading }: { reading: FullReading }) {
     <div className="space-y-5">
       {/* Header */}
       <div>
-        <h2 className="text-lg font-bold" style={{ fontFamily:'Cinzel,Georgia,serif', color: TEAL_LOC }}>🏠 Vastu Compass</h2>
+        <h2 className="text-lg font-bold" style={{ fontFamily:'Cinzel,Georgia,serif', color: TEAL_LOC }}>🏠 Vastu &amp; Feng Shui Compass</h2>
         <p className="text-xs mt-1" style={{ color:'#6B7280' }}>
-          Location-aware Vastu — adjusted for your city's actual sun path, prevailing winds, and climate. Vedic principles meet real environmental science.
+          Three traditions, one space — Vedic Vastu Shastra + Chinese Feng Shui + modern environmental science. Location-aware, adjusted for your city&apos;s sun path, winds, and climate.
         </p>
       </div>
 
@@ -444,9 +724,12 @@ function VastuSection({ reading }: { reading: FullReading }) {
           }}
           placeholder="Type the city where the home is or will be built…"
         />
+        <p className="text-[10px]" style={{ color:'#9CA3AF' }}>
+          🔒 Privacy-first: We don&apos;t use browser location. Type to search — powered by OpenStreetMap.
+        </p>
         {form.houseLat !== 0 && (
           <p className="text-[10px]" style={{ color: TEAL_LOC }}>
-            📍 {climateProfile(form.houseLat, form.houseCity)}
+            � {climateProfile(form.houseLat, form.houseCity)}
           </p>
         )}
         {form.houseLat !== 0 && (
@@ -536,7 +819,7 @@ function VastuSection({ reading }: { reading: FullReading }) {
           style={{ background:`linear-gradient(135deg,${TEAL_LOC} 0%,#1E8080 40%,${AMBER_LOC} 100%)`, color:'#fff', boxShadow:'0 4px 20px rgba(26,107,107,0.28)' }}>
           {loading
             ? <><span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> Analysing your space…</>
-            : '🏠 Generate My Vastu Reading'}
+            : '🏠 Generate Vastu & Feng Shui Reading'}
         </button>
       )}
 
@@ -545,7 +828,7 @@ function VastuSection({ reading }: { reading: FullReading }) {
         <div ref={resultRef} className="space-y-4 pt-2">
           <div className="flex items-center justify-between">
             <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: TEAL_LOC }}>
-              🏠 Vastu Reading · {form.houseCity}
+              🏠 Vastu & Feng Shui · {form.houseCity}
             </p>
             <button onClick={() => { setText(''); setSubmitted(false); }}
               className="text-[10px] px-3 py-1 rounded-full border font-medium"
@@ -555,7 +838,7 @@ function VastuSection({ reading }: { reading: FullReading }) {
           </div>
           <PersonalText text={text} />
           <p className="text-xs mt-3 pt-3 border-t text-center" style={{ color:'#9CA3AF', borderColor:'rgba(0,0,0,0.07)' }}>
-            For entertainment &amp; information only · Not professional structural or architectural advice · Consult a qualified Vastu consultant before making structural changes
+            For entertainment &amp; information only · Vastu &amp; Feng Shui are traditional wisdom, not professional structural or architectural advice · Consult a licensed architect for structural changes
           </p>
         </div>
       )}
@@ -799,7 +1082,7 @@ export default function ReportCard({ t: _t, reading }: ReportCardProps) {
   const [tab, setTab] = useState<TabId>('overview');
   const [lang, setLang] = useState<string>(reading.language ?? 'en');
   const birthYear = parseInt(reading.dob?.split('-')[0] || '1990', 10);
-  const AI_TABS: TabId[] = ['overview','love','career','health','timeline','spiritual','weekly'];
+  const AI_TABS: TabId[] = ['overview','love','career','health','timeline','spiritual'];
   const trad = reading.tradition ?? 'all';
   const isVedic    = trad === 'vedic'    || trad === 'all';
   const isWestern  = trad === 'western'  || trad === 'all';
@@ -897,7 +1180,7 @@ export default function ReportCard({ t: _t, reading }: ReportCardProps) {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 rounded-2xl p-1 overflow-x-auto" style={{ background:'rgba(26,107,107,0.06)' }}>
+      <div className="flex flex-wrap gap-1.5 rounded-2xl p-1.5" style={{ background:'rgba(26,107,107,0.06)' }}>
         {TABS.map(({ id, label }) => (
           <button key={id} onClick={() => setTab(id)}
             className="whitespace-nowrap px-3 py-2 text-xs sm:text-sm font-medium rounded-xl transition-all"
@@ -915,6 +1198,7 @@ export default function ReportCard({ t: _t, reading }: ReportCardProps) {
           className="rounded-2xl p-5 sm:p-6 border" style={{ background:'#FFFDF8', borderColor:'#E5E7EB', minHeight:'320px' }}>
 
           {AI_TABS.includes(tab) && <AISection sectionId={tab} reading={reading} />}
+          {tab === 'weekly' && <WeeklyReportSection reading={reading} />}
           {tab === 'vastu' && <VastuSection reading={reading} />}
 
           {tab === 'charts' && (

@@ -31,6 +31,7 @@ export default function DisclaimerBanner({ t }: DisclaimerBannerProps) {
             style={{
               background: 'rgba(20,70,70,0.93)',
               backdropFilter: 'blur(16px)',
+              WebkitBackdropFilter: 'blur(16px)',
               border: '1px solid rgba(255,255,255,0.12)',
               boxShadow: '0 8px 40px rgba(26,107,107,0.5)',
               maxWidth: '580px',

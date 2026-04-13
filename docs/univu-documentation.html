@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Univu — Complete Project Documentation</title>
+<style>
+  :root {
+    --teal: #1A6B6B;
+    --teal-light: #2A8A8A;
+    --amber: #D4880A;
+    --bg: #FDF6E8;
+    --card: #FFFFFF;
+    --text: #1F2937;
+    --text-muted: #6B7280;
+    --border: #E5E7EB;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+  
+  /* Header */
+  .doc-header { background: linear-gradient(135deg, var(--teal) 0%, #1E8080 40%, var(--amber) 100%); color: #fff; padding: 2rem; text-align: center; }
+  .doc-header h1 { font-family: 'Georgia', serif; font-size: 2rem; letter-spacing: 0.08em; margin-bottom: 0.25rem; }
+  .doc-header p { opacity: 0.85; font-size: 0.875rem; }
+  .doc-header .meta { margin-top: 0.75rem; font-size: 0.75rem; opacity: 0.7; }
+
+  /* Tab Navigation */
+  .tab-nav { display: flex; gap: 0; background: #fff; border-bottom: 2px solid var(--border); position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+  .tab-btn { flex: 1; padding: 1rem 1.5rem; font-size: 0.875rem; font-weight: 600; border: none; background: transparent; cursor: pointer; transition: all 0.2s; color: var(--text-muted); border-bottom: 3px solid transparent; }
+  .tab-btn:hover { background: rgba(26,107,107,0.04); color: var(--teal); }
+  .tab-btn.active { color: var(--teal); border-bottom-color: var(--teal); background: rgba(26,107,107,0.06); }
+  
+  /* Tab Content */
+  .tab-content { display: none; max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem; }
+  .tab-content.active { display: block; }
+
+  /* Cards */
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 1px 4px rgba(0,0,0,0.04); }
+  .card h2 { font-size: 1.25rem; color: var(--teal); margin-bottom: 0.75rem; border-bottom: 2px solid rgba(26,107,107,0.15); padding-bottom: 0.5rem; }
+  .card h3 { font-size: 1rem; color: var(--teal-light); margin: 1rem 0 0.5rem; }
+  .card h4 { font-size: 0.875rem; color: var(--amber); margin: 0.75rem 0 0.25rem; }
+
+  /* Tables */
+  table { width: 100%; border-collapse: collapse; margin: 0.75rem 0; font-size: 0.8125rem; }
+  th, td { padding: 0.5rem 0.75rem; text-align: left; border: 1px solid var(--border); }
+  th { background: rgba(26,107,107,0.08); color: var(--teal); font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.04em; }
+  tr:nth-child(even) { background: rgba(26,107,107,0.02); }
+
+  /* Code */
+  code { background: rgba(26,107,107,0.08); color: var(--teal); padding: 0.15rem 0.4rem; border-radius: 4px; font-size: 0.8125rem; font-family: 'SF Mono', Monaco, monospace; }
+  pre { background: #1E1B17; color: #E5E7EB; padding: 1rem; border-radius: 8px; overflow-x: auto; margin: 0.75rem 0; font-size: 0.75rem; line-height: 1.5; }
+  pre code { background: none; color: inherit; padding: 0; }
+
+  /* Lists */
+  ul, ol { padding-left: 1.25rem; margin: 0.5rem 0; }
+  li { margin: 0.25rem 0; font-size: 0.875rem; }
+
+  /* Badges */
+  .badge { display: inline-block; padding: 0.15rem 0.5rem; border-radius: 999px; font-size: 0.6875rem; font-weight: 600; margin-right: 0.25rem; }
+  .badge-teal { background: rgba(26,107,107,0.12); color: var(--teal); }
+  .badge-amber { background: rgba(212,136,10,0.12); color: var(--amber); }
+  .badge-green { background: rgba(34,197,94,0.12); color: #16a34a; }
+  .badge-red { background: rgba(239,68,68,0.12); color: #dc2626; }
+  .badge-blue { background: rgba(59,130,246,0.12); color: #2563eb; }
+
+  /* Status indicators */
+  .status { display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 0; }
+  .status-dot { width: 8px; height: 8px; border-radius: 50%; }
+  .status-done { background: #22c55e; }
+  .status-pending { background: #f59e0b; }
+  .status-blocked { background: #ef4444; }
+
+  /* Architecture diagram */
+  .arch-diagram { background: #fff; border: 2px solid var(--border); border-radius: 12px; padding: 1.5rem; margin: 1rem 0; overflow-x: auto; }
+  .arch-box { display: inline-block; border: 2px solid; border-radius: 8px; padding: 0.5rem 0.75rem; margin: 0.25rem; font-size: 0.75rem; font-weight: 600; text-align: center; min-width: 120px; }
+  .arch-page { border-color: var(--teal); background: rgba(26,107,107,0.06); color: var(--teal); }
+  .arch-component { border-color: var(--teal-light); background: rgba(42,138,138,0.06); color: var(--teal-light); }
+  .arch-api { border-color: var(--amber); background: rgba(212,136,10,0.06); color: var(--amber); }
+  .arch-lib { border-color: #6366f1; background: rgba(99,102,241,0.06); color: #6366f1; }
+  .arch-arrow { color: var(--text-muted); font-size: 1.25rem; margin: 0 0.25rem; vertical-align: middle; }
+
+  /* Flow diagrams using CSS grid */
+  .flow-grid { display: grid; gap: 0.5rem; margin: 1rem 0; }
+  .flow-box { border: 1.5px solid; border-radius: 8px; padding: 0.75rem; font-size: 0.75rem; }
+  .flow-arrow-down { text-align: center; color: var(--text-muted); font-size: 1.5rem; line-height: 1; }
+  .flow-arrow-right { color: var(--text-muted); font-size: 1.25rem; display: flex; align-items: center; justify-content: center; }
+
+  /* Highlight */
+  .highlight { background: rgba(212,136,10,0.08); border-left: 3px solid var(--amber); padding: 0.75rem 1rem; border-radius: 0 8px 8px 0; margin: 0.75rem 0; font-size: 0.8125rem; }
+  .note { background: rgba(26,107,107,0.06); border-left: 3px solid var(--teal); padding: 0.75rem 1rem; border-radius: 0 8px 8px 0; margin: 0.75rem 0; font-size: 0.8125rem; }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .tab-btn { padding: 0.75rem 0.5rem; font-size: 0.75rem; }
+    .tab-content { padding: 1rem; }
+    .card { padding: 1rem; }
+    table { font-size: 0.75rem; }
+    th, td { padding: 0.35rem 0.5rem; }
+  }
+
+  /* Print */
+  @media print {
+    .tab-nav { display: none; }
+    .tab-content { display: block !important; page-break-before: always; }
+    .tab-content:first-of-type { page-break-before: auto; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════ HEADER ═══════════ -->
+<div class="doc-header">
+  <h1>UNIVU</h1>
+  <p>Cosmic Blueprint — Complete Project Documentation</p>
+  <div class="meta">
+    Next.js 14 &middot; React 18 &middot; TypeScript 5.4 &middot; Groq AI &middot; 19 Languages &middot; Vercel<br>
+    Last Updated: April 13, 2026 &middot; Repository: ramarepalli86-hue/univu &middot; Live: univu.vercel.app
+  </div>
+</div>
+
+<!-- ═══════════ TAB NAVIGATION ═══════════ -->
+<div class="tab-nav">
+  <button class="tab-btn active" onclick="switchTab('requirements')">📋 Requirements &amp; Specs</button>
+  <button class="tab-btn" onclick="switchTab('architecture')">🏗️ Architecture Diagram</button>
+  <button class="tab-btn" onclick="switchTab('design')">🎨 Detailed Design</button>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<!-- TAB 1: REQUIREMENTS & SPECS                                               -->
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<div id="tab-requirements" class="tab-content active">
+
+  <!-- Project Overview -->
+  <div class="card">
+    <h2>1. Project Overview</h2>
+    <table>
+      <tr><th style="width:180px;">Item</th><th>Detail</th></tr>
+      <tr><td>Product Name</td><td><strong>Univu — Cosmic Blueprint</strong></td></tr>
+      <tr><td>Tagline</td><td>"See the universe. Know yourself."</td></tr>
+      <tr><td>Purpose</td><td>Multi-tradition astrology platform: Vedic + Western + Chinese + Egyptian + Mayan. AI-powered personalized readings.</td></tr>
+      <tr><td>Live URL</td><td><a href="https://univu.vercel.app" target="_blank">univu.vercel.app</a></td></tr>
+      <tr><td>Repository</td><td><code>ramarepalli86-hue/univu</code> (private)</td></tr>
+      <tr><td>Deploy</td><td>Vercel free tier, auto-deploy on <code>git push origin main</code></td></tr>
+      <tr><td>Machine</td><td>MacBook Air Apple Silicon, zsh, Node v25.8.2</td></tr>
+    </table>
+  </div>
+
+  <!-- Tech Stack -->
+  <div class="card">
+    <h2>2. Technology Stack</h2>
+    <table>
+      <tr><th>Layer</th><th>Technology</th><th>Version</th><th>Purpose</th></tr>
+      <tr><td>Framework</td><td>Next.js (App Router)</td><td>14.2.35</td><td>SSR, API routes, file-based routing</td></tr>
+      <tr><td>UI</td><td>React</td><td>18.3</td><td>Component rendering</td></tr>
+      <tr><td>Language</td><td>TypeScript</td><td>5.4</td><td>Type safety</td></tr>
+      <tr><td>Styling</td><td>Tailwind CSS</td><td>3.4</td><td>Utility-first styling</td></tr>
+      <tr><td>Animation</td><td>Framer Motion</td><td>11.x</td><td>Page transitions, micro-animations</td></tr>
+      <tr><td>3D</td><td>Three.js</td><td>0.183</td><td>CelestialScene intro (with WebGL fallback)</td></tr>
+      <tr><td>AI Model</td><td>Groq SDK → llama-3.3-70b-versatile</td><td>1.1.2</td><td>Personalized readings, weekly forecasts, Vastu</td></tr>
+      <tr><td>Geocoding</td><td>OpenStreetMap Nominatim</td><td>API</td><td>City autocomplete (no browser geolocation)</td></tr>
+      <tr><td>Deploy</td><td>Vercel</td><td>Free tier</td><td>Hosting, serverless functions, edge</td></tr>
+    </table>
+  </div>
+
+  <!-- Astrology Engine -->
+  <div class="card">
+    <h2>3. Astrology Engine Requirements — <code>src/lib/astrology.ts</code> (~2067 lines)</h2>
+    <p>All readings are <strong>computed dynamically</strong> per user input. No pre-stored data. No external astrology APIs.</p>
+    
+    <h3>3.1 Core Calculations</h3>
+    <table>
+      <tr><th>Calculation</th><th>Method</th><th>Output</th></tr>
+      <tr><td>Lahiri Ayanamsa</td><td>23.856° + (year - 2000) × 0.01397°</td><td>Degrees offset for sidereal conversion</td></tr>
+      <tr><td>Sun Position</td><td>Julian Day → mean longitude + equation of center − ayanamsa</td><td>Sun Rashi (0-11), Sun Sign</td></tr>
+      <tr><td>Moon Position</td><td>Mean longitude + evection + annual eq + equation of center − ayanamsa</td><td>Moon Rashi, Nakshatra (0-26), Pada (1-4)</td></tr>
+      <tr><td>Ascendant (Lagna)</td><td>GST → LST → RAMC → atan2 computation − ayanamsa</td><td>Lagna Rashi, 12 houses (equal house system)</td></tr>
+      <tr><td>9 Planets (Navagraha)</td><td>Individual orbital formulas per planet</td><td>Rashi, house, degree for Sun through Ketu</td></tr>
+      <tr><td>Tithi</td><td>floor((Moon° - Sun°) / 12) + 1</td><td>Lunar day 1-30 (Shukla/Krishna)</td></tr>
+      <tr><td>Yoga</td><td>floor((Sun° + Moon°) / 13.333)</td><td>1 of 27 Yogas</td></tr>
+      <tr><td>Karana</td><td>floor(angular_diff / 6)</td><td>1 of 11 Karanas</td></tr>
+      <tr><td>Vimshottari Dasha</td><td>Moon nakshatra → 120-year cycle</td><td>Mahadasha + Antardasha timeline</td></tr>
+      <tr><td>Manglik Check</td><td>Mars in houses 1,2,4,7,8,12 from Lagna/Moon</td><td>isManglik, cancellations</td></tr>
+      <tr><td>Sade Sati</td><td>Saturn in 12th/1st/2nd from Moon</td><td>isActive, phase</td></tr>
+      <tr><td>Atmakaraka</td><td>Highest-degree planet (Sun–Saturn)</td><td>Soul planet + meaning</td></tr>
+      <tr><td>Egyptian Decan</td><td>Sun sidereal degree → 36 decans</td><td>Deity, ruler, traits</td></tr>
+      <tr><td>Mayan Tzolkin</td><td>Julian Day offset → 260-day cycle</td><td>Day sign, tone, meaning</td></tr>
+      <tr><td>Chinese Zodiac</td><td>Lunar year boundary → animal/element</td><td>Animal, element, yin/yang, compatibility</td></tr>
+    </table>
+
+    <h3>3.2 Static Report Generation (in astrology.ts)</h3>
+    <table>
+      <tr><th>Report</th><th>Function</th><th>Size</th></tr>
+      <tr><td>Personality</td><td><code>generatePersonalityReport()</code></td><td>~1000 words</td></tr>
+      <tr><td>House Analysis</td><td><code>generateHouseAnalysis()</code></td><td>~1500 words</td></tr>
+      <tr><td>Life Timeline</td><td><code>generateLifeTimeline()</code></td><td>~1000 words</td></tr>
+      <tr><td>Love & Marriage</td><td><code>generateLoveReport()</code></td><td>~1200 words</td></tr>
+      <tr><td>Career & Wealth</td><td><code>generateCareerReport()</code></td><td>~1000 words</td></tr>
+      <tr><td>Health</td><td><code>generateHealthReport()</code></td><td>~1000 words</td></tr>
+      <tr><td>Spiritual / Karmic</td><td><code>generateSpiritualReport()</code></td><td>~1000 words</td></tr>
+      <tr><td>Egyptian Decan</td><td><code>generateEgyptianReport()</code></td><td>~500 words</td></tr>
+      <tr><td>Mayan Tzolkin</td><td><code>generateMayanReport()</code></td><td>~400 words</td></tr>
+      <tr><td>Remedies</td><td><code>generateRemedies()</code></td><td>Lal Kitab + classical</td></tr>
+      <tr><td>Story Narrative</td><td><code>generateStoryNarrative()</code></td><td>Cinematic prose</td></tr>
+    </table>
+  </div>
+
+  <!-- AI Requirements -->
+  <div class="card">
+    <h2>4. AI-Powered Readings Requirements</h2>
+    
+    <h3>4.1 Personal Reading API — <code>/api/personal-reading</code></h3>
+    <table>
+      <tr><th>Section ID</th><th>Purpose</th><th>Max Tokens</th><th>Requires Birth Chart?</th></tr>
+      <tr><td><code>overview</code></td><td>Cosmic Snapshot — who you are, what's happening now</td><td>900</td><td>Yes</td></tr>
+      <tr><td><code>love</code></td><td>Love & Marriage — Venus, 7th house, timing</td><td>900</td><td>Yes</td></tr>
+      <tr><td><code>career</code></td><td>Career & Wealth — 10th house, dasha timing</td><td>900</td><td>Yes</td></tr>
+      <tr><td><code>health</code></td><td>Health & Vitality — body constitution, food Rx</td><td>900</td><td>Yes</td></tr>
+      <tr><td><code>timeline</code></td><td>Life Cycles — past/present/future with years</td><td>900</td><td>Yes</td></tr>
+      <tr><td><code>spiritual</code></td><td>Soul Purpose — Rahu-Ketu axis, Atmakaraka</td><td>900</td><td>Yes</td></tr>
+      <tr><td><code>weekly</code></td><td>Personal Week — chart-specific 7-day forecast</td><td>900</td><td>Yes</td></tr>
+      <tr><td><code>weekly_rashi</code></td><td>Vedic Rashi forecast (generic by sign)</td><td>900 / 1200*</td><td><span class="badge badge-green">No</span></td></tr>
+      <tr><td><code>weekly_zodiac</code></td><td>Western Zodiac horoscope (generic by sign)</td><td>900 / 1200*</td><td><span class="badge badge-green">No</span></td></tr>
+      <tr><td><code>weekly_chinese</code></td><td>Chinese Year animal forecast (generic)</td><td>900 / 1200*</td><td><span class="badge badge-green">No</span></td></tr>
+      <tr><td><code>weekly_personal</code></td><td>Personal chart-specific forecast</td><td>900 / 1200*</td><td>Yes</td></tr>
+      <tr><td><code>vastu</code></td><td>Vastu + Feng Shui + Science (location-aware)</td><td>1200</td><td><span class="badge badge-green">No</span></td></tr>
+    </table>
+    <p style="font-size:0.75rem;color:var(--text-muted);">* 1200 tokens when timeframe = "month"</p>
+
+    <h3>4.2 AI System Rules</h3>
+    <ol>
+      <li>Use only "the Seeker" as name — never invent names</li>
+      <li>Correct pronouns based on gender</li>
+      <li>Never write generic planet descriptions</li>
+      <li>Timing sections MANDATORY — give real years</li>
+      <li>Be honest about difficulties, then show the path</li>
+      <li>Write like a wise, warm friend</li>
+      <li>Use bold headings exactly as given</li>
+      <li>Never give vague non-answers</li>
+      <li>Apply the specific Vedic system (Parashari/KP/Jaimini/Lal Kitab)</li>
+      <li>Frame everything positively — NEVER fear-based</li>
+    </ol>
+
+    <h3>4.3 PII Protection</h3>
+    <ul>
+      <li>Real name replaced with "the Seeker" before sending to AI model</li>
+      <li>Client-side: "the Seeker" → real first name after response received</li>
+      <li>No user data stored or logged</li>
+      <li>No browser geolocation — CityAutocomplete uses OpenStreetMap Nominatim</li>
+    </ul>
+  </div>
+
+  <!-- Intake Form Requirements -->
+  <div class="card">
+    <h2>5. Intake Form Requirements</h2>
+    <table>
+      <tr><th>Field</th><th>Type</th><th>Required</th><th>Notes</th></tr>
+      <tr><td>Full Name</td><td>Text</td><td>Yes</td><td>placeholder: "e.g. Arjun Mehta"</td></tr>
+      <tr><td>Date of Birth</td><td>Date picker</td><td>Yes</td><td>max = today</td></tr>
+      <tr><td>Time of Birth</td><td>Time picker</td><td>No</td><td>"Check birth certificate" hint</td></tr>
+      <tr><td>Place of Birth</td><td>CityAutocomplete</td><td>Yes</td><td>OpenStreetMap Nominatim search</td></tr>
+      <tr><td>Current Location</td><td>CityAutocomplete</td><td>Yes</td><td>For Vastu/transit calculations</td></tr>
+      <tr><td>Gender</td><td>Chip toggle</td><td>Yes</td><td>Male / Female / Non-binary / They-Them / Prefer not to say</td></tr>
+      <tr><td>Marital Status</td><td>Chip toggle</td><td>Yes</td><td>Single / Married / Divorced / Widowed</td></tr>
+      <tr><td>Employment</td><td>Chip toggle</td><td>Yes</td><td>Employed / Self-employed / Student / Unemployed / Retired</td></tr>
+      <tr><td>Astrology Tradition</td><td>Card toggle</td><td>Yes</td><td>All / Vedic / Western / Chinese / Egyptian / Mayan</td></tr>
+      <tr><td>Primary Concern</td><td>Textarea</td><td>Yes</td><td>Career, relationships, health...</td></tr>
+      <tr><td>Language</td><td>Dropdown</td><td>Yes</td><td>19 languages</td></tr>
+      <tr><td>Consent</td><td>Checkbox</td><td>Yes</td><td>"I am 18+ or parent/guardian — entertainment only"</td></tr>
+    </table>
+  </div>
+
+  <!-- Top-Level Navigation -->
+  <div class="card">
+    <h2>6. Top-Level Navigation Requirements</h2>
+    <div class="highlight">
+      <strong>PENDING:</strong> The main page currently has 2 top-level tabs. The requirement is to expand to 4 top-level tabs, all accessible without filling the birth chart form.
+    </div>
+    <table>
+      <tr><th>#</th><th>Tab</th><th>Icon</th><th>Requires Birth Chart?</th><th>Status</th></tr>
+      <tr><td>1</td><td>My Astrology</td><td>🔮</td><td>Yes (shows IntakeForm → ReportCard)</td><td><span class="badge badge-green">Done</span></td></tr>
+      <tr><td>2</td><td>Weekly Forecast</td><td>📅</td><td><strong>No</strong> — pick sign, get forecast</td><td><span class="badge badge-amber">Component built, not wired to page</span></td></tr>
+      <tr><td>3</td><td>Vastu &amp; Feng Shui</td><td>🏠</td><td><strong>No</strong> — enter house city, get reading</td><td><span class="badge badge-amber">Component built, not wired to page</span></td></tr>
+      <tr><td>4</td><td>Panchangam</td><td>🪷</td><td><strong>No</strong> — daily calendar</td><td><span class="badge badge-green">Done</span></td></tr>
+    </table>
+
+    <h3>6.1 Weekly Forecast (Standalone) — <code>WeeklyForecast.tsx</code></h3>
+    <ul>
+      <li><strong>3 Sub-tabs:</strong> By Rashi (Vedic), By Zodiac (Western), Chinese Year</li>
+      <li><strong>3 Timeframes:</strong> This Week, Next Week, Full Month</li>
+      <li><strong>No birth chart needed</strong> — user picks their sign/animal and gets a forecast</li>
+      <li>Uses <code>/api/personal-reading</code> with sections: <code>weekly_rashi</code>, <code>weekly_zodiac</code>, <code>weekly_chinese</code></li>
+      <li>Sends minimal context (placeholder values for birth chart fields)</li>
+    </ul>
+
+    <h3>6.2 Vastu &amp; Feng Shui (Standalone) — <code>VastuFengShui.tsx</code></h3>
+    <ul>
+      <li><strong>3 Modes:</strong> Place Only, For Me (DOB optional), For Us (couple)</li>
+      <li><strong>Mandatory:</strong> House city (CityAutocomplete)</li>
+      <li><strong>Optional:</strong> Person DOB/time/birth city, Partner DOB/time/birth city</li>
+      <li><strong>Three traditions:</strong> Vedic Vastu Shastra + Chinese Feng Shui + Environmental Science</li>
+      <li>Location-aware: climate profile, sun path, prevailing winds computed from lat/lng</li>
+      <li>Uses <code>/api/personal-reading</code> section: <code>vastu</code>, max_tokens: 1200</li>
+    </ul>
+  </div>
+
+  <!-- ReportCard Tabs -->
+  <div class="card">
+    <h2>7. ReportCard Tabs (Inside Astrology View)</h2>
+    <table>
+      <tr><th>#</th><th>Tab ID</th><th>Label</th><th>Content Source</th></tr>
+      <tr><td>1</td><td><code>overview</code></td><td>✨ Cosmic Snapshot</td><td>AI + Panchanga + stat badges + Nakshatra</td></tr>
+      <tr><td>2</td><td><code>love</code></td><td>💞 Love &amp; Bonds</td><td>AI reading</td></tr>
+      <tr><td>3</td><td><code>career</code></td><td>🏆 Wealth &amp; Path</td><td>AI reading</td></tr>
+      <tr><td>4</td><td><code>health</code></td><td>🌿 Vitality</td><td>AI reading</td></tr>
+      <tr><td>5</td><td><code>timeline</code></td><td>🗓 Life Cycles</td><td>AI reading</td></tr>
+      <tr><td>6</td><td><code>spiritual</code></td><td>🔮 Purpose</td><td>AI reading</td></tr>
+      <tr><td>7</td><td><code>weekly</code></td><td>📅 This Week</td><td>WeeklyReportSection (4 sub-tabs with personal option)</td></tr>
+      <tr><td>8</td><td><code>vastu</code></td><td>🏠 Vastu &amp; Feng Shui</td><td>VastuSection (pre-filled from chart)</td></tr>
+      <tr><td>9</td><td><code>charts</code></td><td>🪐 Sky Charts</td><td>VedicChart + WesternChart + tradition cards</td></tr>
+      <tr><td>10</td><td><code>story</code></td><td>🎬 Story</td><td>StoryAnimator cinematic life scenes</td></tr>
+    </table>
+  </div>
+
+  <!-- Security Requirements -->
+  <div class="card">
+    <h2>8. Security &amp; Privacy Requirements</h2>
+    <table>
+      <tr><th>Requirement</th><th>Implementation</th></tr>
+      <tr><td>Rate Limiting</td><td>100 requests/IP/minute (in-memory, <code>apiGuard.ts</code>)</td></tr>
+      <tr><td>Budget Guard</td><td>$100/month hard cap, $0.59/M tokens (llama-3.3-70b)</td></tr>
+      <tr><td>Input Sanitization</td><td><code>sanitise(value, maxLen)</code> — strips HTML, injection chars</td></tr>
+      <tr><td>Origin Check</td><td>Only <code>univu.vercel.app</code>, Vercel previews, localhost</td></tr>
+      <tr><td>No Geolocation</td><td>Browser geolocation blocked via Permissions-Policy header</td></tr>
+      <tr><td>PII Protection</td><td>Real name → "the Seeker" before AI model call</td></tr>
+      <tr><td>HTTP Headers</td><td>CSP, HSTS, X-Frame-Options: DENY, X-Content-Type-Options: nosniff</td></tr>
+      <tr><td>API Cache</td><td>Cache-Control: no-store on all API routes</td></tr>
+      <tr><td>Maintenance Mode</td><td>Middleware redirects prod to /maintenance when <code>MAINTENANCE=true</code></td></tr>
+    </table>
+  </div>
+
+  <!-- i18n Requirements -->
+  <div class="card">
+    <h2>9. Internationalization — 19 Languages</h2>
+    <table>
+      <tr><th>Code</th><th>Language</th><th>Native</th><th>Panchanga Localized?</th></tr>
+      <tr><td>en</td><td>English</td><td>English</td><td>Base</td></tr>
+      <tr><td>te</td><td>Telugu</td><td>తెలుగు</td><td>✅</td></tr>
+      <tr><td>hi</td><td>Hindi</td><td>हिन्दी</td><td>✅</td></tr>
+      <tr><td>ta</td><td>Tamil</td><td>தமிழ்</td><td>✅</td></tr>
+      <tr><td>kn</td><td>Kannada</td><td>ಕನ್ನಡ</td><td>✅</td></tr>
+      <tr><td>ml</td><td>Malayalam</td><td>മലയാളം</td><td>✅</td></tr>
+      <tr><td>mr</td><td>Marathi</td><td>मराठी</td><td>✅</td></tr>
+      <tr><td>bn</td><td>Bengali</td><td>বাংলা</td><td>✅</td></tr>
+      <tr><td>pa</td><td>Punjabi</td><td>ਪੰਜਾਬੀ</td><td>✅</td></tr>
+      <tr><td>gu</td><td>Gujarati</td><td>ગુજરાતી</td><td>✅</td></tr>
+      <tr><td>or</td><td>Odia</td><td>ଓଡ଼ିଆ</td><td>✅</td></tr>
+      <tr><td>as</td><td>Assamese</td><td>অসমীয়া</td><td>✅</td></tr>
+      <tr><td>zh</td><td>Mandarin</td><td>中文</td><td>—</td></tr>
+      <tr><td>es</td><td>Spanish</td><td>Español</td><td>—</td></tr>
+      <tr><td>fr</td><td>French</td><td>Français</td><td>—</td></tr>
+      <tr><td>de</td><td>German</td><td>Deutsch</td><td>—</td></tr>
+      <tr><td>it</td><td>Italian</td><td>Italiano</td><td>—</td></tr>
+      <tr><td>pt</td><td>Portuguese</td><td>Português</td><td>—</td></tr>
+      <tr><td>ru</td><td>Russian</td><td>Русский</td><td>—</td></tr>
+    </table>
+  </div>
+
+  <!-- Color Palette -->
+  <div class="card">
+    <h2>10. Visual Design Requirements</h2>
+    <h3>Color Palette — Luxury Aesthetic</h3>
+    <div class="highlight"><strong>RULE:</strong> No purple / violet / lavender ANYWHERE. Saffron is OK as warm accent.</div>
+    <table>
+      <tr><th>Token</th><th>Hex</th><th style="width:80px;">Sample</th><th>Usage</th></tr>
+      <tr><td>TEAL</td><td><code>#1A6B6B</code></td><td style="background:#1A6B6B;"></td><td>Primary brand, buttons, headings, active tabs</td></tr>
+      <tr><td>AMBER</td><td><code>#D4880A</code></td><td style="background:#D4880A;"></td><td>Warning banners, disclaimer, accent</td></tr>
+      <tr><td>TEAL_L</td><td><code>#2A8A8A</code></td><td style="background:#2A8A8A;"></td><td>Gradient endpoint, secondary teal</td></tr>
+      <tr><td>Page BG</td><td><code>#FDF6E8</code></td><td style="background:#FDF6E8;border:1px solid #ddd;"></td><td>Page background gradient start</td></tr>
+      <tr><td>Card</td><td><code>#FFFFFF</code></td><td style="background:#FFFFFF;border:1px solid #ddd;"></td><td>Card backgrounds</td></tr>
+      <tr><td>Text</td><td><code>#1F2937</code></td><td style="background:#1F2937;"></td><td>Body text</td></tr>
+      <tr><td>Text Muted</td><td><code>#6B7280</code></td><td style="background:#6B7280;"></td><td>Secondary text</td></tr>
+    </table>
+    <h3>Component Styles</h3>
+    <ul>
+      <li>Cards: white bg, subtle border, <code>rounded-2xl</code>, soft shadow</li>
+      <li>Buttons: Gradient TEAL → AMBER for primary CTA, solid TEAL for nav</li>
+      <li>Tabs: Active = gradient pill, inactive = transparent with gray text</li>
+      <li>Inputs: <code>rounded-xl</code>, 1.5px border, focus ring = TEAL</li>
+      <li>Backdrop blur: <code>backdrop-filter: blur(10px)</code> + <code>-webkit-backdrop-filter</code> for Safari</li>
+    </ul>
+  </div>
+
+  <!-- Build Status -->
+  <div class="card">
+    <h2>11. Current Build Status &amp; Pending Work</h2>
+    <h3>Completed ✅</h3>
+    <div class="status"><span class="status-dot status-done"></span> Astrology engine (2067 lines) — all calculations working</div>
+    <div class="status"><span class="status-dot status-done"></span> Intake form with CityAutocomplete (no geolocation)</div>
+    <div class="status"><span class="status-dot status-done"></span> ReportCard with 10 tabs including Weekly (4 sub-tabs) + Vastu</div>
+    <div class="status"><span class="status-dot status-done"></span> All 12 AI prompt sections (personal-reading API)</div>
+    <div class="status"><span class="status-dot status-done"></span> Panchangam with 11-language localization</div>
+    <div class="status"><span class="status-dot status-done"></span> StoryAnimator cinematic scenes</div>
+    <div class="status"><span class="status-dot status-done"></span> CosmicOracle floating chat</div>
+    <div class="status"><span class="status-dot status-done"></span> 19-language i18n</div>
+    <div class="status"><span class="status-dot status-done"></span> Browser compatibility fixes (Safari/Edge CSS, WebGL fallback)</div>
+    <div class="status"><span class="status-dot status-done"></span> Security: rate limiting (100/min), budget guard ($100/mo), PII protection</div>
+    <div class="status"><span class="status-dot status-done"></span> Standalone <code>WeeklyForecast.tsx</code> component (3 sub-tabs, no chart needed)</div>
+    <div class="status"><span class="status-dot status-done"></span> Standalone <code>VastuFengShui.tsx</code> component (3 modes, no chart needed)</div>
+
+    <h3>Pending 🔄</h3>
+    <div class="status"><span class="status-dot status-pending"></span> <strong>Wire top-level tabs in <code>page.tsx</code></strong> — expand view state from 2 tabs to 4 tabs (add Weekly &amp; Vastu)</div>
+    <div class="status"><span class="status-dot status-pending"></span> Maintenance mode still <code>true</code> in middleware — flip to <code>false</code> for launch</div>
+    <div class="status"><span class="status-dot status-pending"></span> Deploy latest changes to Vercel production</div>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<!-- TAB 2: ARCHITECTURE DIAGRAM                                                -->
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<div id="tab-architecture" class="tab-content">
+
+  <!-- System Overview -->
+  <div class="card">
+    <h2>System Architecture Overview</h2>
+    <div class="arch-diagram">
+      <div style="text-align:center;margin-bottom:1.5rem;">
+        <div style="font-size:0.6875rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.5rem;">Client (Browser)</div>
+        <div class="arch-box arch-page" style="min-width:200px;">page.tsx<br><span style="font-size:0.625rem;font-weight:400;">Top-level router: 4 views</span></div>
+      </div>
+      <div style="text-align:center;margin-bottom:0.75rem;">
+        <span class="arch-arrow">↓</span> <span style="font-size:0.625rem;color:var(--text-muted);">view state</span> <span class="arch-arrow">↓</span>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0.5rem;margin-bottom:1.5rem;">
+        <div class="arch-box arch-component" style="background:rgba(26,107,107,0.1);">🔮 IntakeForm<br>→ ReportCard<br><span style="font-size:0.5625rem;font-weight:400;">10 tabs, AI sections</span></div>
+        <div class="arch-box arch-component" style="background:rgba(212,136,10,0.08);border-color:var(--amber);">📅 WeeklyForecast<br><span style="font-size:0.5625rem;font-weight:400;">Standalone, 3 sub-tabs<br>No birth chart</span></div>
+        <div class="arch-box arch-component" style="background:rgba(212,136,10,0.08);border-color:var(--amber);">🏠 VastuFengShui<br><span style="font-size:0.5625rem;font-weight:400;">Standalone, 3 modes<br>No birth chart</span></div>
+        <div class="arch-box arch-component">🪷 Panchangam<br><span style="font-size:0.5625rem;font-weight:400;">Daily calendar<br>11-lang localization</span></div>
+      </div>
+      <div style="text-align:center;margin-bottom:0.75rem;">
+        <span class="arch-arrow">↓</span> <span style="font-size:0.625rem;color:var(--text-muted);">fetch()</span> <span class="arch-arrow">↓</span>
+      </div>
+      <div style="font-size:0.6875rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.5rem;text-align:center;">API Layer (Serverless Functions)</div>
+      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:0.5rem;margin-bottom:1.5rem;">
+        <div class="arch-box arch-api">/api/reading<br><span style="font-size:0.5625rem;font-weight:400;">Astro engine</span></div>
+        <div class="arch-box arch-api">/api/personal-reading<br><span style="font-size:0.5625rem;font-weight:400;">12 AI sections</span></div>
+        <div class="arch-box arch-api">/api/enrich-story<br><span style="font-size:0.5625rem;font-weight:400;">Scene narrator</span></div>
+        <div class="arch-box arch-api">/api/chat<br><span style="font-size:0.5625rem;font-weight:400;">Oracle chat</span></div>
+        <div class="arch-box arch-api">/api/usage-alert<br><span style="font-size:0.5625rem;font-weight:400;">Budget monitor</span></div>
+      </div>
+      <div style="text-align:center;margin-bottom:0.75rem;">
+        <span class="arch-arrow">↓</span> <span style="font-size:0.625rem;color:var(--text-muted);">calls</span> <span class="arch-arrow">↓</span>
+      </div>
+      <div style="font-size:0.6875rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.5rem;text-align:center;">Core Libraries &amp; External Services</div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0.5rem;">
+        <div class="arch-box arch-lib">astrology.ts<br><span style="font-size:0.5625rem;font-weight:400;">2067 lines<br>Full engine</span></div>
+        <div class="arch-box arch-lib">apiGuard.ts<br><span style="font-size:0.5625rem;font-weight:400;">Rate limit<br>Sanitize</span></div>
+        <div class="arch-box arch-lib">budget.ts<br><span style="font-size:0.5625rem;font-weight:400;">$100/mo cap</span></div>
+        <div class="arch-box" style="border-color:#059669;background:rgba(5,150,105,0.06);color:#059669;">Groq Cloud<br><span style="font-size:0.5625rem;font-weight:400;">llama-3.3-70b<br>External API</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Data Flow -->
+  <div class="card">
+    <h2>Data Flow — Astrology Reading</h2>
+    <div class="arch-diagram">
+      <div class="flow-grid" style="grid-template-columns: 1fr auto 1fr auto 1fr auto 1fr;">
+        <div class="flow-box" style="border-color:var(--teal);background:rgba(26,107,107,0.06);">
+          <strong>1. User Input</strong><br>
+          IntakeForm collects:<br>
+          Name, DOB, Time, City,<br>
+          Gender, Marital, Concern
+        </div>
+        <div class="flow-arrow-right">→</div>
+        <div class="flow-box" style="border-color:var(--amber);background:rgba(212,136,10,0.06);">
+          <strong>2. /api/reading</strong><br>
+          Sanitize inputs →<br>
+          <code>generateFullReading()</code><br>
+          Return FullReading JSON
+        </div>
+        <div class="flow-arrow-right">→</div>
+        <div class="flow-box" style="border-color:#6366f1;background:rgba(99,102,241,0.06);">
+          <strong>3. astrology.ts</strong><br>
+          Compute planets, dashas,<br>
+          rashis, nakshatras, yogas,<br>
+          manglik, sade sati, reports
+        </div>
+        <div class="flow-arrow-right">→</div>
+        <div class="flow-box" style="border-color:var(--teal);background:rgba(26,107,107,0.06);">
+          <strong>4. ReportCard</strong><br>
+          Display 10 tabs.<br>
+          AI tabs fetch from<br>
+          /api/personal-reading
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Data Flow: Weekly Standalone -->
+  <div class="card">
+    <h2>Data Flow — Standalone Weekly Forecast (No Birth Chart)</h2>
+    <div class="arch-diagram">
+      <div class="flow-grid" style="grid-template-columns: 1fr auto 1fr auto 1fr;">
+        <div class="flow-box" style="border-color:var(--teal);background:rgba(26,107,107,0.06);">
+          <strong>1. User Picks</strong><br>
+          Sub-tab: Rashi / Zodiac / Chinese<br>
+          Timeframe: Week / Next / Month<br>
+          Sign/Animal selection
+        </div>
+        <div class="flow-arrow-right">→</div>
+        <div class="flow-box" style="border-color:var(--amber);background:rgba(212,136,10,0.06);">
+          <strong>2. /api/personal-reading</strong><br>
+          Section: <code>weekly_rashi</code> |<br>
+          <code>weekly_zodiac</code> | <code>weekly_chinese</code><br>
+          Minimal context + sign + timeframe
+        </div>
+        <div class="flow-arrow-right">→</div>
+        <div class="flow-box" style="border-color:#059669;background:rgba(5,150,105,0.06);">
+          <strong>3. Groq AI</strong><br>
+          llama-3.3-70b generates<br>
+          sign-specific forecast<br>
+          900-1200 tokens
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Data Flow: Vastu Standalone -->
+  <div class="card">
+    <h2>Data Flow — Standalone Vastu &amp; Feng Shui (No Birth Chart)</h2>
+    <div class="arch-diagram">
+      <div class="flow-grid" style="grid-template-columns: 1fr auto 1fr auto 1fr;">
+        <div class="flow-box" style="border-color:var(--teal);background:rgba(26,107,107,0.06);">
+          <strong>1. User Enters</strong><br>
+          House city (CityAutocomplete)<br>
+          Mode: Place / Person / Couple<br>
+          Optional: DOB, partner DOB
+        </div>
+        <div class="flow-arrow-right">→</div>
+        <div class="flow-box" style="border-color:var(--amber);background:rgba(212,136,10,0.06);">
+          <strong>2. Client Computes</strong><br>
+          <code>climateProfile(lat)</code><br>
+          <code>sunWindProfile(lat, lng)</code><br>
+          Build enriched context
+        </div>
+        <div class="flow-arrow-right">→</div>
+        <div class="flow-box" style="border-color:#059669;background:rgba(5,150,105,0.06);">
+          <strong>3. Groq AI (vastu)</strong><br>
+          3 traditions analysis:<br>
+          Vastu + Feng Shui + Science<br>
+          1200 tokens, location-aware
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Component Tree -->
+  <div class="card">
+    <h2>Component Tree</h2>
+    <pre><code>page.tsx (HomePage)
+├── StarField                     [background particles]
+├── DisclaimerBanner              [top disclaimer bar]
+├── AgeGate                       [consent gate]
+├── LanguageSelector              [19-language picker]
+│
+├── [view === 'astrology']
+│   ├── IntakeForm                [12-field form]
+│   │   └── CityAutocomplete ×2  [OpenStreetMap Nominatim]
+│   └── ReportCard                [10-tab report]
+│       ├── AISection ×6          [overview, love, career, health, timeline, spiritual]
+│       ├── WeeklyReportSection   [4 sub-tabs: personal, rashi, zodiac, chinese]
+│       ├── VastuSection          [pre-filled from chart, 3 modes]
+│       ├── VedicChart            [South Indian square]
+│       ├── WesternChart          [Western wheel]
+│       └── StoryAnimator         [8 cinematic life chapters]
+│
+├── [view === 'weekly']
+│   └── WeeklyForecast            [STANDALONE: 3 sub-tabs, no birth chart]
+│
+├── [view === 'vastu']
+│   └── VastuFengShui             [STANDALONE: 3 modes, no birth chart]
+│       └── CityAutocomplete ×3   [house city + optional birth cities]
+│
+├── [view === 'panchangam']
+│   └── Panchangam                [daily calendar, 11 Indic scripts]
+│
+├── FeedbackWidget                [star rating + comment]
+└── AstroChat (CosmicOracle)      [floating AI chat, always visible]</code></pre>
+  </div>
+
+  <!-- API Endpoints -->
+  <div class="card">
+    <h2>API Endpoint Map</h2>
+    <table>
+      <tr><th>Endpoint</th><th>Method</th><th>Input</th><th>Output</th><th>Guard</th></tr>
+      <tr>
+        <td><code>/api/reading</code></td><td>POST</td>
+        <td>name, dob, timeOfBirth, birthLat, birthLng, birthCity, currentCity, gender, maritalStatus, employment, concern, chartType, vedicSystem, tradition, language</td>
+        <td><code>{ disclaimer, reading: FullReading }</code></td>
+        <td>apiGuard</td>
+      </tr>
+      <tr>
+        <td><code>/api/personal-reading</code></td><td>POST</td>
+        <td><code>{ section: string, context: ReadingContext }</code></td>
+        <td><code>{ text, section, tokensUsed }</code></td>
+        <td>apiGuard + budgetGuard</td>
+      </tr>
+      <tr>
+        <td><code>/api/enrich-story</code></td><td>POST</td>
+        <td>name, gender, sceneIndex, lagnaSign, moonSign, sunSign, birthYear, currentDasha, planets</td>
+        <td><code>{ enriched: string }</code></td>
+        <td>apiGuard + budgetGuard</td>
+      </tr>
+      <tr>
+        <td><code>/api/chat</code></td><td>POST</td>
+        <td>messages[], chartContext</td>
+        <td><code>{ reply: string }</code></td>
+        <td>apiGuard + budgetGuard</td>
+      </tr>
+      <tr>
+        <td><code>/api/usage-alert</code></td><td>GET</td>
+        <td>—</td>
+        <td>Budget stats JSON</td>
+        <td>apiGuard</td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- File Map -->
+  <div class="card">
+    <h2>File Map</h2>
+    <pre><code>src/
+├── app/
+│   ├── page.tsx                       ← Main page (4 top-level views)         326 lines
+│   ├── layout.tsx                     ← Root layout, meta, JSON-LD
+│   ├── globals.css                    ← Tailwind base
+│   ├── maintenance/page.tsx           ← Coming soon page
+│   ├── test/page.tsx                  ← Test page
+│   └── api/
+│       ├── reading/route.ts           ← Astrology engine endpoint             ~80 lines
+│       ├── personal-reading/route.ts  ← AI reading (12 sections)              655 lines
+│       ├── enrich-story/route.ts      ← Story scene AI                        ~193 lines
+│       ├── chat/route.ts              ← CosmicOracle chat
+│       └── usage-alert/route.ts       ← Budget monitoring
+├── components/
+│   ├── IntakeForm.tsx                 ← 12-field birth chart form
+│   ├── ReportCard.tsx                 ← 10-tab reading display                1713 lines
+│   ├── WeeklyForecast.tsx             ← STANDALONE weekly (3 sub-tabs)        330 lines  [NEW]
+│   ├── VastuFengShui.tsx              ← STANDALONE vastu (3 modes)            394 lines  [NEW]
+│   ├── Panchangam.tsx                 ← Daily Vedic calendar                  453 lines
+│   ├── StoryAnimator.tsx              ← Cinematic life story                  ~918 lines
+│   ├── CosmicOracle.tsx               ← Floating AI chat widget
+│   ├── CityAutocomplete.tsx           ← City search (Nominatim)              169 lines
+│   ├── VedicChart.tsx                 ← South Indian square chart
+│   ├── WesternChart.tsx               ← Western wheel chart
+│   ├── CelestialScene.tsx             ← Three.js 3D intro
+│   ├── StarField.tsx                  ← Background particles
+│   ├── DisclaimerBanner.tsx           ← Top disclaimer bar
+│   ├── AgeGate.tsx                    ← Consent gate
+│   └── LanguageSelector.tsx           ← 19-language dropdown
+├── i18n/
+│   ├── index.ts                       ← i18n exports                         75 lines
+│   └── [19 language].json             ← Translation files
+└── lib/
+    ├── astrology.ts                   ← MAIN ENGINE                           2067 lines
+    ├── apiGuard.ts                    ← Rate limit + sanitize                 123 lines
+    ├── budget.ts                      ← AI spend guard                        68 lines
+    └── cities.ts                      ← City database</code></pre>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<!-- TAB 3: DETAILED DESIGN                                                     -->
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<div id="tab-design" class="tab-content">
+
+  <!-- Page Layout -->
+  <div class="card">
+    <h2>1. Page Layout — <code>page.tsx</code></h2>
+    <h3>Current Structure</h3>
+    <pre><code>┌─────────────────────────────────────────────┐
+│              StarField (bg)                 │
+│  ┌───────────────────────────────────────┐  │
+│  │         DisclaimerBanner              │  │
+│  │         AgeGate                       │  │
+│  │                                       │  │
+│  │     ╔═══════════════════════╗         │  │
+│  │     ║    UNIVU Logo         ║         │  │
+│  │     ║ Cosmic Blueprint      ║         │  │
+│  │     ╚═══════════════════════╝         │  │
+│  │                                       │  │
+│  │  [🔮 Astrology] [📅 Weekly]          │  │
+│  │  [🏠 Vastu]     [🪷 Panchangam]      │  │
+│  │                                       │  │
+│  │  [LanguageSelector]                   │  │
+│  │                                       │  │
+│  │  ┌─── View Content ───────────────┐   │  │
+│  │  │  (IntakeForm / ReportCard /    │   │  │
+│  │  │   WeeklyForecast /             │   │  │
+│  │  │   VastuFengShui / Panchangam)  │   │  │
+│  │  └────────────────────────────────┘   │  │
+│  │                                       │  │
+│  │         Footer                        │  │
+│  └───────────────────────────────────────┘  │
+│                                             │
+│  [CosmicOracle floating chat] ─── bottom-right
+└─────────────────────────────────────────────┘</code></pre>
+
+    <h3>View State Machine</h3>
+    <pre><code>type View = 'astrology' | 'weekly' | 'vastu' | 'panchangam';
+
+astrology ──┐
+            │ ← setView()
+weekly    ──┤   (top-level nav buttons)
+            │
+vastu     ──┤
+            │
+panchangam ─┘
+
+Within 'astrology' view:
+  IntakeForm → [submit] → ReportCard
+  ReportCard → [← Back] → IntakeForm</code></pre>
+  </div>
+
+  <!-- ReportCard Internal Design -->
+  <div class="card">
+    <h2>2. ReportCard Internal Design</h2>
+    <h3>Tab System</h3>
+    <pre><code>ReportCard({ t, reading })
+│
+├── Tab Bar (10 tabs, flex-wrap for mobile)
+│   ├── overview ──→ ConcernBanner + AISection('overview') + Panchanga + Charts preview
+│   ├── love     ──→ AISection('love')
+│   ├── career   ──→ AISection('career')
+│   ├── health   ──→ AISection('health')
+│   ├── timeline ──→ AISection('timeline')
+│   ├── spiritual──→ AISection('spiritual')
+│   ├── weekly   ──→ WeeklyReportSection(reading)    ← has 4 sub-tabs
+│   ├── vastu    ──→ VastuSection(reading)            ← pre-filled from chart
+│   ├── charts   ──→ VedicChart + WesternChart + tradition cards
+│   └── story    ──→ StoryAnimator
+│
+├── AISection(sectionId)
+│   ├── On mount: fetch /api/personal-reading { section, context: buildContext(reading) }
+│   ├── Show ReadingSkeleton while loading
+│   ├── Replace "the Seeker" → user's first name
+│   └── Render via PersonalText (markdown-like formatter)
+│
+└── buildContext(reading) → ReadingContext
+    Maps FullReading → 50+ field context for AI prompts</code></pre>
+
+    <h3>WeeklyReportSection (Inside ReportCard)</h3>
+    <pre><code>WeeklyReportSection({ reading })
+│
+├── Sub-tabs: [personal | rashi | zodiac | chinese]
+├── Timeframe: [current | next_week | month]
+│
+├── 'personal' → section='weekly_personal' + full buildContext(reading)
+├── 'rashi'    → section='weekly_rashi' + weeklyRashi=selectedRashi
+├── 'zodiac'   → section='weekly_zodiac' + weeklyZodiacSign=selectedZodiac
+└── 'chinese'  → section='weekly_chinese' + weeklyChineseAnimal=selectedAnimal
+    │
+    ├── Sign/animal selectors (grid, user's sign marked with ★)
+    ├── Generate button → fetch /api/personal-reading
+    └── PersonalText rendering</code></pre>
+
+    <h3>VastuSection (Inside ReportCard)</h3>
+    <pre><code>VastuSection({ reading })
+│
+├── VastuFormState (pre-filled from reading)
+│   ├── houseCity, houseLat, houseLng (CityAutocomplete)
+│   ├── personEnabled (true by default, pre-filled from chart)
+│   ├── partnerEnabled (false by default)
+│   └── Optional: person DOB/time/city, partner DOB/time/city
+│
+├── Mode selector: [Place Only | For Me | For Us]
+├── climateProfile(lat, city) → hemisphere + climate zone text
+├── sunWindProfile(lat, lng) → sun arc + prevailing winds text
+│
+└── Generate → fetch /api/personal-reading { section: 'vastu', context: vastuCtx }
+    vastuCtx includes: all base context + vastuHouseCity/Lat/Lng +
+    vastuClimate + vastuSunWind + vastuMode + vastuPerson* + vastuPartner*</code></pre>
+  </div>
+
+  <!-- Standalone Components Design -->
+  <div class="card">
+    <h2>3. Standalone Components Design (Top-Level)</h2>
+
+    <h3>3.1 WeeklyForecast.tsx (Standalone)</h3>
+    <pre><code>WeeklyForecast()    ← no props, no birth chart dependency
+│
+├── Sub-tabs: [rashi | zodiac | chinese]     (NO 'personal' — needs chart)
+├── Timeframe: [current | next_week | month]
+├── Sign/animal grid selectors
+│
+├── buildMinimalContext() → placeholder ReadingContext
+│   (all chart fields empty/zero, just enough to satisfy API schema)
+│
+├── handleGenerate() → fetch /api/personal-reading
+│   { section: 'weekly_rashi'|'weekly_zodiac'|'weekly_chinese',
+│     context: { ...minimalCtx, weeklyRashi/weeklyZodiacSign/weeklyChineseAnimal, weeklyTimeframe } }
+│
+└── PersonalText rendering (same markdown formatter)</code></pre>
+
+    <h3>3.2 VastuFengShui.tsx (Standalone)</h3>
+    <pre><code>VastuFengShui()    ← no props, no birth chart dependency
+│
+├── VastuFormState (all empty by default)
+│   ├── houseCity (MANDATORY — CityAutocomplete)
+│   ├── personEnabled: false by default (user can enable)
+│   └── partnerEnabled: false by default
+│
+├── Mode selector: [Place Only (default) | For Me | For Us]
+│
+├── buildMinimalContext() → placeholder ReadingContext
+├── climateProfile(lat, city)
+├── sunWindProfile(lat, lng)
+│
+└── handleGenerate() → fetch /api/personal-reading
+    { section: 'vastu', context: { ...minimalCtx, ...vastuFields } }</code></pre>
+  </div>
+
+  <!-- AI Prompt Architecture -->
+  <div class="card">
+    <h2>4. AI Prompt Architecture</h2>
+    <h3>SECTION_PROMPTS Map (personal-reading/route.ts)</h3>
+    <table>
+      <tr><th>Section</th><th>Prompt Template Highlights</th><th>Key Context Fields Used</th></tr>
+      <tr><td><code>overview</code></td><td>4 sections: who they are, what's happening, main challenge, timeline</td><td>lagnaSign, moonSign, currentDasha, nextDasha, concern</td></tr>
+      <tr><td><code>love</code></td><td>5 sections: attraction patterns, delays, needs, timing, action</td><td>venusSign, 7th house, manglik, maritalStatus, age</td></tr>
+      <tr><td><code>career</code></td><td>5 sections: natural strengths, current status, obstacle, breakthrough, action</td><td>10th house, saturnHouse, jupiterHouse, employment</td></tr>
+      <tr><td><code>health</code></td><td>5+1 sections: constitution, risk areas, dasha effect, timeline, habits, <strong>food Rx</strong></td><td>lagnaSign body map, 6th/8th houses, dasha, sadeSati</td></tr>
+      <tr><td><code>timeline</code></td><td>5 sections: past chapter, honest now, turning point, defining ages, action</td><td>Full dasha timeline, Saturn return, Jupiter return</td></tr>
+      <tr><td><code>spiritual</code></td><td>5 sections: soul mission, comfort zone, karmic pattern, activation, practice</td><td>Rahu/Ketu axis, atmakaraka, 9th/12th houses, nakshatra deity</td></tr>
+      <tr><td><code>weekly</code></td><td>6 sections: Mon-Tue, Wed-Thu, Fri-Sun, key window, focus/release, mantra</td><td>Full chart, dasha, concern</td></tr>
+      <tr><td><code>weekly_rashi</code></td><td>5 sections: overall energy, career, love, health, lucky elements</td><td>weeklyRashi, weeklyTimeframe only</td></tr>
+      <tr><td><code>weekly_zodiac</code></td><td>5 sections: big picture, career, love, wellness, power move</td><td>weeklyZodiacSign, weeklyTimeframe only</td></tr>
+      <tr><td><code>weekly_chinese</code></td><td>5 sections: fortune, wealth, love, health, lucky elements</td><td>weeklyChineseAnimal, weeklyTimeframe only</td></tr>
+      <tr><td><code>weekly_personal</code></td><td>6 sections: planetary weather, work, emotions, energy, key moment, intention</td><td>Full chart + weeklyTimeframe</td></tr>
+      <tr><td><code>vastu</code></td><td>6 sections: location canvas, entrance, room-by-room, light/air/plants, personal, 7-day plan</td><td>vastuHouseCity/Lat/Lng, climate, sunWind, vastuMode, optional chart</td></tr>
+    </table>
+
+    <h3>System Prompt (applied to all sections)</h3>
+    <pre><code>"You are a master Vedic astrologer giving deeply personal, SPECIFIC readings 
+using the {Parashari|KP|Jaimini|Lal Kitab} system.
+RULES:
+1.  Name = "the Seeker" ONLY — never invent names
+2.  Correct pronouns per gender
+3.  Never generic planet descriptions
+4.  Timing = MANDATORY real years
+5.  Honest about difficulties → show the path
+6.  Warm friend tone, not textbook
+7.  Bold headings exactly as given
+8.  Never vague — commit to specific years
+9.  Apply chosen Vedic system only
+10. Frame positively — NEVER fear-based"</code></pre>
+  </div>
+
+  <!-- Panchangam Design -->
+  <div class="card">
+    <h2>5. Panchangam Design — <code>Panchangam.tsx</code> (453 lines)</h2>
+    <h3>Features</h3>
+    <ul>
+      <li>Computes daily Panchanga from astrology.ts calculations</li>
+      <li>5 limbs: Tithi, Nakshatra, Yoga, Karana, Vara (day)</li>
+      <li>Samvatsara (year name) from 60-year cycle</li>
+      <li>Masa (lunar month) from Moon-Sun elongation</li>
+      <li>11 Indic script localizations: te, ta, ml, kn, hi, mr, bn, pa, gu, or, as</li>
+      <li>Regional calendar titles per language</li>
+      <li>Falls back to English + Sanskrit for non-Indic locales</li>
+    </ul>
+    <h3>Props</h3>
+    <pre><code>interface PanchangamProps {
+  locale: Locale;  // determines script for Panchanga values
+}</code></pre>
+  </div>
+
+  <!-- Security Design -->
+  <div class="card">
+    <h2>6. Security Architecture</h2>
+    <pre><code>Request Flow with Guards:
+
+Browser → Next.js Edge Middleware
+         │
+         ├── MAINTENANCE=true? → redirect /maintenance (prod only)
+         ├── localhost? → bypass maintenance
+         └── pass through
+         
+         ↓
+
+API Route Handler
+         │
+         ├── apiGuard(req)
+         │   ├── Rate limit: 100 req/IP/min → 429 Retry-After:60
+         │   ├── Origin check: univu.vercel.app | *.vercel.app | localhost
+         │   ├── Request size check
+         │   └── sanitise() all string inputs
+         │
+         ├── budgetGuard() [AI routes only]
+         │   ├── Track tokens per warm instance
+         │   ├── $100/month cap ($0.59/1M tokens)
+         │   ├── FORCE_SHUTDOWN env var override
+         │   └── Reset counter on new month
+         │
+         └── Process request...</code></pre>
+
+    <h3>HTTP Security Headers (next.config.js)</h3>
+    <table>
+      <tr><th>Header</th><th>Value</th></tr>
+      <tr><td>Content-Security-Policy</td><td>default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; ...</td></tr>
+      <tr><td>Strict-Transport-Security</td><td>max-age=63072000; includeSubDomains; preload</td></tr>
+      <tr><td>X-Frame-Options</td><td>DENY</td></tr>
+      <tr><td>X-Content-Type-Options</td><td>nosniff</td></tr>
+      <tr><td>Permissions-Policy</td><td>geolocation=(), camera=(), microphone=(), ...</td></tr>
+      <tr><td>Cache-Control (API)</td><td>no-store</td></tr>
+    </table>
+  </div>
+
+  <!-- CityAutocomplete Design -->
+  <div class="card">
+    <h2>7. CityAutocomplete Design — <code>CityAutocomplete.tsx</code> (169 lines)</h2>
+    <pre><code>CityAutocomplete({ value, onChange, placeholder })
+│
+├── User types ≥ 2 characters → debounce 350ms
+├── Fetch: https://nominatim.openstreetmap.org/search?q={query}&format=json&limit=5
+├── Display dropdown with city + country
+├── On select: onChange(displayName, { lat, lng })
+│
+├── NO browser geolocation (blocked by Permissions-Policy)
+├── Privacy-first: type-to-search only
+└── Used in: IntakeForm (×2), VastuSection (×3), VastuFengShui (×3)</code></pre>
+  </div>
+
+  <!-- Pending Change Detail -->
+  <div class="card">
+    <h2>8. Pending Change: Wire Top-Level Tabs in page.tsx</h2>
+    <div class="highlight">
+      <strong>What needs to happen:</strong> Modify <code>page.tsx</code> to expand the <code>view</code> state from <code>'astrology' | 'panchangam'</code> to <code>'astrology' | 'weekly' | 'vastu' | 'panchangam'</code>, add 4 nav buttons, and conditionally render the new standalone components.
+    </div>
+
+    <h3>Specific Changes Required</h3>
+    <table>
+      <tr><th>Line Area</th><th>Current</th><th>New</th></tr>
+      <tr>
+        <td>Imports (line 10-12)</td>
+        <td>No WeeklyForecast or VastuFengShui imports</td>
+        <td>Add: <code>import WeeklyForecast from '@/components/WeeklyForecast'</code><br><code>import VastuFengShui from '@/components/VastuFengShui'</code></td>
+      </tr>
+      <tr>
+        <td>State (line 104)</td>
+        <td><code>'astrology' | 'panchangam'</code></td>
+        <td><code>'astrology' | 'weekly' | 'vastu' | 'panchangam'</code></td>
+      </tr>
+      <tr>
+        <td>Nav buttons (lines 231-247)</td>
+        <td>2 buttons: Astrology + Panchangam</td>
+        <td>4 buttons: Astrology + Weekly + Vastu + Panchangam</td>
+      </tr>
+      <tr>
+        <td>View rendering (lines 254-291)</td>
+        <td><code>panchangam ? Panchangam : (IntakeForm/ReportCard)</code></td>
+        <td>Add branches for <code>weekly</code> → WeeklyForecast and <code>vastu</code> → VastuFengShui</td>
+      </tr>
+    </table>
+
+    <h3>Why previous attempts failed</h3>
+    <div class="note">
+      The <code>replace_string_in_file</code> tool could not match emoji characters (🔮, 🪷, 🩔) in the JSX. The navigation section contains multi-byte Unicode emoji characters that cause encoding mismatches during string replacement. <strong>Solution:</strong> Use a Python script or sed with hex escapes to modify the file, or rewrite the entire file.
+    </div>
+  </div>
+
+  <!-- Deployment Checklist -->
+  <div class="card">
+    <h2>9. Deployment Checklist</h2>
+    <table>
+      <tr><th>#</th><th>Step</th><th>Command</th><th>Status</th></tr>
+      <tr><td>1</td><td>Wire top-level tabs in page.tsx</td><td>Code edit</td><td><span class="badge badge-red">Pending</span></td></tr>
+      <tr><td>2</td><td>Build and verify</td><td><code>npx next build</code></td><td><span class="badge badge-red">Pending</span></td></tr>
+      <tr><td>3</td><td>Test locally</td><td><code>npm run dev</code></td><td><span class="badge badge-red">Pending</span></td></tr>
+      <tr><td>4</td><td>Commit changes</td><td><code>git add -A && git commit -m "feat: 4 top-level tabs"</code></td><td><span class="badge badge-red">Pending</span></td></tr>
+      <tr><td>5</td><td>Set MAINTENANCE=false in middleware.ts</td><td>Code edit</td><td><span class="badge badge-red">Pending</span></td></tr>
+      <tr><td>6</td><td>Deploy to Vercel</td><td><code>git push origin main</code></td><td><span class="badge badge-red">Pending</span></td></tr>
+    </table>
+  </div>
+
+</div>
+
+<!-- ═══════════ TAB SWITCHING SCRIPT ═══════════ -->
+<script>
+function switchTab(tabId) {
+  // Hide all tabs
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+  // Show selected
+  document.getElementById('tab-' + tabId).classList.add('active');
+  // Highlight button
+  const btns = document.querySelectorAll('.tab-btn');
+  const map = { requirements: 0, architecture: 1, design: 2 };
+  if (map[tabId] !== undefined) btns[map[tabId]].classList.add('active');
+  // Scroll to top
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+</script>
+
+</body>
+</html>

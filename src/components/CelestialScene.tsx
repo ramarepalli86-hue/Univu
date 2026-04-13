@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef, useCallback, useState } from 'react';
 import * as THREE from 'three';
 
 interface CelestialSceneProps {
@@ -28,14 +28,26 @@ export default function CelestialScene({
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
   const frameRef = useRef<number>(0);
 
+  const [webglFailed, setWebglFailed] = useState(false);
+
   const createScene = useCallback(() => {
     if (!mountRef.current) return;
     const container = mountRef.current;
     const width = container.clientWidth;
     const height = container.clientHeight;
 
-    // Renderer
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    // Renderer — with WebGL availability check for Safari/Edge
+    let renderer: THREE.WebGLRenderer;
+    try {
+      const testCanvas = document.createElement('canvas');
+      const gl = testCanvas.getContext('webgl') || testCanvas.getContext('experimental-webgl');
+      if (!gl) throw new Error('WebGL not available');
+      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    } catch (_e) {
+      console.warn('WebGL unavailable — showing static fallback');
+      setWebglFailed(true);
+      return;
+    }
     renderer.setSize(width, height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setClearColor(0x000000, 0);
@@ -300,6 +312,25 @@ export default function CelestialScene({
     return () => cleanup?.();
   }, [createScene]);
 
+  if (webglFailed) {
+    // Static fallback for browsers without WebGL
+    return (
+      <div className="relative w-full overflow-hidden rounded-2xl border-2 border-vedic-200 bg-gradient-to-b from-[#1a0a2e] via-[#0d0820] to-[#0a0618] flex items-center justify-center" style={{ minHeight: 350 }}>
+        <svg width="320" height="180" viewBox="0 0 320 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <ellipse cx="160" cy="90" rx="90" ry="60" fill="#FFD700" fillOpacity="0.13" />
+          <circle cx="160" cy="90" r="38" fill="#FFD700" fillOpacity="0.7" />
+          <circle cx="220" cy="60" r="12" fill="#90caf9" fillOpacity="0.7" />
+          <text x="160" y="95" textAnchor="middle" fontSize="22" fill="#fff" fontWeight="bold">☉ {sunSign}</text>
+          <text x="220" y="65" textAnchor="middle" fontSize="14" fill="#fff">☽ {moonSign}</text>
+          <text x="60" y="170" textAnchor="middle" fontSize="13" fill="#fff">🕉️ {rashi}</text>
+          <text x="260" y="170" textAnchor="middle" fontSize="13" fill="#fff">✦ {nakshatra}</text>
+        </svg>
+        <div className="absolute inset-0 flex items-center justify-center">
+          <span className="text-xs text-white bg-black/60 px-3 py-1 rounded-full">WebGL not supported — static view</span>
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="relative w-full overflow-hidden rounded-2xl border-2 border-vedic-200 bg-gradient-to-b from-[#1a0a2e] via-[#0d0820] to-[#0a0618]">
       <div ref={mountRef} className="w-full h-[350px] sm:h-[420px] md:h-[500px]" />
