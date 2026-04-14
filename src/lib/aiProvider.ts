@@ -1,8 +1,8 @@
 /**
  * 3-Tier AI Provider with automatic fallback:
- *   1. Gemini (Google) — primary   (1,500 req/day free, no per-request token cap)
- *   2. Cerebras — secondary        (1M tokens/day free, llama-3.3-70b)
- *   3. Groq — tertiary             (100K tokens/day free, llama-3.3-70b)
+ *   1. Gemini (Google) — primary   (free tier, gemini-2.0-flash)
+ *   2. Cerebras — secondary        (free tier, llama3.1-8b)
+ *   3. Groq — tertiary             (100K tokens/day free, llama-3.3-70b-versatile)
  *
  * Each provider is tried in order. If one fails (rate limit, network error,
  * missing API key), the next one is tried automatically.
@@ -68,7 +68,7 @@ async function callGemini(opts: AIRequestOptions): Promise<AIResponse> {
 
   // Gemini uses a generative model — convert messages into its format
   const model = client.getGenerativeModel({
-    model: 'gemini-2.0-flash',
+    model: 'gemini-2.5-flash',
     generationConfig: {
       maxOutputTokens: opts.maxTokens,
       temperature: opts.temperature,
@@ -87,7 +87,7 @@ async function callGemini(opts: AIRequestOptions): Promise<AIResponse> {
   if (nonSystemMsgs.length === 1 && nonSystemMsgs[0].role === 'user') {
     // Simple single-turn: combine system + user into one generateContent call
     const fullModel = client.getGenerativeModel({
-      model: 'gemini-2.0-flash',
+      model: 'gemini-2.5-flash',
       systemInstruction: systemInstruction,
       generationConfig: {
         maxOutputTokens: opts.maxTokens,
@@ -102,7 +102,7 @@ async function callGemini(opts: AIRequestOptions): Promise<AIResponse> {
 
   // Multi-turn chat (for chat route)
   const chatModel = client.getGenerativeModel({
-    model: 'gemini-2.0-flash',
+    model: 'gemini-2.5-flash',
     systemInstruction: systemInstruction,
     generationConfig: {
       maxOutputTokens: opts.maxTokens,
@@ -129,7 +129,7 @@ async function callCerebras(opts: AIRequestOptions): Promise<AIResponse> {
   if (!client) throw new Error('CEREBRAS_API_KEY not configured');
 
   const completion = await client.chat.completions.create({
-    model: 'llama-3.3-70b',
+    model: 'llama3.1-8b',
     messages: opts.messages.map(m => ({
       role: m.role as 'system' | 'user' | 'assistant',
       content: m.content,
