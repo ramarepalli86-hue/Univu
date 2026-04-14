@@ -331,12 +331,29 @@ function WeeklyReportSection({ reading }: { reading: FullReading }) {
     setWChatLoading(true);
     try {
       const ctx = buildContext(reading);
+      const planetLines = reading.planets.map(p =>
+        `  ${p.name}: ${p.rashi} (House ${p.house}${p.retrograde ? ', RETROGRADE' : ''})`
+      ).join('\n');
+
       const weeklyCtx = [
         `WEEKLY FORECAST FOLLOW-UP`,
-        `Name: ${ctx.name}, Moon: ${ctx.moonSign}, Sun: ${ctx.sunSign}, Dasha: ${ctx.currentDasha}-${ctx.currentAntardasha}`,
+        ``,
+        `── BIRTH CHART DATA ──`,
+        `Name: ${ctx.name}, Age: ${ctx.currentAge}, Gender: ${ctx.gender}`,
+        `Lagna: ${ctx.lagnaSign} | Moon: ${ctx.moonSign} | Sun: ${ctx.sunSign}`,
+        `Nakshatra: ${ctx.moonNakshatraName} Pada ${ctx.moonNakshatraPada}`,
+        `Dasha: ${ctx.currentDasha}-${ctx.currentAntardasha} | Next: ${ctx.nextDasha} (from ${ctx.nextDashaYear})`,
+        `Manglik: ${ctx.isManglik ? 'YES' : 'No'} | Sade Sati: ${ctx.sadeSatiActive ? 'ACTIVE' : 'No'}`,
+        ``,
+        `── ALL PLANETS ──`,
+        planetLines,
+        ``,
+        `── TRANSIT CONTEXT ──`,
         `Timeframe: ${timeframe === 'current' ? 'This week' : timeframe === 'next_week' ? 'Next week' : 'Full month'}`,
         `Sub-type: ${subTab}`,
-        `\nTHEIR WEEKLY READING:\n${text.slice(0, 3000)}`,
+        ``,
+        `── THEIR WEEKLY READING (be consistent) ──`,
+        text.slice(0, 3500),
       ].join('\n');
       const res = await fetch('/api/chat', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -1020,14 +1037,48 @@ function AISection({ sectionId, reading }: { sectionId: string; reading: FullRea
     try {
       const sectionLabel = { overview: 'Cosmic Snapshot', love: 'Love & Bonds', career: 'Wealth & Career', health: 'Vitality & Health', timeline: 'Life Cycles', spiritual: 'Purpose & Dharma' }[sectionId] || sectionId;
       const ctx = buildContext(reading);
+
+      // Build a FULL chart dump so the AI can give astrology-rooted answers
+      const planetLines = reading.planets.map(p =>
+        `  ${p.name}: ${p.rashi} (House ${p.house}, ${p.nakshatra} Pada ${p.nakshatraPada}${p.retrograde ? ', RETROGRADE' : ''})`
+      ).join('\n');
+
+      const dashaLine = reading.dashaTimeline?.slice(0, 6).map(d =>
+        `  ${d.planet} Dasha: age ${d.startAge.toFixed(1)}–${d.endAge.toFixed(1)} (${d.startYear}–${d.endYear})`
+      ).join('\n') || '';
+
       const chartSummary = [
-        `SECTION: ${sectionLabel}`,
-        `Name: ${ctx.name}, Age: ${ctx.currentAge}, Gender: ${ctx.gender}`,
-        `Lagna: ${ctx.lagnaSign}, Moon: ${ctx.moonSign}, Sun: ${ctx.sunSign}`,
-        `Nakshatra: ${ctx.moonNakshatraName} Pada ${ctx.moonNakshatraPada}`,
-        `Dasha: ${ctx.currentDasha}-${ctx.currentAntardasha}`,
-        ctx.concern ? `Primary concern: ${ctx.concern}` : '',
-        `\nTHEIR ${sectionLabel.toUpperCase()} READING (give consistent follow-up):\n${text.slice(0, 3000)}`,
+        `FOLLOW-UP for: ${sectionLabel} reading`,
+        ``,
+        `── BIRTH CHART DATA ──`,
+        `Name: ${ctx.name}, Age: ${ctx.currentAge}, Gender: ${ctx.gender}, Marital: ${ctx.maritalStatus}, Employment: ${ctx.employment}`,
+        `Lagna (Ascendant): ${ctx.lagnaSign}`,
+        `Moon Sign: ${ctx.moonSign} | Sun Sign: ${ctx.sunSign}`,
+        `Nakshatra: ${ctx.moonNakshatraName} Pada ${ctx.moonNakshatraPada} (Deity: ${ctx.nakshatraDeity})`,
+        `Atmakaraka: ${ctx.atmakaraka}`,
+        ``,
+        `── ALL PLANET POSITIONS ──`,
+        planetLines,
+        ``,
+        `── CURRENT DASHA ──`,
+        `Mahadasha: ${ctx.currentDasha} (${ctx.currentDashaYears})`,
+        `Antardasha: ${ctx.currentAntardasha}`,
+        `Next Mahadasha: ${ctx.nextDasha} (from ${ctx.nextDashaYear})`,
+        dashaLine ? `\n── DASHA TIMELINE ──\n${dashaLine}` : '',
+        ``,
+        `── KEY HOUSES ──`,
+        `7th House (Marriage): ${ctx.seventhHouseSign}, Lord: ${ctx.seventhHouseLord} | Planets in 7th: ${ctx.planetsIn7}`,
+        `10th House (Career): ${ctx.tenthHouseSign}, Lord: ${ctx.tenthHouseLord}`,
+        `6th House (Enemies/Health): ${ctx.sixthHouseSign} | Planets in 6th: ${ctx.planetsIn6}`,
+        `8th House (Longevity): ${ctx.eighthHouseSign}`,
+        `9th House (Fortune): ${ctx.ninthHouseSign}`,
+        `12th House (Loss/Moksha): ${ctx.twelfthHouseSign}`,
+        ``,
+        `── SPECIAL YOGAS ──`,
+        `Manglik: ${ctx.isManglik ? 'YES' : 'No'}${reading.manglik?.details ? ' — ' + reading.manglik.details.slice(0, 200) : ''}`,
+        `Sade Sati: ${ctx.sadeSatiActive ? 'ACTIVE — ' + (reading.sadeSati?.phase || '') : 'Not active'}`,
+        ctx.concern ? `\n── USER'S PRIMARY CONCERN ──\n"${ctx.concern}"` : '',
+        `\n── THEIR ${sectionLabel.toUpperCase()} READING (be consistent with this) ──\n${text.slice(0, 4000)}`,
       ].filter(Boolean).join('\n');
 
       const res = await fetch('/api/chat', {

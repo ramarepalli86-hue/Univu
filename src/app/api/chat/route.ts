@@ -47,7 +47,7 @@ export async function POST(req: NextRequest) {
 
     // Build system prompt — inject chart context if user has generated a reading
     const systemContent = chartContext
-      ? `${ASTRO_SYSTEM}\n\nIMPORTANT — The user's ACTUAL chart data (verified from their birth details):\n${sanitise(chartContext, 2000)}\n\nYou MUST use this chart data when answering. ONLY reference planets, houses, and signs that appear in the data above. Do NOT invent any chart details that are not listed here. Every astrological claim must cite the exact house number and planet position from this data.`
+      ? `${ASTRO_SYSTEM}\n\nIMPORTANT — The user's ACTUAL chart data (verified from their birth details):\n${sanitise(chartContext, 6000)}\n\nCRITICAL FOLLOW-UP RULES:\n1. You MUST use this chart data when answering. ONLY reference planets, houses, and signs that appear in the data above.\n2. Do NOT invent any chart details that are not listed here.\n3. Every answer MUST be rooted in their specific astrological placements — cite exact planet, house number, and sign: "Your Venus in House 7 in Tula means..." not "Venus generally represents..."\n4. Reference their current Dasha/Antardasha period and what it specifically activates in THEIR chart.\n5. If the question is about timing, use their dasha transitions and planetary transits to give SPECIFIC year ranges.\n6. Connect remedies to their SPECIFIC afflicted planet or house — not generic advice.\n7. NEVER give standard self-help guidance without tying it to their chart. Every sentence should reference a planet, house, sign, nakshatra, or dasha from their data.\n8. If their reading text is provided, stay CONSISTENT with it — expand on what was already told, don't contradict it.`
       : `${ASTRO_SYSTEM}\n\nNOTE: The user has NOT provided their birth chart yet. Do NOT make up chart details. Ask for their birth date, exact birth time, and birth city if they want a personal reading. You can discuss general astrology concepts without chart data.`;
 
     const result = await callAI({
@@ -55,7 +55,7 @@ export async function POST(req: NextRequest) {
         { role: 'system', content: systemContent },
         ...safeMessages,
       ],
-      maxTokens: 500,
+      maxTokens: 800,
       temperature: 0.7,
     });
 
