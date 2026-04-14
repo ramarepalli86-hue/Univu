@@ -303,6 +303,56 @@ function WeeklyReportSection({ reading }: { reading: FullReading }) {
   const [loading, setLoading] = useState(false);
   const [lastKey, setLastKey] = useState('');
 
+  // ── Follow-up chat state ──
+  interface WChatMsg { role: 'user' | 'assistant'; content: string; error?: boolean }
+  const [wChatMsgs, setWChatMsgs] = useState<WChatMsg[]>([]);
+  const [wChatInput, setWChatInput] = useState('');
+  const [wChatLoading, setWChatLoading] = useState(false);
+  const wChatBottomRef = useRef<HTMLDivElement>(null);
+
+  const WEEKLY_FOLLOWUPS = [
+    'What day is luckiest this week?',
+    'Any caution for travel?',
+    'Good day for an interview?',
+    'Romance outlook this week?',
+    'Financial advice for the week?',
+  ];
+
+  useEffect(() => {
+    wChatBottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [wChatMsgs]);
+
+  async function sendWeeklyFollowUp(msg: string) {
+    if (!msg.trim() || wChatLoading) return;
+    const userMsg: WChatMsg = { role: 'user', content: msg.trim() };
+    const next = [...wChatMsgs, userMsg];
+    setWChatMsgs(next);
+    setWChatInput('');
+    setWChatLoading(true);
+    try {
+      const ctx = buildContext(reading);
+      const weeklyCtx = [
+        `WEEKLY FORECAST FOLLOW-UP`,
+        `Name: ${ctx.name}, Moon: ${ctx.moonSign}, Sun: ${ctx.sunSign}, Dasha: ${ctx.currentDasha}-${ctx.currentAntardasha}`,
+        `Timeframe: ${timeframe === 'current' ? 'This week' : timeframe === 'next_week' ? 'Next week' : 'Full month'}`,
+        `Sub-type: ${subTab}`,
+        `\nTHEIR WEEKLY READING:\n${text.slice(0, 3000)}`,
+      ].join('\n');
+      const res = await fetch('/api/chat', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: next.map(m => ({ role: m.role, content: m.content })), chartContext: weeklyCtx }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.reply) {
+        setWChatMsgs(prev => [...prev, { role: 'assistant', content: data.error === 'BUDGET_EXCEEDED' ? 'Monthly AI budget reached. 🙏' : 'Server error. Try again.', error: true }]);
+      } else {
+        setWChatMsgs(prev => [...prev, { role: 'assistant', content: data.reply }]);
+      }
+    } catch {
+      setWChatMsgs(prev => [...prev, { role: 'assistant', content: 'Connection issue.', error: true }]);
+    } finally { setWChatLoading(false); }
+  }
+
   const fetchKey = `${subTab}_${timeframe}_${subTab === 'rashi' ? selectedRashi : subTab === 'zodiac' ? selectedZodiac : subTab === 'chinese' ? selectedAnimal : 'me'}`;
 
   const handleGenerate = useCallback(async () => {
@@ -518,13 +568,95 @@ function WeeklyReportSection({ reading }: { reading: FullReading }) {
               {subTab === 'personal' ? '🔮 Personal Forecast' : subTab === 'rashi' ? `🕉️ ${selectedRashi}` : subTab === 'zodiac' ? `♈ ${selectedZodiac}` : `☯️ ${selectedAnimal}`}
               {' · '}{timeframe === 'current' ? 'This Week' : timeframe === 'next_week' ? 'Next Week' : 'Full Month'}
             </p>
-            <button onClick={() => { setText(''); setLastKey(''); }}
+            <button onClick={() => { setText(''); setLastKey(''); setWChatMsgs([]); setWChatInput(''); }}
               className="text-[10px] px-3 py-1 rounded-full border font-medium"
               style={{ color: TEAL, borderColor: 'rgba(26,107,107,0.3)' }}>
               ← New Forecast
             </button>
           </div>
           <PersonalText text={text} />
+
+          {/* ── Follow-up Chat ── */}
+          <div className="mt-5 pt-4 border-t" style={{ borderColor: 'rgba(26,107,107,0.15)' }}>
+            <div className="flex items-center gap-2 mb-3">
+              <div className="w-7 h-7 rounded-full flex items-center justify-center text-sm"
+                style={{ background: 'linear-gradient(135deg, rgba(26,107,107,0.15), rgba(212,136,10,0.1))' }}>📅</div>
+              <div>
+                <p className="text-xs font-bold" style={{ color: TEAL }}>Ask about your week</p>
+                <p className="text-[10px]" style={{ color: '#9CA3AF' }}>Get more detail about specific days or activities</p>
+              </div>
+            </div>
+
+            <AnimatePresence>
+              {wChatMsgs.length > 0 && (
+                <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }}
+                  className="space-y-3 mb-4 max-h-[400px] overflow-y-auto rounded-xl p-3"
+                  style={{ background: 'rgba(26,107,107,0.03)', border: '1px solid rgba(26,107,107,0.08)' }}>
+                  {wChatMsgs.map((m, i) => (
+                    <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                      <div className="max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed"
+                        style={m.role === 'user'
+                          ? { background: `linear-gradient(135deg, ${TEAL}, ${TEAL_L})`, color: 'white', borderBottomRightRadius: '4px' }
+                          : { background: m.error ? '#FFF5F5' : 'white', color: '#1F2937', borderBottomLeftRadius: '4px',
+                              border: m.error ? '1px solid #FCA5A5' : '1px solid rgba(26,107,107,0.12)' }}>
+                        {m.content.split('\n').map((line, j) => (
+                          <span key={j}>
+                            {line.split(/(\*\*[^*]+\*\*)/).map((part, k) =>
+                              part.startsWith('**') && part.endsWith('**')
+                                ? <strong key={k}>{part.replace(/\*\*/g, '')}</strong> : part
+                            )}
+                            {j < m.content.split('\n').length - 1 && <br />}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                  {wChatLoading && (
+                    <div className="flex justify-start">
+                      <div className="rounded-2xl px-4 py-3 flex items-center gap-1.5"
+                        style={{ background: 'white', border: '1px solid rgba(26,107,107,0.12)' }}>
+                        {[0,1,2].map(di => (
+                          <motion.div key={di} className="w-1.5 h-1.5 rounded-full" style={{ background: TEAL }}
+                            animate={{ opacity: [0.3,1,0.3], y: [0,-3,0] }}
+                            transition={{ duration: 0.8, repeat: Infinity, delay: di*0.15 }} />
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  <div ref={wChatBottomRef} />
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {wChatMsgs.length === 0 && !wChatLoading && (
+              <div className="flex flex-wrap gap-1.5 mb-3">
+                {WEEKLY_FOLLOWUPS.map(q => (
+                  <button key={q} onClick={() => sendWeeklyFollowUp(q)}
+                    className="text-xs px-3 py-1.5 rounded-full border transition-colors hover:bg-teal-50"
+                    style={{ borderColor: 'rgba(26,107,107,0.25)', color: TEAL, background: 'rgba(26,107,107,0.04)' }}>
+                    {q}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            <div className="flex items-center gap-2">
+              <input value={wChatInput} onChange={e => setWChatInput(e.target.value)}
+                onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendWeeklyFollowUp(wChatInput); } }}
+                placeholder="Ask about your forecast…" disabled={wChatLoading}
+                className="flex-1 text-sm px-3.5 py-2.5 rounded-xl outline-none disabled:opacity-50"
+                style={{ background: 'rgba(26,107,107,0.05)', border: '1px solid rgba(26,107,107,0.2)', color: '#1F2937' }} />
+              <button onClick={() => sendWeeklyFollowUp(wChatInput)}
+                disabled={!wChatInput.trim() || wChatLoading}
+                className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 transition-opacity disabled:opacity-40"
+                style={{ background: `linear-gradient(135deg, ${TEAL}, ${TEAL_L})` }}>
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <path d="M2 8h12M9 3l5 5-5 5" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+
           <p className="text-xs mt-3 pt-3 border-t text-center" style={{ color: '#9CA3AF', borderColor: 'rgba(0,0,0,0.07)' }}>
             For entertainment &amp; information only · Not professional advice · Consult a qualified professional before making any major life decision
           </p>
@@ -856,6 +988,72 @@ function AISection({ sectionId, reading }: { sectionId: string; reading: FullRea
   const [text, setText] = useState('');
   const [loading, setLoading] = useState(false);
   const [fetched, setFetched] = useState(false);
+
+  // ── Follow-up chat ──
+  interface ChatMsg { role: 'user' | 'assistant'; content: string; error?: boolean }
+  const [chatMsgs, setChatMsgs] = useState<ChatMsg[]>([]);
+  const [chatInput, setChatInput] = useState('');
+  const [chatLoading, setChatLoading] = useState(false);
+  const chatBottomRef = useRef<HTMLDivElement>(null);
+  const chatInputRef = useRef<HTMLInputElement>(null);
+
+  const SECTION_FOLLOWUPS: Record<string, string[]> = {
+    overview: ['What should I focus on this year?', 'How does my dasha affect me now?', 'Any upcoming challenges?', 'What are my hidden strengths?'],
+    love: ['When will I find my partner?', 'How to improve my relationship?', 'Is my partner compatible?', 'What does Venus say about my love life?'],
+    career: ['When is the best time for a job change?', 'Should I start a business?', 'What career suits my chart?', 'Financial outlook for this year?'],
+    health: ['Which body parts should I watch?', 'Best exercise for my chart?', 'Mental health insights?', 'Any health risks this dasha?'],
+    timeline: ['What happens in my next dasha?', 'Best year for marriage?', 'When will things improve?', 'Key turning points ahead?'],
+    spiritual: ['What is my soul purpose?', 'Which mantra suits me?', 'Past life connections?', 'How to grow spiritually?'],
+  };
+
+  useEffect(() => {
+    chatBottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [chatMsgs]);
+
+  async function sendFollowUp(msg: string) {
+    if (!msg.trim() || chatLoading) return;
+    const userMsg: ChatMsg = { role: 'user', content: msg.trim() };
+    const next = [...chatMsgs, userMsg];
+    setChatMsgs(next);
+    setChatInput('');
+    setChatLoading(true);
+    try {
+      const sectionLabel = { overview: 'Cosmic Snapshot', love: 'Love & Bonds', career: 'Wealth & Career', health: 'Vitality & Health', timeline: 'Life Cycles', spiritual: 'Purpose & Dharma' }[sectionId] || sectionId;
+      const ctx = buildContext(reading);
+      const chartSummary = [
+        `SECTION: ${sectionLabel}`,
+        `Name: ${ctx.name}, Age: ${ctx.currentAge}, Gender: ${ctx.gender}`,
+        `Lagna: ${ctx.lagnaSign}, Moon: ${ctx.moonSign}, Sun: ${ctx.sunSign}`,
+        `Nakshatra: ${ctx.moonNakshatraName} Pada ${ctx.moonNakshatraPada}`,
+        `Dasha: ${ctx.currentDasha}-${ctx.currentAntardasha}`,
+        ctx.concern ? `Primary concern: ${ctx.concern}` : '',
+        `\nTHEIR ${sectionLabel.toUpperCase()} READING (give consistent follow-up):\n${text.slice(0, 3000)}`,
+      ].filter(Boolean).join('\n');
+
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          messages: next.map(m => ({ role: m.role, content: m.content })),
+          chartContext: chartSummary,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.reply) {
+        const errText = data.error === 'BUDGET_EXCEEDED'
+          ? 'Monthly AI budget reached. Please check back next month. 🙏'
+          : 'Could not reach the server. Please try again.';
+        setChatMsgs(prev => [...prev, { role: 'assistant', content: errText, error: true }]);
+      } else {
+        setChatMsgs(prev => [...prev, { role: 'assistant', content: data.reply }]);
+      }
+    } catch {
+      setChatMsgs(prev => [...prev, { role: 'assistant', content: 'Connection issue — please try again.', error: true }]);
+    } finally {
+      setChatLoading(false);
+    }
+  }
+
   const fetch_ = useCallback(async () => {
     if (fetched || loading) return;
     setLoading(true);
@@ -879,6 +1077,7 @@ function AISection({ sectionId, reading }: { sectionId: string; reading: FullRea
   useEffect(() => { fetch_(); }, [fetch_]);
 
   const concern = (reading as FullReading & { concern?: string }).concern ?? '';
+  const followUps = SECTION_FOLLOWUPS[sectionId] || SECTION_FOLLOWUPS.overview;
 
   if (loading) return (
     <div>
@@ -890,6 +1089,105 @@ function AISection({ sectionId, reading }: { sectionId: string; reading: FullRea
     <div>
       {sectionId === 'overview' && <ConcernBanner concern={concern} />}
       <PersonalText text={text} />
+
+      {/* ── Follow-up Chat ── */}
+      <div className="mt-6 pt-5 border-t" style={{ borderColor: 'rgba(26,107,107,0.15)' }}>
+        <div className="flex items-center gap-2 mb-3">
+          <div className="w-7 h-7 rounded-full flex items-center justify-center text-sm"
+            style={{ background: 'linear-gradient(135deg, rgba(26,107,107,0.15), rgba(212,136,10,0.1))' }}>💬</div>
+          <div>
+            <p className="text-xs font-bold" style={{ color: TEAL }}>Ask a follow-up</p>
+            <p className="text-[10px]" style={{ color: '#9CA3AF' }}>Dig deeper into anything from your reading</p>
+          </div>
+        </div>
+
+        {/* Chat messages */}
+        <AnimatePresence>
+          {chatMsgs.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              className="space-y-3 mb-4 max-h-[400px] overflow-y-auto rounded-xl p-3"
+              style={{ background: 'rgba(26,107,107,0.03)', border: '1px solid rgba(26,107,107,0.08)' }}
+            >
+              {chatMsgs.map((m, i) => (
+                <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                  <div className="max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed"
+                    style={m.role === 'user'
+                      ? { background: `linear-gradient(135deg, ${TEAL}, ${TEAL_L})`, color: 'white', borderBottomRightRadius: '4px' }
+                      : { background: m.error ? '#FFF5F5' : 'white', color: '#1F2937', borderBottomLeftRadius: '4px',
+                          border: m.error ? '1px solid #FCA5A5' : '1px solid rgba(26,107,107,0.12)' }
+                    }>
+                    {m.content.split('\n').map((line, j) => (
+                      <span key={j}>
+                        {line.split(/(\*\*[^*]+\*\*)/).map((part, k) =>
+                          part.startsWith('**') && part.endsWith('**')
+                            ? <strong key={k}>{part.replace(/\*\*/g, '')}</strong>
+                            : part
+                        )}
+                        {j < m.content.split('\n').length - 1 && <br />}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              ))}
+
+              {chatLoading && (
+                <div className="flex justify-start">
+                  <div className="rounded-2xl px-4 py-3 flex items-center gap-1.5"
+                    style={{ background: 'white', border: '1px solid rgba(26,107,107,0.12)' }}>
+                    {[0, 1, 2].map(di => (
+                      <motion.div key={di} className="w-1.5 h-1.5 rounded-full"
+                        style={{ background: TEAL }}
+                        animate={{ opacity: [0.3, 1, 0.3], y: [0, -3, 0] }}
+                        transition={{ duration: 0.8, repeat: Infinity, delay: di * 0.15 }} />
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div ref={chatBottomRef} />
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Starter follow-up suggestions */}
+        {chatMsgs.length === 0 && !chatLoading && (
+          <div className="flex flex-wrap gap-1.5 mb-3">
+            {followUps.map(q => (
+              <button key={q} onClick={() => sendFollowUp(q)}
+                className="text-xs px-3 py-1.5 rounded-full border transition-colors hover:bg-teal-50"
+                style={{ borderColor: 'rgba(26,107,107,0.25)', color: TEAL, background: 'rgba(26,107,107,0.04)' }}>
+                {q}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* Chat input */}
+        <div className="flex items-center gap-2">
+          <input
+            ref={chatInputRef}
+            value={chatInput}
+            onChange={e => setChatInput(e.target.value)}
+            onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendFollowUp(chatInput); } }}
+            placeholder="Ask about your reading…"
+            disabled={chatLoading}
+            className="flex-1 text-sm px-3.5 py-2.5 rounded-xl outline-none disabled:opacity-50"
+            style={{ background: 'rgba(26,107,107,0.05)', border: '1px solid rgba(26,107,107,0.2)', color: '#1F2937' }}
+          />
+          <button
+            onClick={() => sendFollowUp(chatInput)}
+            disabled={!chatInput.trim() || chatLoading}
+            className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 transition-opacity disabled:opacity-40"
+            style={{ background: `linear-gradient(135deg, ${TEAL}, ${TEAL_L})` }}>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M2 8h12M9 3l5 5-5 5" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
       <p className="text-xs mt-3 pt-3 border-t text-center" style={{ color:'#9CA3AF', borderColor:'rgba(0,0,0,0.07)' }}>
         For entertainment &amp; information only · Not professional advice · Consult a qualified professional before making any major life decision
       </p>

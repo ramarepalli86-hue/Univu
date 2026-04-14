@@ -5,8 +5,11 @@
  * Nakshatras, Tithis, Yogas, Karanas, Vimshottari Dasha, Manglik,
  * Sade Sati, Egyptian Decans, Mayan Tzolkin, and full report generation.
  *
+ * Planet positions powered by astronomy-engine (VSOP87 theory, arcsecond accuracy).
  * DISCLAIMER: For ENTERTAINMENT and INFORMATION only.
  */
+
+import * as Astro from 'astronomy-engine';
 
 // ─── Constants ───────────────────────────────────────────────
 
@@ -254,35 +257,79 @@ export function calculatePlanetPositions(
   T: number,
   sunTropLon: number,
   ayanamsa: number,
-  lagnaRashiIndex: number
+  lagnaRashiIndex: number,
+  birthDateUTC?: Date
 ): PlanetPosition[] {
-  const meanLons: Record<string, number> = {
-    Sun: normalize360(280.466 + 36000.770 * T),
-    Moon: normalize360(218.317 + 481267.881 * T),
-    Mercury: normalize360(252.251 + 149472.675 * T),
-    Venus: normalize360(181.980 + 58517.816 * T),
-    Mars: normalize360(355.433 + 19140.299 * T),
-    Jupiter: normalize360(34.351 + 3034.906 * T),
-    Saturn: normalize360(50.077 + 1222.114 * T),
-    Rahu: normalize360(125.045 - 1934.136 * T),
-  };
+  // ── True geocentric positions via astronomy-engine (VSOP87, arcsecond accuracy) ──
+  // Falls back to mean longitudes only if no birth date is provided (should never happen in practice)
 
-  const sunSidereal = toSidereal(sunTropLon, ayanamsa);
-  const moonTrop = moonTropicalLongitude(T, sunTropLon);
-  const moonSidereal = toSidereal(moonTrop, ayanamsa);
-  const rahuSidereal = toSidereal(meanLons['Rahu'], ayanamsa);
+  let sunTropical = sunTropLon;
+  let moonTropical = moonTropicalLongitude(T, sunTropLon);
+  const truePlanetTropical: Record<string, number> = {};
+  const retrogradeFlags: Record<string, boolean> = {};
+
+  if (birthDateUTC) {
+    // Sun: geocentric tropical ecliptic longitude
+    sunTropical = Astro.SunPosition(birthDateUTC).elon;
+
+    // Moon: geocentric tropical ecliptic longitude
+    moonTropical = Astro.EclipticGeoMoon(birthDateUTC).lon;
+
+    // Five visible planets: geocentric tropical ecliptic longitude + retrograde detection
+    const nextDay = new Date(birthDateUTC.getTime() + 86400000);
+    const fivePlanets: Astro.Body[] = [
+      Astro.Body.Mercury, Astro.Body.Venus, Astro.Body.Mars,
+      Astro.Body.Jupiter, Astro.Body.Saturn,
+    ];
+    for (const body of fivePlanets) {
+      const name = body as string;
+      const vec = Astro.GeoVector(body, birthDateUTC, true);
+      const ecl = Astro.Ecliptic(vec);
+      truePlanetTropical[name] = ecl.elon;
+
+      // Retrograde: compare ecliptic longitude today vs tomorrow
+      const vec2 = Astro.GeoVector(body, nextDay, true);
+      const ecl2 = Astro.Ecliptic(vec2);
+      let dailyMotion = ecl2.elon - ecl.elon;
+      if (dailyMotion > 300) dailyMotion -= 360;
+      if (dailyMotion < -300) dailyMotion += 360;
+      retrogradeFlags[name] = dailyMotion < 0;
+    }
+  } else {
+    // Fallback: mean longitudes (less accurate, kept for safety)
+    const meanLons: Record<string, number> = {
+      Mercury: normalize360(252.251 + 149472.675 * T),
+      Venus: normalize360(181.980 + 58517.816 * T),
+      Mars: normalize360(355.433 + 19140.299 * T),
+      Jupiter: normalize360(34.351 + 3034.906 * T),
+      Saturn: normalize360(50.077 + 1222.114 * T),
+    };
+    for (const name of Object.keys(meanLons)) {
+      truePlanetTropical[name] = meanLons[name];
+      retrogradeFlags[name] = false;
+    }
+  }
+
+  // Rahu: Mean lunar node (standard in Vedic astrology — most jyotish software uses mean node)
+  const rahuTropical = normalize360(125.045 - 1934.136 * T);
+  const ketuTropical = normalize360(rahuTropical + 180);
+
+  // Convert all to sidereal
+  const sunSidereal = toSidereal(sunTropical, ayanamsa);
+  const moonSidereal = toSidereal(moonTropical, ayanamsa);
+  const rahuSidereal = toSidereal(rahuTropical, ayanamsa);
   const ketuSidereal = normalize360(rahuSidereal + 180);
 
   const planetData: { name: string; sidereal: number; tropical: number; retrograde: boolean }[] = [
-    { name: 'Sun', sidereal: sunSidereal, tropical: sunTropLon, retrograde: false },
-    { name: 'Moon', sidereal: moonSidereal, tropical: moonTrop, retrograde: false },
-    { name: 'Mercury', sidereal: toSidereal(meanLons['Mercury'], ayanamsa), tropical: meanLons['Mercury'], retrograde: false },
-    { name: 'Venus', sidereal: toSidereal(meanLons['Venus'], ayanamsa), tropical: meanLons['Venus'], retrograde: false },
-    { name: 'Mars', sidereal: toSidereal(meanLons['Mars'], ayanamsa), tropical: meanLons['Mars'], retrograde: false },
-    { name: 'Jupiter', sidereal: toSidereal(meanLons['Jupiter'], ayanamsa), tropical: meanLons['Jupiter'], retrograde: false },
-    { name: 'Saturn', sidereal: toSidereal(meanLons['Saturn'], ayanamsa), tropical: meanLons['Saturn'], retrograde: false },
-    { name: 'Rahu', sidereal: rahuSidereal, tropical: meanLons['Rahu'], retrograde: true },
-    { name: 'Ketu', sidereal: ketuSidereal, tropical: normalize360(meanLons['Rahu'] + 180), retrograde: true },
+    { name: 'Sun', sidereal: sunSidereal, tropical: sunTropical, retrograde: false },
+    { name: 'Moon', sidereal: moonSidereal, tropical: moonTropical, retrograde: false },
+    { name: 'Mercury', sidereal: toSidereal(truePlanetTropical['Mercury'], ayanamsa), tropical: truePlanetTropical['Mercury'], retrograde: retrogradeFlags['Mercury'] ?? false },
+    { name: 'Venus', sidereal: toSidereal(truePlanetTropical['Venus'], ayanamsa), tropical: truePlanetTropical['Venus'], retrograde: retrogradeFlags['Venus'] ?? false },
+    { name: 'Mars', sidereal: toSidereal(truePlanetTropical['Mars'], ayanamsa), tropical: truePlanetTropical['Mars'], retrograde: retrogradeFlags['Mars'] ?? false },
+    { name: 'Jupiter', sidereal: toSidereal(truePlanetTropical['Jupiter'], ayanamsa), tropical: truePlanetTropical['Jupiter'], retrograde: retrogradeFlags['Jupiter'] ?? false },
+    { name: 'Saturn', sidereal: toSidereal(truePlanetTropical['Saturn'], ayanamsa), tropical: truePlanetTropical['Saturn'], retrograde: retrogradeFlags['Saturn'] ?? false },
+    { name: 'Rahu', sidereal: rahuSidereal, tropical: rahuTropical, retrograde: true },
+    { name: 'Ketu', sidereal: ketuSidereal, tropical: ketuTropical, retrograde: true },
   ];
 
   const NAKSHATRA_SPAN = 360 / 27;
@@ -410,6 +457,9 @@ export function calculateDashaTimeline(moonSidereal: number, birthYear: number):
 }
 
 // ─── Section J: Manglik (Kuja Dosha) ─────────────────────────
+// Cancellation rules sourced from Brihat Parashara Hora Shastra (BPHS)
+// and Jataka Parijata — the two primary classical authorities.
+// Only universally-accepted cancellations are applied here.
 
 export interface ManglikStatus {
   isManglik: boolean;
@@ -422,37 +472,89 @@ export interface ManglikStatus {
 export function checkManglik(planets: PlanetPosition[], moonRashiIdx: number): ManglikStatus {
   const mars = planets.find(p => p.name === 'Mars');
   const jupiter = planets.find(p => p.name === 'Jupiter');
+  const venus = planets.find(p => p.name === 'Venus');
+  const saturn = planets.find(p => p.name === 'Saturn');
+  const rahu = planets.find(p => p.name === 'Rahu');
   if (!mars) return { isManglik: false, fromLagna: false, fromMoon: false, details: 'Mars not found', cancellations: [] };
 
+  // Step 1: Standard house check — Mars in 1, 2, 4, 7, 8, 12 from Lagna and Moon
   const manglikHouses = [1, 2, 4, 7, 8, 12];
   const fromLagna = manglikHouses.includes(mars.house);
-  const marsRashiFromMoon = ((mars.rashiIndex - moonRashiIdx + 12) % 12) + 1;
-  const fromMoon = manglikHouses.includes(marsRashiFromMoon);
-  const isManglik = fromLagna || fromMoon;
+  const marsHouseFromMoon = ((mars.rashiIndex - moonRashiIdx + 12) % 12) + 1;
+  const fromMoon = manglikHouses.includes(marsHouseFromMoon);
+  const rawPresent = fromLagna || fromMoon;
+
+  // Step 2: Classical cancellation rules (BPHS, Jataka Parijata)
   const cancellations: string[] = [];
 
+  // C1: Mars in own sign (Aries / Scorpio) — dignified Mars, aggression is constructive
   if (mars.rashi.includes('Mesha') || mars.rashi.includes('Vrischika')) {
-    cancellations.push('Mars is in own sign (Aries or Scorpio) — Dosha is weakened');
+    cancellations.push('Mars in own sign (Aries/Scorpio) — dignified, Dosha cancelled');
   }
+
+  // C2: Mars exalted in Capricorn — Mars at peak strength, universally accepted full cancellation
+  if (mars.rashi.includes('Makara')) {
+    cancellations.push('Mars exalted in Capricorn — full cancellation per BPHS');
+  }
+
+  // C3: Jupiter conjuncts or aspects Mars (Vedic aspects: conjunction, 5th, 7th, 9th house from Jupiter)
   if (jupiter) {
-    const jupMarsAspect = Math.abs(jupiter.siderealLongitude - mars.siderealLongitude);
-    if (jupMarsAspect < 15 || Math.abs(jupMarsAspect - 120) < 15 || Math.abs(jupMarsAspect - 240) < 15) {
-      cancellations.push('Jupiter aspects Mars — Dosha is significantly reduced');
+    const jupFromMars = ((jupiter.rashiIndex - mars.rashiIndex + 12) % 12);
+    if (jupFromMars === 0 || jupFromMars === 4 || jupFromMars === 6 || jupFromMars === 8) {
+      cancellations.push('Jupiter aspects/conjoins Mars — benefic influence reduces Dosha');
     }
   }
 
+  // C4: Venus or Jupiter in the 7th house — benefic presence protects marriage house
+  if (venus && venus.house === 7) {
+    cancellations.push('Venus in 7th house — natural benefic protects marriage');
+  }
+  if (jupiter && jupiter.house === 7) {
+    cancellations.push('Jupiter in 7th house — greatest benefic protects marriage');
+  }
+
+  // C5: Mars in Jupiter-ruled sign (Sagittarius / Pisces) — benefic lordship softens Mars
+  if (mars.rashi.includes('Dhanu') || mars.rashi.includes('Meena')) {
+    cancellations.push('Mars in Jupiter-ruled sign — benefic sign lordship softens Dosha');
+  }
+
+  // C6: Saturn conjoins Mars (same rashi) — Saturn restricts and disciplines Mars energy
+  if (saturn && saturn.rashiIndex === mars.rashiIndex) {
+    cancellations.push('Saturn conjoins Mars — Saturn restricts Mars aggression');
+  }
+
+  // C7: Rahu conjoins Mars (same rashi) — modifies standard Manglik pattern (Angarak Yoga)
+  if (rahu && rahu.rashiIndex === mars.rashiIndex) {
+    cancellations.push('Rahu conjoins Mars — modifies standard Manglik pattern');
+  }
+
+  // Step 3: Determine final result
+  // Any cancellation means the Dosha is at minimum reduced; 2+ means effectively cancelled
+  const effectivelyCancelled = cancellations.length >= 2;
+  const partiallyReduced = cancellations.length === 1;
+  const isManglik = rawPresent && !effectivelyCancelled;
+
+  // Step 4: Build detailed explanation
   let details = '';
-  if (isManglik) {
+  if (rawPresent) {
     details = 'Mars is placed in house ' + mars.house + ' from Lagna';
-    if (fromMoon) details += ' and house ' + marsRashiFromMoon + ' from Moon sign';
+    if (fromMoon) details += ' and house ' + marsHouseFromMoon + ' from Moon sign';
     details += ', indicating Manglik Dosha (Kuja Dosha). ';
-    if (cancellations.length > 0) {
-      details += 'However, cancellation conditions apply: ' + cancellations.join('; ') + '. The Dosha is therefore reduced in intensity.';
+
+    if (effectivelyCancelled) {
+      details += 'However, multiple cancellation conditions apply: ' + cancellations.join('; ') + '. ';
+      details += 'The Dosha is effectively cancelled. Most Vedic astrologers would classify this as non-Manglik.';
+    } else if (partiallyReduced) {
+      details += 'A partial cancellation applies: ' + cancellations[0] + '. ';
+      details += 'The Dosha is present but reduced in intensity. After age 28, it weakens further per tradition.';
     } else {
-      details += 'This can cause delays or challenges in marriage. Remedies include worship of Lord Hanuman, recitation of Mangal Stotra, and matching with another Manglik partner.';
+      details += 'No significant cancellation conditions are present. ';
+      details += 'Remedies include worship of Lord Hanuman on Tuesdays, recitation of Mangal Stotra, and matching with another Manglik partner. ';
+      details += 'After age 28, the Dosha is traditionally considered to weaken.';
     }
   } else {
-    details = 'Mars is not in houses 1, 2, 4, 7, 8, or 12 from Lagna or Moon sign. No Manglik Dosha is present.';
+    details = 'Mars is in house ' + mars.house + ' from Lagna and house ' + marsHouseFromMoon + ' from Moon sign. ';
+    details += 'Mars is NOT in houses 1, 2, 4, 7, 8, or 12 from either reference. No Manglik Dosha is present.';
   }
 
   return { isManglik, fromLagna, fromMoon, details, cancellations };
@@ -1917,19 +2019,24 @@ export function generateFullReading(input: ReadingInput): FullReading {
   const jd = julianDay(year, month, day, fractionalHour);
   const T = julianCenturies(jd);
 
+  // Construct UTC Date for astronomy-engine (true geocentric positions)
+  // fractionalHour may be negative (e.g. IST 01:00 = UT -4:30 = previous day 19:30)
+  // Using JD→Date conversion to handle day rollover correctly
+  const birthDateUTC = new Date((jd - 2440587.5) * 86400000);
+
   // Ayanamsa (lahiriAyanamsa takes a year number)
   const ayanamsa = lahiriAyanamsa(year);
 
-  // Sun
-  const sunTropical = sunTropicalLongitude(T);
+  // Sun — true geocentric position via astronomy-engine
+  const sunTropical = Astro.SunPosition(birthDateUTC).elon;
   const sunSidereal = toSidereal(sunTropical, ayanamsa);
   const sunRashi = Math.floor(sunSidereal / 30) % 12;
   // Sign labels depend on tradition: western uses tropical zodiac names, vedic uses sidereal rashis
   const isWestern = input.tradition === 'western';
   const sunSign = isWestern ? WESTERN_SIGNS[sunRashi] : VEDIC_RASHIS[sunRashi];
 
-  // Moon (moonTropicalLongitude takes T and sunTropLon)
-  const moonTropical = moonTropicalLongitude(T, sunTropical);
+  // Moon — true geocentric position via astronomy-engine
+  const moonTropical = Astro.EclipticGeoMoon(birthDateUTC).lon;
   const moonSidereal = toSidereal(moonTropical, ayanamsa);
   const moonRashi = Math.floor(moonSidereal / 30) % 12;
   const moonSign = isWestern ? WESTERN_SIGNS[moonRashi] : VEDIC_RASHIS[moonRashi];
@@ -1944,8 +2051,8 @@ export function generateFullReading(input: ReadingInput): FullReading {
   const lagnaRashi = Math.floor(lagnaLong / 30) % 12;
   const lagnaSign = isWestern ? WESTERN_SIGNS[lagnaRashi] : VEDIC_RASHIS[lagnaRashi];
 
-  // Planets (calculatePlanetPositions takes T, sunTropical, ayanamsa, lagnaRashiIndex)
-  const planets = calculatePlanetPositions(T, sunTropical, ayanamsa, lagnaRashi);
+  // Planets — true geocentric positions via astronomy-engine (VSOP87 theory)
+  const planets = calculatePlanetPositions(T, sunTropical, ayanamsa, lagnaRashi, birthDateUTC);
 
   // Panchanga (calculatePanchanga takes sunSidereal, moonSidereal, jd)
   const panchanga = calculatePanchanga(sunSidereal, moonSidereal, jd);
