@@ -1,6 +1,70 @@
 # Univu — Changelog
 
-> All changes across the ~36-hour build sprint: **Apr 2–4, 2026**
+> Build sprint: **Apr 2–4, 2026** · Major upgrade session: **Apr 13–14, 2026**
+
+---
+
+## [Apr 14, 2026] — Admin Dashboard + Cost Fix
+
+### `c5a561a` · feat: admin dashboard + usage tracker + per-provider cost fix
+
+**New files (3):**
+- `src/lib/usageTracker.ts` — Detailed per-request usage tracking in memory
+  - Tracks: route, provider, tokens, cost, latency, success/fail, fallback count, error messages
+  - Aggregates: by provider, by route, hourly buckets (last 48h), monthly totals
+  - Cost model: gemini=$0, cerebras=$0, groq=$0.59/M tokens
+  - Max 5000 logs in memory, auto-resets on new month
+- `src/app/api/admin/stats/route.ts` — Secure GET endpoint
+  - localhost: auto-allowed (no auth)
+  - Production: requires `?secret=ADMIN_SECRET` query param
+  - Returns full `DashboardData` JSON
+- `src/app/admin/dashboard/page.tsx` — 4-tab admin dashboard
+  - Overview: total requests/tokens/cost/success rate, API key status, provider cards
+  - Cost: budget meter, cost by provider, cost by route, pricing reference table
+  - Usage: bar charts (requests by route, tokens by provider, latency), hourly activity, fallback frequency
+  - Logs: last 20 requests, recent errors panel
+  - Light warm theme: cream/amber gradient, white cards, auto-refresh 10s
+
+**Modified files (6):**
+- `src/lib/aiProvider.ts` — Added `trackRequest()` instrumentation to every provider attempt in `callAI()`; added `route` param to `AIRequestOptions`
+- `src/lib/budget.ts` — **Fixed cost calculation**: was charging flat $0.59/M for ALL providers (including free Gemini + Cerebras). Now uses per-provider rates: gemini=$0, cerebras=$0, groq=$0.59/M
+- `src/app/api/chat/route.ts` — Added `route: 'chat'` to callAI, pass provider to addTokens
+- `src/app/api/enrich-story/route.ts` — Added `route: 'enrich-story'` to callAI, pass provider to addTokens
+- `src/app/api/personal-reading/route.ts` — Added `route: 'personal-reading'` to callAI, pass provider to addTokens
+- `src/middleware.ts` — Allow `/admin` routes through maintenance mode
+
+---
+
+## [Apr 13, 2026] — Accuracy, Interactivity, Timing
+
+### `5d6501d` · fix: dasha-first timing with 3-year antardasha scan for all ages 21+
+- Chat API: rewrote timing rules 9-14 as strict 4-step sequence:
+  1. Identify current Maha Dasha & Antardasha
+  2. Scan upcoming antardashas in ~3-year blocks from NOW
+  3. Pick the best near-term window within 5 years
+  4. Only THEN mention next Maha Dasha as secondary
+- Marriage cap lowered from age 55→45
+- Age threshold lowered from 35→21 (applies to everyone)
+- Love reading prompt: same dasha-first + 3-year antardasha scan structure
+- Fixes: 39yo getting 2043 prediction (was skipping to far-future dasha)
+
+### `31b8fa9` · fix: add age-realism guardrails for timing predictions
+- Added 6 timing-realism rules to chat API system prompt
+- Current year injected dynamically
+- "For anyone 35+, give timing within 3 years"
+- "Never predict marriage beyond 55"
+- "Never give only far-future Maha Dasha without near-term antardasha window"
+
+### `ea9aabd` · fix: enrich follow-up chat with full chart data
+- Root cause: follow-up answers were generic because chartSummary was sparse
+- Fix: enriched chartSummary with ALL planets (degree, retrograde), all 12 house lords, Manglik details + cancellations, Sade Sati phase, full dasha timeline
+- Increased sanitise limit from 2000→6000 chars
+- Added 8 follow-up rules requiring chart-specific citations
+- maxTokens 500→800 for richer answers
+
+### `21c54be` · feat: NASA-grade planet accuracy + interactive follow-up chat
+- **Planet accuracy:** Replaced mean longitude formulas (±40-52° errors) with `astronomy-engine` v2.1.19 (VSOP87, arcsecond accuracy)
+- **Follow-up chat:** Added inline follow-up to ALL reading sections (6 AI tabs, WeeklyForecast, VastuFengShui). Each sends full chartContext to `/api/chat`
 
 ---
 

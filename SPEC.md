@@ -1,4 +1,4 @@
-# UNIVU — Complete Application Specification (Last updated: April 3, 2026)
+# UNIVU — Complete Application Specification (Last updated: April 14, 2026)
 
 ## PROJECT INFO
 - **Path:** `/Users/ramgopesharepalli/Desktop/Univu/`
@@ -6,7 +6,7 @@
 - **GitHub:** `ramarepalli86-hue/univu` (private, credentials in ~/.git-credentials)
 - **Stack:** Next.js 14, React 18, TypeScript 5.4, Tailwind 3.4, Framer Motion 11, Three.js (vanilla), react-icons 5
 - **i18n:** 19 languages (en, te, hi, zh, es, fr, de, it, pt, ru, ta, kn, ml, mr, gu, pa, bn, or, as)
-- **AI backend:** Groq (llama-3.3-70b-versatile) — NOT OpenAI
+- **AI backend:** 3-tier fallback — Gemini 2.5 Flash (primary, free) → Cerebras llama3.1-8b (secondary, free) → Groq llama-3.3-70b-versatile (tertiary, $0.59/M tokens)
 - **Deploy:** Vercel free tier
 - **Machine:** MacBook Air Apple Silicon, zsh, Node v25.8.2
 - **Build:** `npx next build`
@@ -430,12 +430,16 @@ Panchanga values additionally localised for 11 Indic scripts (hi/te/ta/ml/kn/mr/
 ```
 src/
 ├── app/
+│   ├── admin/
+│   │   └── dashboard/page.tsx         ← Admin dashboard UI — 4 tabs (Overview, Cost, Usage, Logs)
 │   ├── api/
-│   │   ├── chat/route.ts              ← CosmicOracle chat
+│   │   ├── admin/stats/route.ts       ← Secure GET endpoint for dashboard data
+│   │   ├── chat/route.ts              ← CosmicOracle chat + follow-up with chart context
 │   │   ├── enrich-story/route.ts      ← Cinematic scene AI enrichment (193 lines)
-│   │   ├── personal-reading/route.ts  ← AI tab readings — Groq (314 lines)
+│   │   ├── personal-reading/route.ts  ← AI tab readings — dasha-first timing
 │   │   ├── reading/route.ts           ← Main reading endpoint (74 lines)
 │   │   └── usage-alert/route.ts       ← Budget alert webhook
+│   ├── maintenance/page.tsx           ← Coming Soon page for production
 │   ├── globals.css                    ← Tailwind base styles
 │   ├── layout.tsx                     ← Root layout, legal meta, JSON-LD
 │   └── page.tsx                       ← Main page: form → report flow
@@ -447,19 +451,24 @@ src/
 │   ├── DisclaimerBanner.tsx           ← Top-of-page disclaimer bar
 │   ├── IntakeForm.tsx                 ← Full intake form with all fields
 │   ├── LanguageSelector.tsx           ← 19-language dropdown
-│   ├── ReportCard.tsx                 ← 8-tab report (1030 lines)
+│   ├── Panchangam.tsx                 ← Locale-aware Panchangam (Hindu calendar)
+│   ├── ReportCard.tsx                 ← 10-tab report with follow-up chat (~2064 lines)
 │   ├── StarField.tsx                  ← Background floating particles
 │   ├── StoryAnimator.tsx              ← Cinematic life story (918 lines)
+│   ├── VastuFengShui.tsx              ← Vastu & Feng Shui tab with follow-up
 │   ├── VedicChart.tsx                 ← South Indian square chart
+│   ├── WeeklyForecast.tsx             ← Weekly forecast with follow-up
 │   └── WesternChart.tsx               ← Western wheel chart
 ├── i18n/
 │   ├── index.ts                       ← i18n logic
 │   └── [19 language].json             ← Translation files
 └── lib/
+    ├── aiProvider.ts                  ← 3-tier AI fallback + usage tracking instrumentation
     ├── apiGuard.ts                    ← Rate limiting + sanitisation (122 lines)
-    ├── astrology.ts                   ← MAIN ENGINE (2060 lines)
-    ├── budget.ts                      ← AI spend guard (67 lines)
-    └── cities.ts                      ← City database with lat/lng
+    ├── astrology.ts                   ← MAIN ENGINE (~2169 lines, astronomy-engine v2.1.19)
+    ├── budget.ts                      ← Per-provider cost guard ($100 monthly budget)
+    ├── cities.ts                      ← City database with lat/lng
+    └── usageTracker.ts                ← Detailed per-request usage tracking (in-memory)
 next.config.js                         ← Security headers (CSP, HSTS, etc.)
 tailwind.config.js                     ← Theme colors (no purple)
 SPEC.md                                ← This file
@@ -467,7 +476,107 @@ SPEC.md                                ← This file
 
 ---
 
-## 15. KNOWN GAPS (not yet built)
+## 15. AI PROVIDER SYSTEM — `src/lib/aiProvider.ts`
+
+### 3-Tier Automatic Fallback
+```
+Gemini 2.5 Flash (primary, free) → Cerebras llama3.1-8b (secondary, free) → Groq llama-3.3-70b (tertiary, $0.59/M)
+```
+
+- Each provider tried in order. If one fails (rate limit, network, missing key), next tried automatically.
+- `thinkingBudget: 0` on Gemini to disable thinking tokens (they consume 70%+ of maxOutputTokens).
+- Lazy singleton clients — instantiated once per warm instance.
+- Every `callAI()` call auto-tracks timing, tokens, route label, fallback count, and errors via `usageTracker.ts`.
+
+### Cost Model
+| Provider | Model | $/1M tokens | Tier |
+|----------|-------|-------------|------|
+| Gemini | gemini-2.5-flash | $0.00 | Free |
+| Cerebras | llama3.1-8b | $0.00 | Free |
+| Groq | llama-3.3-70b-versatile | $0.59 | 100K/day free |
+
+---
+
+## 16. USAGE TRACKER — `src/lib/usageTracker.ts`
+
+In-memory per-request metrics tracker. Resets on cold start / redeploy.
+
+### What It Tracks
+- **Per request:** route, provider, tokens, cost, latency, success/fail, fallback count, error message
+- **Aggregations:** by provider, by route, hourly buckets (last 48h), monthly totals
+- **Budget:** $100/month hard limit, percentage tracking
+
+### API
+- `trackRequest(log)` — called by `callAI()` on every provider attempt (success and failure)
+- `getDashboardData()` — returns full `DashboardData` object for the admin dashboard
+
+---
+
+## 17. ADMIN DASHBOARD — `/admin/dashboard`
+
+### Access
+- **localhost:** auto-allowed (no auth needed)
+- **Production:** requires `?secret=ADMIN_SECRET` query param on `/api/admin/stats`
+
+### 4 Tabs
+1. **Overview** — Total requests/tokens/cost/success rate, API key status, per-provider cards
+2. **Cost** — Budget meter bar, cost by provider table, cost by route table, pricing reference
+3. **Usage** — Bar charts (requests by route, tokens by provider, latency by provider), hourly activity histogram, fallback frequency
+4. **Logs** — Last 20 requests table, recent errors panel
+
+### Design
+- Light warm theme: cream/amber gradient background, white cards, amber accents
+- Auto-refreshes every 10 seconds (toggleable)
+- No external dependencies — CSS-only bar charts
+
+---
+
+## 18. FOLLOW-UP CHAT SYSTEM
+
+Every reading section has inline follow-up chat. User can ask questions about their specific reading.
+
+### How It Works
+1. User generates a reading (any tab)
+2. A "Ask a follow-up" input appears below the reading
+3. User's question + their full chart context is sent to `/api/chat`
+4. The chat API has the user's ACTUAL chart data (all planets, houses, retrograde status, Manglik, Sade Sati, dasha timeline, house lords) so it can give chart-specific answers
+
+### Chart Context Includes
+- All 9 planet positions (name, rashi, house, degree, retrograde status)
+- House lords for all 12 houses
+- Manglik status + cancellations
+- Sade Sati phase
+- Full Vimshottari Dasha timeline
+- User's age, birth year, concern
+
+### Timing Method (Dasha-First, 4-Step)
+For any timing question (marriage, career, etc.) for ages 21+:
+1. **Step 1:** Identify current Maha Dasha + Antardasha
+2. **Step 2:** Scan upcoming antardashas in ~3-year blocks from NOW
+3. **Step 3:** Pick the strongest window within 5 years
+4. **Step 4:** Only THEN mention next Maha Dasha as secondary
+
+Hard limits: Marriage cap age 45, never predict >7 years without closer window.
+
+---
+
+## 19. PLANET ACCURACY — `astronomy-engine` v2.1.19
+
+### Before (mean longitude formulas)
+- ±40-52° errors on outer planets
+- Simple `L = L0 + rate × T` equations — no perturbation corrections
+
+### After (VSOP87 via astronomy-engine)
+- **Arcsecond-level accuracy** for all planets
+- `Astronomy.SunPosition()` for Sun
+- `Astronomy.EclipticGeoMoon()` for Moon
+- `Astronomy.GeoVector() → Astronomy.Ecliptic()` for Mercury through Saturn
+- Rahu/Ketu still use mean node formula (standard practice)
+- All positions converted: tropical → sidereal via Lahiri ayanamsa
+
+---
+
+## 20. KNOWN GAPS (not yet built)
 
 | Gap | Detail |
 |-----|--------|
