@@ -57,9 +57,10 @@ export async function POST(req: NextRequest) {
       ],
       maxTokens: 800,
       temperature: 0.7,
+      route: 'chat',
     });
 
-    addTokens(result.tokensUsed);
+    addTokens(result.tokensUsed, result.provider);
 
     return NextResponse.json({ reply: result.text, tokensUsed: result.tokensUsed, provider: result.provider });
   } catch (error: unknown) {

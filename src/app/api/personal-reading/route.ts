@@ -839,6 +839,7 @@ RULES:
       ],
       maxTokens: maxTokens,
       temperature: 0.75,
+      route: 'personal-reading',
     });
 
     const text = result.text;
@@ -859,7 +860,7 @@ RULES:
     // Re-enable when using a larger model with higher output limits.
     // ══════════════════════════════════════════════════════════════════════════
 
-    addTokens(tokensUsed);
+    addTokens(tokensUsed, result.provider);
 
     return NextResponse.json({ text, section: safeSection, tokensUsed });
   } catch (error: unknown) {

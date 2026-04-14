@@ -24,6 +24,7 @@ export function middleware(req: NextRequest) {
     pathname.startsWith('/maintenance') ||
     pathname.startsWith('/_next') ||
     pathname.startsWith('/api') ||
+    pathname.startsWith('/admin') ||
     pathname.startsWith('/favicon')
   ) {
     return NextResponse.next();

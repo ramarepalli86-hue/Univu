@@ -3,17 +3,27 @@
  * Tracks token usage across the process lifetime.
  * Hard-blocks all AI calls when monthly cost exceeds $100.
  *
+ * Cost is calculated PER PROVIDER — free-tier providers (Gemini, Cerebras)
+ * cost $0. Only Groq at $0.59/1M tokens incurs cost.
+ *
  * NOTE: Vercel serverless functions are stateless — this counter resets
  * on cold starts. For true persistence, set FORCE_SHUTDOWN=1 in Vercel
  * environment variables to manually kill AI features if needed.
  */
 
 const MONTHLY_BUDGET_USD = 100;
-const COST_PER_TOKEN = 0.59 / 1_000_000; // llama-3.3-70b
+
+// Cost per 1M tokens by provider — free tiers cost $0
+const COST_PER_M_TOKENS: Record<string, number> = {
+  gemini:   0.00,
+  cerebras: 0.00,
+  groq:     0.59,
+};
 
 // Module-level singleton — persists within a warm serverless instance
 let _tokens = 0;
 let _requests = 0;
+let _costUSD = 0;
 let _month = new Date().getMonth();
 
 function resetIfNewMonth() {
@@ -21,32 +31,34 @@ function resetIfNewMonth() {
   if (m !== _month) {
     _tokens = 0;
     _requests = 0;
+    _costUSD = 0;
     _month = m;
   }
 }
 
-export function addTokens(n: number) {
+export function addTokens(n: number, provider?: string) {
   resetIfNewMonth();
   _tokens += n;
   _requests += 1;
+  const rate = COST_PER_M_TOKENS[provider || 'groq'] ?? 0.59;
+  _costUSD += n * (rate / 1_000_000);
 }
 
 export function getCost(): number {
   resetIfNewMonth();
-  return _tokens * COST_PER_TOKEN;
+  return _costUSD;
 }
 
 export function getStats() {
   resetIfNewMonth();
-  const cost = _tokens * COST_PER_TOKEN;
   return {
     tokens: _tokens,
     requests: _requests,
-    costUSD: cost,
+    costUSD: _costUSD,
     budgetUSD: MONTHLY_BUDGET_USD,
-    percent: (cost / MONTHLY_BUDGET_USD) * 100,
-    isOverBudget: cost >= MONTHLY_BUDGET_USD || process.env.FORCE_SHUTDOWN === '1',
-    isNearBudget: cost >= MONTHLY_BUDGET_USD * 0.8,
+    percent: (_costUSD / MONTHLY_BUDGET_USD) * 100,
+    isOverBudget: _costUSD >= MONTHLY_BUDGET_USD || process.env.FORCE_SHUTDOWN === '1',
+    isNearBudget: _costUSD >= MONTHLY_BUDGET_USD * 0.8,
   };
 }
 

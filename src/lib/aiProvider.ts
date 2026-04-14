@@ -11,6 +11,7 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import Cerebras from '@cerebras/cerebras_cloud_sdk';
 import Groq from 'groq-sdk';
+import { trackRequest } from '@/lib/usageTracker';
 
 // ─── Lazy singleton clients ─────────────────────────────────────────────────
 
@@ -52,6 +53,8 @@ export interface AIRequestOptions {
   messages: AIMessage[];
   maxTokens: number;
   temperature: number;
+  /** Route label for usage tracking (e.g. 'chat', 'personal-reading') */
+  route?: string;
 }
 
 export interface AIResponse {
@@ -180,23 +183,56 @@ const PROVIDERS: {
  */
 export async function callAI(opts: AIRequestOptions): Promise<AIResponse> {
   const errors: string[] = [];
+  const routeLabel = opts.route || 'unknown';
 
   for (const provider of PROVIDERS) {
+    const t0 = Date.now();
     try {
       const result = await provider.call(opts);
+      const latency = Date.now() - t0;
       if (result.text) {
         if (errors.length > 0) {
           console.log(`[AI] ${provider.name} succeeded after ${errors.length} fallback(s): ${errors.join(' → ')}`);
         } else {
           console.log(`[AI] ${provider.name} responded (${result.tokensUsed} tokens)`);
         }
+        // Track successful request
+        trackRequest({
+          route: routeLabel,
+          provider: provider.name,
+          tokens: result.tokensUsed,
+          latencyMs: latency,
+          success: true,
+          fallbacks: errors.length,
+        });
         return result;
       }
+      // Track empty response as error
+      trackRequest({
+        route: routeLabel,
+        provider: provider.name,
+        tokens: 0,
+        latencyMs: latency,
+        success: false,
+        fallbacks: errors.length,
+        errorMsg: 'Empty response',
+      });
       errors.push(`${provider.name}: empty response`);
     } catch (err: unknown) {
+      const latency = Date.now() - t0;
       const msg = err instanceof Error ? err.message : String(err);
       // Truncate long error messages for logging
       const shortMsg = msg.length > 120 ? msg.slice(0, 120) + '…' : msg;
+      // Track failed request
+      trackRequest({
+        route: routeLabel,
+        provider: provider.name,
+        tokens: 0,
+        latencyMs: latency,
+        success: false,
+        fallbacks: errors.length,
+        errorMsg: shortMsg,
+      });
       errors.push(`${provider.name}: ${shortMsg}`);
       console.warn(`[AI] ${provider.name} failed: ${shortMsg}`);
     }

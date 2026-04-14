@@ -176,9 +176,10 @@ Planets: ${planetContext}`;
       ],
       maxTokens: 500,
       temperature: 0.8,
+      route: 'enrich-story',
     });
 
-    addTokens(result.tokensUsed);
+    addTokens(result.tokensUsed, result.provider);
 
     return NextResponse.json({
       enriched: result.text,
