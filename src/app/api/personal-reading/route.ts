@@ -1,13 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import Groq from 'groq-sdk';
+import { callAI } from '@/lib/aiProvider';
 import { budgetGuard, addTokens } from '@/lib/budget';
 import { apiGuard } from '@/lib/apiGuard';
-
-function getGroqClient(): Groq | null {
-  const apiKey = process.env.Grok_Univu_Key || process.env.GROQ_API_KEY;
-  if (!apiKey) return null;
-  return new Groq({ apiKey });
-}
 
 const SECTION_PROMPTS: Record<string, (ctx: ReadingContext) => string> = {
 
@@ -684,11 +678,6 @@ export async function POST(req: NextRequest) {
   if (budgetBlocked) return budgetBlocked;
 
   try {
-    const groq = getGroqClient();
-    if (!groq) {
-      return NextResponse.json({ error: 'API key not configured', text: null }, { status: 503 });
-    }
-
     const body = await req.json();
     const { section, context }: { section: string; context: ReadingContext } = body;
 
@@ -730,10 +719,9 @@ export async function POST(req: NextRequest) {
       : 1800; // all personal sections get 1800 tokens so they don't get cut off
 
     // ══════════════════════════════════════════════════════════════════════════
-    // PASS 1: Generate the initial reading
+    // PASS 1: Generate the initial reading (Gemini → Cerebras → Groq fallback)
     // ══════════════════════════════════════════════════════════════════════════
-    const completion = await groq.chat.completions.create({
-      model: 'llama-3.3-70b-versatile',
+    const pass1 = await callAI({
       messages: [
         {
           role: 'system',
@@ -765,12 +753,12 @@ RULES:
         },
         { role: 'user', content: userPrompt },
       ],
-      max_tokens: maxTokens,
+      maxTokens: maxTokens,
       temperature: 0.75,
     });
 
-    let text = completion.choices[0]?.message?.content || '';
-    let tokensUsed = completion.usage?.total_tokens || 0;
+    let text = pass1.text;
+    let tokensUsed = pass1.tokensUsed;
 
     // ══════════════════════════════════════════════════════════════════════════
     // PASS 2: Validate & refine the reading against the actual chart data
@@ -814,18 +802,17 @@ CHECK FOR THESE ERRORS AND FIX THEM:
 OUTPUT: Return ONLY the corrected, complete reading. Keep the same bold headings and structure. Do NOT add commentary about what you changed — just output the final clean reading. If the reading was already accurate, return it as-is with minimal changes.`;
 
       try {
-        const validationCompletion = await groq.chat.completions.create({
-          model: 'llama-3.3-70b-versatile',
+        const validationResult = await callAI({
           messages: [
             { role: 'system', content: 'You are a Vedic astrology fact-checker. Your ONLY job is to verify and correct the reading against the actual chart data. Output the corrected reading — nothing else.' },
             { role: 'user', content: validationPrompt },
           ],
-          max_tokens: Math.min(maxTokens + 300, 2800), // validation pass gets extra room to complete any cut-off sections
+          maxTokens: Math.min(maxTokens + 300, 2800), // validation pass gets extra room to complete any cut-off sections
           temperature: 0.3, // Lower temperature for factual accuracy
         });
 
-        const validatedText = validationCompletion.choices[0]?.message?.content || '';
-        const validationTokens = validationCompletion.usage?.total_tokens || 0;
+        const validatedText = validationResult.text;
+        const validationTokens = validationResult.tokensUsed;
 
         // Only use validated text if it's substantial (not an error response)
         if (validatedText.length > text.length * 0.5) {

@@ -1,13 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import Groq from 'groq-sdk';
+import { callAI } from '@/lib/aiProvider';
 import { budgetGuard, addTokens } from '@/lib/budget';
 import { apiGuard, sanitise } from '@/lib/apiGuard';
-
-function getGroqClient(): Groq | null {
-  const apiKey = process.env.Grok_Univu_Key || process.env.GROQ_API_KEY;
-  if (!apiKey) return null;
-  return new Groq({ apiKey });
-}
 const ASTRO_SYSTEM = `You are Univu's AI astrologer — a warm, wise, direct guide who answers questions about Vedic astrology, Western astrology, Mayan, and Egyptian traditions.
 
 CRITICAL RULES:
@@ -38,11 +32,6 @@ export async function POST(req: NextRequest) {
   if (budgetBlocked) return budgetBlocked;
 
   try {
-    const groq = getGroqClient();
-    if (!groq) {
-      return NextResponse.json({ error: 'API key not configured', reply: null }, { status: 503 });
-    }
-
     const body = await req.json();
     const { messages, chartContext }: { messages: ChatMessage[]; chartContext?: string } = body;
 
@@ -52,7 +41,7 @@ export async function POST(req: NextRequest) {
 
     // Sanitise the last user message to prevent prompt injection
     const safeMessages = messages.slice(-10).map(m => ({
-      role: m.role,
+      role: m.role as 'user' | 'assistant',
       content: m.role === 'user' ? sanitise(m.content, 1000) : m.content,
     }));
 
@@ -61,21 +50,18 @@ export async function POST(req: NextRequest) {
       ? `${ASTRO_SYSTEM}\n\nIMPORTANT — The user's ACTUAL chart data (verified from their birth details):\n${sanitise(chartContext, 2000)}\n\nYou MUST use this chart data when answering. ONLY reference planets, houses, and signs that appear in the data above. Do NOT invent any chart details that are not listed here. Every astrological claim must cite the exact house number and planet position from this data.`
       : `${ASTRO_SYSTEM}\n\nNOTE: The user has NOT provided their birth chart yet. Do NOT make up chart details. Ask for their birth date, exact birth time, and birth city if they want a personal reading. You can discuss general astrology concepts without chart data.`;
 
-    const completion = await groq.chat.completions.create({
-      model: 'llama-3.3-70b-versatile',
+    const result = await callAI({
       messages: [
         { role: 'system', content: systemContent },
         ...safeMessages,
       ],
-      max_tokens: 500,
+      maxTokens: 500,
       temperature: 0.7,
     });
 
-    const reply = completion.choices[0]?.message?.content || '';
-    const tokensUsed = completion.usage?.total_tokens || 0;
-    addTokens(tokensUsed);
+    addTokens(result.tokensUsed);
 
-    return NextResponse.json({ reply, tokensUsed });
+    return NextResponse.json({ reply: result.text, tokensUsed: result.tokensUsed, provider: result.provider });
   } catch (error: unknown) {
     console.error('Chat API error:', error);
     const msg = error instanceof Error ? error.message : 'Unknown error';

@@ -1,13 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import Groq from 'groq-sdk';
+import { callAI } from '@/lib/aiProvider';
 import { budgetGuard, addTokens } from '@/lib/budget';
-
-// ─── Groq client — lazy initialized so missing key won't crash build ──────────
-function getGroqClient(): Groq | null {
-  const apiKey = process.env.Grok_Univu_Key || process.env.GROQ_API_KEY;
-  if (!apiKey) return null;
-  return new Groq({ apiKey });
-}
 
 // ─── System prompt — the astrology intelligence core ─────────────────────────
 function buildSystemPrompt(pronouns: { sub: string; obj: string; pos: string }): string {
@@ -34,14 +27,6 @@ export async function POST(req: NextRequest) {
   if (blocked) return blocked;
 
   try {
-    const groq = getGroqClient();
-    if (!groq) {
-      return NextResponse.json(
-        { error: 'API key not configured.', enriched: null },
-        { status: 503 }
-      );
-    }
-
     const body = await req.json();
     const {
       name,
@@ -160,26 +145,23 @@ about "${sceneTitle}" (${lifeAge}) with ruling planet ${planet}.
 Their chart: Lagna ${lagnaSign}, Moon ${moonSign}, Sun ${sunSign}.
 Planets: ${planetContext}`;
 
-    // Call Groq — FREE (Llama 3.3 70B, 14,400 req/day free tier)
-    const completion = await groq.chat.completions.create({
-      model: 'llama-3.3-70b-versatile',
+    // Call AI — 3-tier fallback: Gemini → Cerebras → Groq
+    const result = await callAI({
       messages: [
         { role: 'system', content: buildSystemPrompt(pronouns) },
         { role: 'user', content: userPrompt },
       ],
-      max_tokens: 500,
+      maxTokens: 500,
       temperature: 0.8,
     });
 
-    const enrichedText = completion.choices[0]?.message?.content || '';
-    const tokensUsed = completion.usage?.total_tokens || 0;
-    addTokens(tokensUsed);
+    addTokens(result.tokensUsed);
 
     return NextResponse.json({
-      enriched: enrichedText,
+      enriched: result.text,
       sceneIndex,
-      model: 'groq/llama-3.3-70b-versatile (free)',
-      tokensUsed,
+      model: `${result.provider} (free tier)`,
+      tokensUsed: result.tokensUsed,
     });
 
   } catch (error: unknown) {
