@@ -64,7 +64,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ reply: result.text, tokensUsed: result.tokensUsed, provider: result.provider });
   } catch (error: unknown) {
     console.error('Chat API error:', error);
-    const msg = error instanceof Error ? error.message : 'Unknown error';
-    return NextResponse.json({ error: msg, reply: null }, { status: 500 });
+    return NextResponse.json({ error: 'Chat unavailable. Please try again.', reply: null }, { status: 500 });
   }
 }

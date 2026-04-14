@@ -66,37 +66,34 @@ async function callGemini(opts: AIRequestOptions): Promise<AIResponse> {
   const client = getGemini();
   if (!client) throw new Error('GEMINI_API_KEY not configured');
 
-  // Gemini uses a generative model — convert messages into its format
-  const model = client.getGenerativeModel({
-    model: 'gemini-2.5-flash',
-    generationConfig: {
-      maxOutputTokens: opts.maxTokens,
-      temperature: opts.temperature,
-    },
-  });
+  // IMPORTANT: Gemini 2.5 Flash uses "thinking" tokens by default, which consume
+  // a huge portion of maxOutputTokens (often 70%+) for internal reasoning, leaving
+  // very little budget for actual visible text. We disable thinking entirely
+  // (thinkingBudget: 0) so ALL output tokens go to the actual response text.
+  const genConfig = {
+    maxOutputTokens: opts.maxTokens,
+    temperature: opts.temperature,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    thinkingConfig: { thinkingBudget: 0 },
+  } as Record<string, unknown>;
 
   // Extract system instruction and build chat history
   const systemMsg = opts.messages.find(m => m.role === 'system');
   const nonSystemMsgs = opts.messages.filter(m => m.role !== 'system');
-
-  // Build the full prompt — Gemini uses generateContent with system instruction
   const systemInstruction = systemMsg?.content || '';
 
-  // For multi-turn, we use the chat interface
-  // For single user message (most common), we use generateContent
+  // For single user message (most common), use generateContent
   if (nonSystemMsgs.length === 1 && nonSystemMsgs[0].role === 'user') {
-    // Simple single-turn: combine system + user into one generateContent call
     const fullModel = client.getGenerativeModel({
       model: 'gemini-2.5-flash',
       systemInstruction: systemInstruction,
-      generationConfig: {
-        maxOutputTokens: opts.maxTokens,
-        temperature: opts.temperature,
-      },
+      generationConfig: genConfig as never,
     });
     const result = await fullModel.generateContent(nonSystemMsgs[0].content);
     const text = result.response.text();
-    const tokensUsed = result.response.usageMetadata?.totalTokenCount || 0;
+    const usage = result.response.usageMetadata;
+    // Use candidatesTokenCount (actual output) not totalTokenCount (which includes thinking)
+    const tokensUsed = usage?.candidatesTokenCount || usage?.totalTokenCount || 0;
     return { text, tokensUsed, provider: 'gemini' };
   }
 
@@ -104,13 +101,9 @@ async function callGemini(opts: AIRequestOptions): Promise<AIResponse> {
   const chatModel = client.getGenerativeModel({
     model: 'gemini-2.5-flash',
     systemInstruction: systemInstruction,
-    generationConfig: {
-      maxOutputTokens: opts.maxTokens,
-      temperature: opts.temperature,
-    },
+    generationConfig: genConfig as never,
   });
 
-  // Convert messages to Gemini chat format
   const history = nonSystemMsgs.slice(0, -1).map(m => ({
     role: m.role === 'assistant' ? 'model' as const : 'user' as const,
     parts: [{ text: m.content }],
@@ -120,7 +113,8 @@ async function callGemini(opts: AIRequestOptions): Promise<AIResponse> {
   const chat = chatModel.startChat({ history });
   const result = await chat.sendMessage(lastMsg.content);
   const text = result.response.text();
-  const tokensUsed = result.response.usageMetadata?.totalTokenCount || 0;
+  const usage = result.response.usageMetadata;
+  const tokensUsed = usage?.candidatesTokenCount || usage?.totalTokenCount || 0;
   return { text, tokensUsed, provider: 'gemini' };
 }
 

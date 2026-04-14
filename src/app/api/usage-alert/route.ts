@@ -1,8 +1,29 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { addTokens, getStats } from '@/lib/budget';
+import { apiGuard } from '@/lib/apiGuard';
+
+/**
+ * Usage alert endpoint — tracks token spend and fires webhook alerts.
+ *
+ * Security:
+ *  - POST is rate-limited + origin-checked via apiGuard
+ *  - POST validates tokensUsed is a sane positive integer
+ *  - GET is removed — budget stats should NOT be publicly visible
+ */
 
 export async function POST(req: NextRequest) {
-  const { tokensUsed = 0 } = await req.json().catch(() => ({}));
+  // Rate limit + origin check
+  const blocked = apiGuard(req);
+  if (blocked) return blocked;
+
+  let tokensUsed = 0;
+  try {
+    const body = await req.json();
+    tokensUsed = typeof body.tokensUsed === 'number' ? Math.max(0, Math.min(Math.floor(body.tokensUsed), 100000)) : 0;
+  } catch {
+    // Invalid body — treat as 0 tokens
+  }
+
   addTokens(tokensUsed);
   const s = getStats();
 
@@ -12,6 +33,7 @@ export async function POST(req: NextRequest) {
     console.warn(`UNIVU NEAR BUDGET: $${s.costUSD.toFixed(4)} / $${s.budgetUSD} (${s.percent.toFixed(1)}%)`);
   }
 
+  // Fire webhook alert if configured
   const webhookUrl = process.env.ALERT_WEBHOOK_URL;
   if ((s.isOverBudget || s.isNearBudget) && webhookUrl) {
     fetch(webhookUrl, {
@@ -23,33 +45,8 @@ export async function POST(req: NextRequest) {
     }).catch(() => {});
   }
 
+  // Only return status — no detailed budget numbers to the client
   return NextResponse.json({
-    costUSD: s.costUSD.toFixed(6),
-    budgetUSD: s.budgetUSD,
-    percent: s.percent.toFixed(2),
-    tokens: s.tokens,
-    requests: s.requests,
-    isOverBudget: s.isOverBudget,
-    isNearBudget: s.isNearBudget,
     status: s.isOverBudget ? 'OVER_BUDGET' : s.isNearBudget ? 'NEAR_BUDGET' : 'OK',
-  });
-}
-
-export async function GET() {
-  const s = getStats();
-  return NextResponse.json({
-    costUSD: s.costUSD.toFixed(6),
-    budgetUSD: s.budgetUSD,
-    percent: s.percent.toFixed(2),
-    tokens: s.tokens,
-    requests: s.requests,
-    isOverBudget: s.isOverBudget,
-    isNearBudget: s.isNearBudget,
-    status: s.isOverBudget ? 'OVER_BUDGET' : s.isNearBudget ? 'NEAR_BUDGET' : 'OK',
-    message: s.isOverBudget
-      ? 'Monthly AI budget exceeded — all AI features paused until next month'
-      : s.isNearBudget
-        ? `${s.percent.toFixed(1)}% of $${s.budgetUSD} budget used`
-        : `$${s.costUSD.toFixed(4)} of $${s.budgetUSD} used this month`,
   });
 }

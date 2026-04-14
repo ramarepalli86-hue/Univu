@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { callAI } from '@/lib/aiProvider';
 import { budgetGuard, addTokens } from '@/lib/budget';
-import { apiGuard } from '@/lib/apiGuard';
+import { apiGuard, sanitise } from '@/lib/apiGuard';
 
 const SECTION_PROMPTS: Record<string, (ctx: ReadingContext) => string> = {
 
@@ -685,15 +685,98 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'section and context required' }, { status: 400 });
     }
 
-    // ── PII: replace real name with an anonymous token before sending to the AI ──
-    const anonContext: ReadingContext = {
-      ...context,
-      name: 'the Seeker',  // real name never reaches the AI model
+    // ── Validate section is a known value (prevent prompt injection via section name) ──
+    const VALID_SECTIONS = Object.keys(SECTION_PROMPTS);
+    const safeSection = sanitise(section, 50);
+    if (!VALID_SECTIONS.includes(safeSection)) {
+      return NextResponse.json({ error: 'Unknown section' }, { status: 400 });
+    }
+
+    // ── Sanitise all user-supplied string fields in the context ──
+    const sanitisedContext: ReadingContext = {
+      name: 'the Seeker',  // PII: real name never reaches the AI model
+      dob: sanitise(context.dob, 12),
+      birthCity: sanitise(context.birthCity, 150),
+      currentCity: sanitise(context.currentCity, 150),
+      currentLat: typeof context.currentLat === 'number' ? context.currentLat : 0,
+      currentLng: typeof context.currentLng === 'number' ? context.currentLng : 0,
+      gender: sanitise(context.gender, 30),
+      maritalStatus: sanitise(context.maritalStatus, 30),
+      employment: sanitise(context.employment, 30),
+      concern: sanitise(context.concern, 500),
+      lagnaSign: sanitise(context.lagnaSign, 30),
+      moonSign: sanitise(context.moonSign, 30),
+      sunSign: sanitise(context.sunSign, 30),
+      moonNakshatraName: sanitise(context.moonNakshatraName, 50),
+      moonNakshatraPada: typeof context.moonNakshatraPada === 'number' ? Math.min(Math.max(Math.floor(context.moonNakshatraPada), 0), 4) : 0,
+      nakshatraDeity: sanitise(context.nakshatraDeity, 50),
+      currentDasha: sanitise(context.currentDasha, 50),
+      currentAntardasha: sanitise(context.currentAntardasha, 50),
+      currentDashaYears: sanitise(context.currentDashaYears, 30),
+      nextDasha: sanitise(context.nextDasha, 50),
+      nextDashaYear: sanitise(context.nextDashaYear, 10),
+      currentAge: typeof context.currentAge === 'number' ? Math.min(Math.max(Math.floor(context.currentAge), 0), 150) : 30,
+      isManglik: context.isManglik === true,
+      marsHouse: typeof context.marsHouse === 'number' ? Math.min(Math.max(Math.floor(context.marsHouse), 0), 12) : 0,
+      marsSign: sanitise(context.marsSign, 30),
+      venusSign: sanitise(context.venusSign, 30),
+      venusHouse: typeof context.venusHouse === 'number' ? Math.min(Math.max(Math.floor(context.venusHouse), 0), 12) : 0,
+      saturnSign: sanitise(context.saturnSign, 30),
+      saturnHouse: typeof context.saturnHouse === 'number' ? Math.min(Math.max(Math.floor(context.saturnHouse), 0), 12) : 0,
+      jupiterSign: sanitise(context.jupiterSign, 30),
+      jupiterHouse: typeof context.jupiterHouse === 'number' ? Math.min(Math.max(Math.floor(context.jupiterHouse), 0), 12) : 0,
+      rahuSign: sanitise(context.rahuSign, 30),
+      rahuHouse: typeof context.rahuHouse === 'number' ? Math.min(Math.max(Math.floor(context.rahuHouse), 0), 12) : 0,
+      ketuSign: sanitise(context.ketuSign, 30),
+      ketuHouse: typeof context.ketuHouse === 'number' ? Math.min(Math.max(Math.floor(context.ketuHouse), 0), 12) : 0,
+      seventhHouseSign: sanitise(context.seventhHouseSign, 30),
+      seventhHouseLord: sanitise(context.seventhHouseLord, 30),
+      tenthHouseSign: sanitise(context.tenthHouseSign, 30),
+      tenthHouseLord: sanitise(context.tenthHouseLord, 30),
+      sixthHouseSign: sanitise(context.sixthHouseSign, 30),
+      eighthHouseSign: sanitise(context.eighthHouseSign, 30),
+      ninthHouseSign: sanitise(context.ninthHouseSign, 30),
+      twelfthHouseSign: sanitise(context.twelfthHouseSign, 30),
+      lagnaBodyPart: sanitise(context.lagnaBodyPart, 50),
+      planetsIn7: sanitise(context.planetsIn7, 100),
+      planetsIn6: sanitise(context.planetsIn6, 100),
+      atmakaraka: sanitise(context.atmakaraka, 30),
+      sadeSatiActive: context.sadeSatiActive === true,
+      vedicSystem: (['parashari','kp','jaimini','lal_kitab'].includes(context.vedicSystem) ? context.vedicSystem : 'parashari') as 'parashari' | 'kp' | 'jaimini' | 'lal_kitab',
     };
 
-    const promptFn = SECTION_PROMPTS[section];
+    // Carry through any vastu-specific extra fields (sanitised)
+    const vastuExtra: Record<string, unknown> = {};
+    if (safeSection === 'vastu') {
+      const c = context as unknown as Record<string, unknown>;
+      vastuExtra.vastuHouseCity = sanitise(c.vastuHouseCity as string, 150);
+      vastuExtra.vastuHouseLat = typeof c.vastuHouseLat === 'number' ? c.vastuHouseLat : 0;
+      vastuExtra.vastuHouseLng = typeof c.vastuHouseLng === 'number' ? c.vastuHouseLng : 0;
+      vastuExtra.vastuHouseFacing = sanitise(c.vastuHouseFacing as string, 30);
+      vastuExtra.vastuFloorLevel = sanitise(c.vastuFloorLevel as string, 50);
+      vastuExtra.vastuPlotShape = sanitise(c.vastuPlotShape as string, 30);
+      vastuExtra.vastuClimate = sanitise(c.vastuClimate as string, 500);
+      vastuExtra.vastuSunWind = sanitise(c.vastuSunWind as string, 500);
+      vastuExtra.vastuPersonDob = sanitise(c.vastuPersonDob as string, 12);
+      vastuExtra.vastuPersonTime = sanitise(c.vastuPersonTime as string, 10);
+      vastuExtra.vastuPersonBirthCity = sanitise(c.vastuPersonBirthCity as string, 150);
+      vastuExtra.vastuPartnerDob = sanitise(c.vastuPartnerDob as string, 12);
+      vastuExtra.vastuPartnerTime = sanitise(c.vastuPartnerTime as string, 10);
+      vastuExtra.vastuPartnerBirthCity = sanitise(c.vastuPartnerBirthCity as string, 150);
+      vastuExtra.vastuMode = sanitise(c.vastuMode as string, 20);
+    }
+
+    // Carry through any weekly-specific extra fields
+    if (safeSection.startsWith('weekly')) {
+      const c = context as unknown as Record<string, unknown>;
+      vastuExtra.weeklyTimeframe = sanitise(c.weeklyTimeframe as string, 10);
+    }
+
+    const anonContext: ReadingContext & Record<string, unknown> = { ...sanitisedContext, ...vastuExtra };
+
+    const promptFn = SECTION_PROMPTS[safeSection];
     if (!promptFn) {
-      return NextResponse.json({ error: 'Unknown section: ' + section }, { status: 400 });
+      return NextResponse.json({ error: 'Unknown section' }, { status: 400 });
     }
 
     const userPrompt = promptFn(anonContext);
@@ -704,24 +787,24 @@ export async function POST(req: NextRequest) {
       jaimini:   'Jaimini (Chara Dasha, Karakamsha, Argala, Pada Lagna — soul-level karmic readings)',
       lal_kitab: 'Lal Kitab (folk Vedic — Pucca/Kachcha houses, debts across lifetimes, practical remedies)',
     };
-    const systemInstruction = vedicSystemLabel[context.vedicSystem] || vedicSystemLabel.parashari;
+    const systemInstruction = vedicSystemLabel[sanitisedContext.vedicSystem] || vedicSystemLabel.parashari;
 
-    // Token limits — readings need enough room to be complete, not cut off.
-    // Vastu has 7 detailed sections across 3 traditions — needs the most space.
-    // Personal readings (overview, love, career, etc.) need 6+ detailed sections with antardasha analysis.
-    // Weekly/generic forecasts can be shorter.
-    const isVastu = section === 'vastu';
-    const isGenericWeekly = section.startsWith('weekly_') && section !== 'weekly_personal' && section !== 'weekly';
-    const isMonthly = (context as unknown as Record<string,unknown>).weeklyTimeframe === 'month';
-    const maxTokens = isVastu ? 2500
-      : isGenericWeekly ? (isMonthly ? 1500 : 1000)
-      : isMonthly ? 1800
-      : 1800; // all personal sections get 1800 tokens so they don't get cut off
+    // Token limits — with thinking disabled on Gemini 2.5 Flash, ALL output tokens
+    // go to actual text. Vastu needs the most space (7 sections × 3 traditions).
+    // Personal readings need 6+ sections with antardasha analysis.
+    // Single-pass (no validation pass) so we can afford generous limits.
+    const isVastu = safeSection === 'vastu';
+    const isGenericWeekly = safeSection.startsWith('weekly_') && safeSection !== 'weekly_personal' && safeSection !== 'weekly';
+    const isMonthly = vastuExtra.weeklyTimeframe === 'month';
+    const maxTokens = isVastu ? 4000
+      : isGenericWeekly ? (isMonthly ? 2000 : 1500)
+      : isMonthly ? 2500
+      : 2500; // all personal sections: generous single-pass budget
 
     // ══════════════════════════════════════════════════════════════════════════
-    // PASS 1: Generate the initial reading (Gemini → Cerebras → Groq fallback)
+    // Generate the reading (Gemini → Cerebras → Groq automatic fallback)
     // ══════════════════════════════════════════════════════════════════════════
-    const pass1 = await callAI({
+    const result = await callAI({
       messages: [
         {
           role: 'system',
@@ -757,80 +840,29 @@ RULES:
       temperature: 0.75,
     });
 
-    let text = pass1.text;
-    let tokensUsed = pass1.tokensUsed;
+    const text = result.text;
+    const tokensUsed = result.tokensUsed;
 
     // ══════════════════════════════════════════════════════════════════════════
-    // PASS 2: Validate & refine the reading against the actual chart data
-    // Only for personal sections (not weekly rashi/zodiac/chinese which are generic)
+    // PASS 2: DISABLED
+    // The two-pass validation system was designed for Groq's 70B model which had
+    // ample output token budgets. With Gemini 2.5 Flash (thinking tokens eat into
+    // output) and Cerebras llama3.1-8b (small model), the validation pass:
+    //   1. Doubles token consumption (hits free tier limits faster)
+    //   2. Often produces SHORTER output than Pass 1 (truncation)
+    //   3. The massive prompt (chart data + full reading + 10 check rules)
+    //      overwhelms smaller models, resulting in incomplete re-writes
+    //
+    // The single-pass approach with the detailed 17-rule system prompt and
+    // chart-specific section prompts produces better results with these models.
+    // Re-enable when using a larger model with higher output limits.
     // ══════════════════════════════════════════════════════════════════════════
-    const personalSections = ['overview', 'love', 'career', 'health', 'timeline', 'spiritual', 'weekly', 'weekly_personal'];
-    if (text && personalSections.includes(section)) {
-      const validationPrompt = `You are a STRICT Vedic astrology FACT-CHECKER. You have the person's ACTUAL chart data below. Your job is to check the reading for accuracy and fix any errors.
-
-ACTUAL CHART DATA:
-- Lagna: ${anonContext.lagnaSign} | Moon: ${anonContext.moonSign} | Sun: ${anonContext.sunSign}
-- Marital Status: ${anonContext.maritalStatus.toUpperCase()}
-- Age: ~${anonContext.currentAge} | Gender: ${anonContext.gender}
-- Current Dasha: ${anonContext.currentDasha} / Antardasha: ${anonContext.currentAntardasha} (${anonContext.currentDashaYears})
-- Next Dasha: ${anonContext.nextDasha} starts ~${anonContext.nextDashaYear}
-- Venus: ${anonContext.venusSign} House ${anonContext.venusHouse} | Mars: ${anonContext.marsSign} House ${anonContext.marsHouse}
-- Jupiter: ${anonContext.jupiterSign} House ${anonContext.jupiterHouse} | Saturn: ${anonContext.saturnSign} House ${anonContext.saturnHouse}
-- Rahu: ${anonContext.rahuSign} House ${anonContext.rahuHouse} | Ketu: ${anonContext.ketuSign} House ${anonContext.ketuHouse}
-- 7th house: ${anonContext.seventhHouseSign} lord: ${anonContext.seventhHouseLord} | Planets in 7th: ${anonContext.planetsIn7}
-- 10th house: ${anonContext.tenthHouseSign} lord: ${anonContext.tenthHouseLord}
-- Manglik: ${anonContext.isManglik ? 'YES' : 'No'} | Sade Sati: ${anonContext.sadeSatiActive ? 'ACTIVE' : 'No'}
-- Atmakaraka: ${anonContext.atmakaraka}
-- Moon Nakshatra: ${anonContext.moonNakshatraName} Pada ${anonContext.moonNakshatraPada}
-${anonContext.concern ? `- Person's concern: "${anonContext.concern}"` : ''}
-
-THE READING TO VALIDATE:
-${text}
-
-CHECK FOR THESE ERRORS AND FIX THEM:
-1. WRONG PLANET POSITIONS: If the reading says "Mars in House 7" but the data shows Mars in House ${anonContext.marsHouse}, FIX IT.
-2. WRONG DASHA: If the reading mentions wrong dasha periods or years, FIX with actual data.
-3. MARITAL STATUS VIOLATION: Person is ${anonContext.maritalStatus.toUpperCase()}. If the reading says "your spouse/partner/husband/wife" to a SINGLE person, REWRITE those sentences to say "future partner" or "the person you will meet".
-4. GENERIC FILLER: If any sentence could apply to ANY person (not specific to this chart), REWRITE it with specific house/planet references. Every claim must cite the house number.
-5. CONCERN IGNORED: ${anonContext.concern ? `The person asked about "${anonContext.concern}". If the reading does not DIRECTLY address this, add a clear response.` : 'No specific concern — skip this check.'}
-6. MISSING PRACTICAL ADVICE: If the reading only gives astrological talk with no real-world action steps, ADD practical advice (exercise, food, doctor, career training, counseling).
-7. REMEDY WITHOUT DISCLAIMER: If any remedy (gemstone, mantra, puja) is mentioned without "informational only / consult a professional astrologer", ADD the disclaimer.
-8. ANTARDASHA MISSING: The reading MUST discuss the ${anonContext.currentAntardasha} antardasha (sub-period), not just the ${anonContext.currentDasha} maha dasha. If the reading only mentions the major dasha without breaking down sub-periods, ADD antardasha analysis with approximate year ranges.
-9. INCOMPLETE / CUT OFF: If the reading ends abruptly or any section is missing its conclusion, COMPLETE it. Every section must have a proper ending.
-10. "SEE THEN INTERPRET" STRUCTURE: The reading should FIRST state what the chart shows (planet positions, house numbers), THEN explain how it affects the person. If it jumps straight to interpretation without showing the chart facts, ADD the chart-reading layer.
-
-OUTPUT: Return ONLY the corrected, complete reading. Keep the same bold headings and structure. Do NOT add commentary about what you changed — just output the final clean reading. If the reading was already accurate, return it as-is with minimal changes.`;
-
-      try {
-        const validationResult = await callAI({
-          messages: [
-            { role: 'system', content: 'You are a Vedic astrology fact-checker. Your ONLY job is to verify and correct the reading against the actual chart data. Output the corrected reading — nothing else.' },
-            { role: 'user', content: validationPrompt },
-          ],
-          maxTokens: Math.min(maxTokens + 300, 2800), // validation pass gets extra room to complete any cut-off sections
-          temperature: 0.3, // Lower temperature for factual accuracy
-        });
-
-        const validatedText = validationResult.text;
-        const validationTokens = validationResult.tokensUsed;
-
-        // Only use validated text if it's substantial (not an error response)
-        if (validatedText.length > text.length * 0.5) {
-          text = validatedText;
-        }
-        tokensUsed += validationTokens;
-      } catch (validationError) {
-        // If validation fails, use the original reading — don't block the user
-        console.warn('Validation pass failed, using original reading:', validationError);
-      }
-    }
 
     addTokens(tokensUsed);
 
-    return NextResponse.json({ text, section, tokensUsed });
+    return NextResponse.json({ text, section: safeSection, tokensUsed });
   } catch (error: unknown) {
     console.error('Personal reading API error:', error);
-    const msg = error instanceof Error ? error.message : 'Unknown error';
-    return NextResponse.json({ error: msg, text: null }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to generate reading. Please try again.', text: null }, { status: 500 });
   }
 }
