@@ -78,7 +78,7 @@ Data:
 - Current dasha: ${ctx.currentDasha} / ${ctx.currentAntardasha} (${ctx.currentDashaYears})
 - Next dasha: ${ctx.nextDasha} starts ~${ctx.nextDashaYear}
 - Jupiter in ${ctx.jupiterSign} House ${ctx.jupiterHouse}
-- CURRENT AGE: ~${ctx.currentAge} years old (born ${ctx.dob?.split('-')[0] || 'unknown'}) — any marriage timing prediction MUST be realistic for this age. Do NOT predict marriage beyond age 55.
+- CURRENT AGE: ~${ctx.currentAge} years old (born ${ctx.dob?.split('-')[0] || 'unknown'}) — any marriage timing prediction MUST be realistic for this age. Do NOT predict marriage beyond age 45.
 
 Write 6 sections with bold headings. CITE exact planet positions (house number + sign) for every claim:
 
@@ -94,12 +94,13 @@ Based on Moon in ${ctx.moonSign} (emotional needs), 7th lord ${ctx.seventhHouseL
 **📅 When will ${ctx.maritalStatus === 'single' ? 'marriage / a serious relationship happen' : 'the relationship dynamic shift significantly'}**
 THIS IS THE MOST IMPORTANT SECTION. ${ctx.name} is currently ~${ctx.currentAge} years old. The year is ${new Date().getFullYear()}.
 
-STRUCTURE THIS AS A TIMELINE WITH MULTIPLE WINDOWS:
-1. **Current antardasha (${ctx.currentAntardasha})**: Does this sub-period activate the 7th house or Venus? What is its relationship to the marriage significators? Give the approximate time this antardasha runs.
-2. **Next 2-3 antardashas within ${ctx.currentDasha} Maha Dasha**: Name each, give approximate years, and explain whether each one activates marriage prospects. "The [Planet] antardasha (~[year]-[year]) is [favorable/unfavorable] for relationships because it aspects/rules your [house]."
-3. **The ${ctx.nextDasha} Maha Dasha starting ~${ctx.nextDashaYear}**: Does this major period favor marriage? Why?
-${ctx.currentAge >= 35 ? `CRITICAL: ${ctx.name} is ${ctx.currentAge}. Do NOT just say "wait for ${ctx.nextDashaYear}." Find the antardasha sub-windows within the current maha dasha that could bring opportunities SOONER. Every dasha has sub-periods — use them.` : ''}
-Name at least 2-3 concrete year windows. MUST include at least one within ${new Date().getFullYear()}-${new Date().getFullYear()+5}.
+FOLLOW THIS EXACT SEQUENCE (DASHA FIRST, then antardasha scan):
+1. **Current Maha Dasha & Antardasha**: State which Maha Dasha and antardasha the person is in NOW (${ctx.currentDasha} / ${ctx.currentAntardasha}). Does this current sub-period activate the 7th house or Venus? Give the approximate time this antardasha runs.
+2. **Antardasha scan in ~3-year blocks from NOW**: List the next 3-4 antardasha sub-periods within the current ${ctx.currentDasha} Maha Dasha. For each one, give: planet name, approximate year range (~3 years each), and whether it activates marriage significators (7th house, Venus, Jupiter, 7th lord ${ctx.seventhHouseLord}). Format: "**[Planet] antardasha (~[year]-[year])**: [favorable/unfavorable] — [reason: rules/aspects which house]."
+3. **Best near-term window**: From the scan above, identify the STRONGEST window within the next 5 years and explain why.
+4. **The ${ctx.nextDasha} Maha Dasha starting ~${ctx.nextDashaYear}**: Mention this as a SECONDARY note. Does this major period favor marriage? Why?
+${ctx.currentAge >= 21 ? `CRITICAL: ${ctx.name} is ${ctx.currentAge}. Do NOT just say "wait for ${ctx.nextDashaYear}." Every Maha Dasha contains antardashas of Venus, Jupiter, Moon — at least one activates the 7th house. Find the nearest one and present it as the primary window.` : ''}
+MUST include at least one concrete window within ${new Date().getFullYear()}-${new Date().getFullYear()+5}. NEVER predict marriage beyond age 45.
 
 **🔧 What ${ctx.name} should actually DO right now**
 3 PRACTICAL actions — not astrological platitudes:
