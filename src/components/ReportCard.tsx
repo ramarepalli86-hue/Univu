@@ -17,9 +17,9 @@ interface ReportCardProps {
   reading: FullReading;
 }
 
-const TEAL   = '#1A6B6B';
-const AMBER  = '#D4880A';
-const TEAL_L = '#2A8A8A';
+const TEAL   = '#5B21B6';
+const AMBER  = '#F59E0B';
+const TEAL_L = '#7C3AED';
 
 const TABS = [
   { id: 'overview',   label: '✨ Cosmic Snapshot' },
@@ -485,7 +485,7 @@ function WeeklyReportSection({ reading }: { reading: FullReading }) {
                 <button key={r} onClick={() => setSelectedRashi(r)}
                   className="relative px-2 py-2 text-xs font-medium rounded-lg border transition-all text-left"
                   style={isSel
-                    ? { background: `linear-gradient(135deg,rgba(26,107,107,0.12),rgba(212,136,10,0.08))`, borderColor: TEAL, color: TEAL }
+                    ? { background: `linear-gradient(135deg,rgba(91,33,182,0.12),rgba(245,158,11,0.08))`, borderColor: TEAL, color: TEAL }
                     : { background: '#FAFAF8', borderColor: '#E5E7EB', color: '#4B5563' }}>
                   <span className="mr-1">{RASHI_EMOJI[r] || '•'}</span>
                   {r.split(' (')[0]}
@@ -513,7 +513,7 @@ function WeeklyReportSection({ reading }: { reading: FullReading }) {
                 <button key={s} onClick={() => setSelectedZodiac(s)}
                   className="relative px-2 py-2 text-xs font-medium rounded-lg border transition-all text-left"
                   style={isSel
-                    ? { background: `linear-gradient(135deg,rgba(26,107,107,0.12),rgba(212,136,10,0.08))`, borderColor: TEAL, color: TEAL }
+                    ? { background: `linear-gradient(135deg,rgba(91,33,182,0.12),rgba(245,158,11,0.08))`, borderColor: TEAL, color: TEAL }
                     : { background: '#FAFAF8', borderColor: '#E5E7EB', color: '#4B5563' }}>
                   <span className="mr-1">{ZODIAC_EMOJI[s] || '•'}</span>
                   {s}
@@ -541,7 +541,7 @@ function WeeklyReportSection({ reading }: { reading: FullReading }) {
                 <button key={a} onClick={() => setSelectedAnimal(a)}
                   className="relative px-2 py-2 text-xs font-medium rounded-lg border transition-all text-left"
                   style={isSel
-                    ? { background: `linear-gradient(135deg,rgba(26,107,107,0.12),rgba(212,136,10,0.08))`, borderColor: TEAL, color: TEAL }
+                    ? { background: `linear-gradient(135deg,rgba(91,33,182,0.12),rgba(245,158,11,0.08))`, borderColor: TEAL, color: TEAL }
                     : { background: '#FAFAF8', borderColor: '#E5E7EB', color: '#4B5563' }}>
                   <span className="mr-1">{ANIMAL_EMOJI[a] || '•'}</span>
                   {a}
@@ -565,7 +565,7 @@ function WeeklyReportSection({ reading }: { reading: FullReading }) {
       {(subTab !== 'personal' || (!text && !loading)) && lastKey !== fetchKey && (
         <button onClick={handleGenerate} disabled={loading}
           className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm transition-all disabled:opacity-40 disabled:cursor-not-allowed"
-          style={{ background: `linear-gradient(135deg,${TEAL} 0%,#1E8080 40%,${AMBER} 100%)`, color: '#fff', boxShadow: '0 4px 20px rgba(26,107,107,0.28)' }}>
+          style={{ background: `linear-gradient(135deg,${TEAL} 0%,#7C3AED 40%,${AMBER} 100%)`, color: '#fff', boxShadow: '0 4px 20px rgba(91,33,182,0.28)' }}>
           {loading
             ? <><span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> Consulting the stars…</>
             : subTab === 'personal' ? '🔮 Generate My Personal Forecast'
@@ -588,7 +588,7 @@ function WeeklyReportSection({ reading }: { reading: FullReading }) {
             </p>
             <button onClick={() => { setText(''); setLastKey(''); setWChatMsgs([]); setWChatInput(''); }}
               className="text-[10px] px-3 py-1 rounded-full border font-medium"
-              style={{ color: TEAL, borderColor: 'rgba(26,107,107,0.3)' }}>
+              style={{ color: TEAL, borderColor: 'rgba(91,33,182,0.3)' }}>
               ← New Forecast
             </button>
           </div>
@@ -616,7 +616,7 @@ function WeeklyReportSection({ reading }: { reading: FullReading }) {
                         style={m.role === 'user'
                           ? { background: `linear-gradient(135deg, ${TEAL}, ${TEAL_L})`, color: 'white', borderBottomRightRadius: '4px' }
                           : { background: m.error ? '#FFF5F5' : 'white', color: '#1F2937', borderBottomLeftRadius: '4px',
-                              border: m.error ? '1px solid #FCA5A5' : '1px solid rgba(26,107,107,0.12)' }}>
+                              border: m.error ? '1px solid #FCA5A5' : '1px solid rgba(91,33,182,0.12)' }}>
                         {m.content.split('\n').map((line, j) => (
                           <span key={j}>
                             {line.split(/(\*\*[^*]+\*\*)/).map((part, k) =>
@@ -632,7 +632,7 @@ function WeeklyReportSection({ reading }: { reading: FullReading }) {
                   {wChatLoading && (
                     <div className="flex justify-start">
                       <div className="rounded-2xl px-4 py-3 flex items-center gap-1.5"
-                        style={{ background: 'white', border: '1px solid rgba(26,107,107,0.12)' }}>
+                        style={{ background: 'white', border: '1px solid rgba(91,33,182,0.12)' }}>
                         {[0,1,2].map(di => (
                           <motion.div key={di} className="w-1.5 h-1.5 rounded-full" style={{ background: TEAL }}
                             animate={{ opacity: [0.3,1,0.3], y: [0,-3,0] }}
@@ -651,7 +651,7 @@ function WeeklyReportSection({ reading }: { reading: FullReading }) {
                 {WEEKLY_FOLLOWUPS.map(q => (
                   <button key={q} onClick={() => sendWeeklyFollowUp(q)}
                     className="text-xs px-3 py-1.5 rounded-full border transition-colors hover:bg-teal-50"
-                    style={{ borderColor: 'rgba(26,107,107,0.25)', color: TEAL, background: 'rgba(26,107,107,0.04)' }}>
+                    style={{ borderColor: 'rgba(91,33,182,0.25)', color: TEAL, background: 'rgba(26,107,107,0.04)' }}>
                     {q}
                   </button>
                 ))}
@@ -812,11 +812,11 @@ function VastuSection({ reading }: { reading: FullReading }) {
     finally { setLoading(false); }
   }
 
-  const TEAL_LOC = '#1A6B6B';
-  const AMBER_LOC = '#D4880A';
+  const TEAL_LOC = '#5B21B6';
+  const AMBER_LOC = '#F59E0B';
   const inpCls = 'w-full px-3 py-2.5 rounded-xl text-sm outline-none transition-all';
-  const inpSt: React.CSSProperties = { border: '1.5px solid #DDD8CE', background: '#fff', color: '#1E1B17' };
-  const focusSt: React.CSSProperties = { borderColor: TEAL_LOC, boxShadow: '0 0 0 3px rgba(26,107,107,0.12)' };
+  const inpSt: React.CSSProperties = { border: '1.5px solid #DDD8CE', background: '#fff', color: '#0F0A23' };
+  const focusSt: React.CSSProperties = { borderColor: TEAL_LOC, boxShadow: '0 0 0 3px rgba(91,33,182,0.12)' };
 
   return (
     <div className="space-y-5">
@@ -851,7 +851,7 @@ function VastuSection({ reading }: { reading: FullReading }) {
                 }}
                 className="rounded-xl p-2.5 text-left border transition-all"
                 style={active
-                  ? { background:'linear-gradient(135deg,rgba(26,107,107,0.12),rgba(212,136,10,0.08))', border:`1.5px solid ${TEAL_LOC}` }
+                  ? { background:'linear-gradient(135deg,rgba(91,33,182,0.12),rgba(245,158,11,0.08))', border:`1.5px solid ${TEAL_LOC}` }
                   : { background:'#FAFAF8', border:'1.5px solid #E5E7EB' }}>
                 <div className="text-xs font-bold" style={{ color: active ? TEAL_LOC : '#4A4540' }}>{opt.label}</div>
                 <div className="text-[10px] mt-0.5" style={{ color:'#9CA3AF' }}>{opt.sub}</div>
@@ -891,7 +891,7 @@ function VastuSection({ reading }: { reading: FullReading }) {
 
       {/* ── OPTIONAL: Person details ── */}
       {form.personEnabled && (
-        <div className="rounded-xl p-4 space-y-3" style={{ background:'rgba(26,107,107,0.04)', border:'1px solid rgba(26,107,107,0.12)' }}>
+        <div className="rounded-xl p-4 space-y-3" style={{ background:'rgba(26,107,107,0.04)', border:'1px solid rgba(91,33,182,0.12)' }}>
           <p className="text-xs font-bold uppercase tracking-wider" style={{ color: TEAL_LOC }}>👤 Your Details (optional — improves personalisation)</p>
           <p className="text-[10px]" style={{ color:'#9CA3AF' }}>Pre-filled from your main reading. You can change these for a different person.</p>
           <div className="grid sm:grid-cols-3 gap-3">
@@ -966,7 +966,7 @@ function VastuSection({ reading }: { reading: FullReading }) {
       {!submitted && (
         <button onClick={handleGenerate} disabled={loading || !form.houseCity}
           className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl font-semibold text-sm transition-all disabled:opacity-40 disabled:cursor-not-allowed"
-          style={{ background:`linear-gradient(135deg,${TEAL_LOC} 0%,#1E8080 40%,${AMBER_LOC} 100%)`, color:'#fff', boxShadow:'0 4px 20px rgba(26,107,107,0.28)' }}>
+          style={{ background:`linear-gradient(135deg,${TEAL_LOC} 0%,#7C3AED 40%,${AMBER_LOC} 100%)`, color:'#fff', boxShadow:'0 4px 20px rgba(91,33,182,0.28)' }}>
           {loading
             ? <><span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> Analysing your space…</>
             : '🏠 Generate Vastu & Feng Shui Reading'}
@@ -982,7 +982,7 @@ function VastuSection({ reading }: { reading: FullReading }) {
             </p>
             <button onClick={() => { setText(''); setSubmitted(false); }}
               className="text-[10px] px-3 py-1 rounded-full border font-medium"
-              style={{ color: TEAL_LOC, borderColor:'rgba(26,107,107,0.3)' }}>
+              style={{ color: TEAL_LOC, borderColor:'rgba(91,33,182,0.3)' }}>
               ← New Reading
             </button>
           </div>
@@ -1169,7 +1169,7 @@ function AISection({ sectionId, reading }: { sectionId: string; reading: FullRea
                     style={m.role === 'user'
                       ? { background: `linear-gradient(135deg, ${TEAL}, ${TEAL_L})`, color: 'white', borderBottomRightRadius: '4px' }
                       : { background: m.error ? '#FFF5F5' : 'white', color: '#1F2937', borderBottomLeftRadius: '4px',
-                          border: m.error ? '1px solid #FCA5A5' : '1px solid rgba(26,107,107,0.12)' }
+                          border: m.error ? '1px solid #FCA5A5' : '1px solid rgba(91,33,182,0.12)' }
                     }>
                     {m.content.split('\n').map((line, j) => (
                       <span key={j}>
@@ -1188,7 +1188,7 @@ function AISection({ sectionId, reading }: { sectionId: string; reading: FullRea
               {chatLoading && (
                 <div className="flex justify-start">
                   <div className="rounded-2xl px-4 py-3 flex items-center gap-1.5"
-                    style={{ background: 'white', border: '1px solid rgba(26,107,107,0.12)' }}>
+                    style={{ background: 'white', border: '1px solid rgba(91,33,182,0.12)' }}>
                     {[0, 1, 2].map(di => (
                       <motion.div key={di} className="w-1.5 h-1.5 rounded-full"
                         style={{ background: TEAL }}
@@ -1210,7 +1210,7 @@ function AISection({ sectionId, reading }: { sectionId: string; reading: FullRea
             {followUps.map(q => (
               <button key={q} onClick={() => sendFollowUp(q)}
                 className="text-xs px-3 py-1.5 rounded-full border transition-colors hover:bg-teal-50"
-                style={{ borderColor: 'rgba(26,107,107,0.25)', color: TEAL, background: 'rgba(26,107,107,0.04)' }}>
+                style={{ borderColor: 'rgba(91,33,182,0.25)', color: TEAL, background: 'rgba(26,107,107,0.04)' }}>
                 {q}
               </button>
             ))}
@@ -1536,7 +1536,7 @@ export default function ReportCard({ t: _t, reading }: ReportCardProps) {
           <button key={id} onClick={() => setTab(id)}
             className="whitespace-nowrap px-3 py-2 text-xs sm:text-sm font-medium rounded-xl transition-all"
             style={tab === id
-              ? { background:`linear-gradient(135deg,${TEAL},${TEAL_L})`, color:'#fff', boxShadow:'0 2px 8px rgba(26,107,107,0.25)' }
+              ? { background:`linear-gradient(135deg,${TEAL},${TEAL_L})`, color:'#fff', boxShadow:'0 2px 8px rgba(91,33,182,0.25)' }
               : { color:'#6B7280' }
             }>{label}
           </button>
@@ -1837,7 +1837,7 @@ export default function ReportCard({ t: _t, reading }: ReportCardProps) {
                   style={{ minWidth:`${Math.max(span*3,48)}px`,
                     background: isCurrent ? `linear-gradient(135deg,${TEAL},${TEAL_L})` : 'rgba(26,107,107,0.05)',
                     borderColor: isCurrent ? TEAL : 'rgba(26,107,107,0.15)',
-                    boxShadow: isCurrent ? '0 2px 8px rgba(26,107,107,0.25)' : 'none',
+                    boxShadow: isCurrent ? '0 2px 8px rgba(91,33,182,0.25)' : 'none',
                   }}>
                   <p className="text-[10px] font-bold" style={{ color:isCurrent?'#fff':TEAL }}>{d.planet}</p>
                   <p className="text-[9px]" style={{ color:isCurrent?'rgba(255,255,255,0.7)':'#9CA3AF' }}>{d.startYear}–{d.endYear}</p>

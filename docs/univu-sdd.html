@@ -1,0 +1,782 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>UNIVU — Software Design Document (SDD)</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <style>
+    :root {
+      --violet: #5B21B6;
+      --violet-light: #7C3AED;
+      --gold: #D97706;
+      --gold-light: #F59E0B;
+      --bg: #F8F5FF;
+      --surface: #FFFFFF;
+      --text: #0F0A23;
+      --text-mid: #3D3660;
+      --text-muted: #6B7280;
+      --border: #E5E0F0;
+      --shadow: 0 4px 24px rgba(91,33,182,0.08), 0 1px 4px rgba(0,0,0,0.04);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: Inter, system-ui, -apple-system, Segoe UI, sans-serif; background: var(--bg); color: var(--text); line-height: 1.65; font-size: 14px; }
+    a { color: var(--violet-light); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* Header */
+    .doc-header {
+      background: linear-gradient(135deg, #0F0A23 0%, #1E0F40 50%, #2D1565 100%);
+      color: white;
+      padding: 48px 40px 36px;
+      text-align: center;
+    }
+    .doc-header h1 { font-size: 2.4rem; font-weight: 800; letter-spacing: 0.12em; }
+    .doc-header .subtitle { font-size: 1rem; opacity: 0.75; margin-top: 6px; }
+    .doc-header .meta { font-size: 0.75rem; opacity: 0.55; margin-top: 10px; letter-spacing: 0.04em; }
+    .doc-header .badge { display:inline-block; background:rgba(245,158,11,0.18); border:1px solid rgba(245,158,11,0.4); color:#FCD34D; padding:4px 14px; border-radius:999px; font-size:0.7rem; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; margin-top:12px; }
+
+    /* Tab nav */
+    .tab-nav { display: flex; gap: 0; background: var(--surface); border-bottom: 2px solid var(--border); position: sticky; top: 0; z-index: 100; overflow-x: auto; }
+    .tab-btn { padding: 14px 22px; font-size: 0.8rem; font-weight: 600; border: none; background: none; cursor: pointer; color: var(--text-muted); border-bottom: 3px solid transparent; margin-bottom: -2px; white-space: nowrap; transition: all 0.15s; }
+    .tab-btn:hover { color: var(--violet); }
+    .tab-btn.active { color: var(--violet); border-bottom-color: var(--violet); }
+
+    /* Content */
+    .tab-content { display: none; padding: 32px 40px 60px; max-width: 1100px; margin: 0 auto; }
+    .tab-content.active { display: block; }
+    @media (max-width: 700px) { .tab-content { padding: 20px 16px 40px; } .doc-header { padding: 32px 16px 24px; } }
+
+    /* Cards */
+    .card { background: var(--surface); border-radius: 12px; padding: 24px 28px; margin-bottom: 20px; box-shadow: var(--shadow); border: 1px solid var(--border); }
+    .card h2 { font-size: 1.05rem; font-weight: 700; color: var(--violet); margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+    .card h3 { font-size: 0.875rem; font-weight: 700; color: var(--text-mid); margin: 16px 0 8px; }
+    .card h4 { font-size: 0.8rem; font-weight: 600; color: var(--text-muted); margin: 12px 0 6px; }
+    .card p { font-size: 0.85rem; color: var(--text-mid); margin-bottom: 8px; }
+    .card ul { padding-left: 20px; margin: 6px 0; }
+    .card ul li { font-size: 0.82rem; color: var(--text-mid); margin-bottom: 4px; line-height: 1.55; }
+
+    /* Tables */
+    table { width: 100%; border-collapse: collapse; font-size: 0.8rem; margin: 10px 0; }
+    th { background: var(--bg); color: var(--violet); font-weight: 700; text-align: left; padding: 9px 12px; border-bottom: 2px solid var(--border); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; }
+    td { padding: 8px 12px; border-bottom: 1px solid var(--border); color: var(--text-mid); vertical-align: top; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: var(--bg); }
+
+    /* Code */
+    pre { background: #0F0A23; color: #E2D9FF; padding: 16px 18px; border-radius: 10px; overflow-x: auto; font-size: 0.75rem; line-height: 1.6; margin: 10px 0; border: 1px solid #2D1565; }
+    code { font-family: 'JetBrains Mono', 'Fira Code', Consolas, monospace; font-size: 0.78rem; background: rgba(91,33,182,0.08); padding: 2px 6px; border-radius: 4px; color: var(--violet); }
+    pre code { background: none; padding: 0; color: inherit; }
+
+    /* Badges */
+    .badge { display:inline-block; padding:3px 9px; border-radius:999px; font-size:0.68rem; font-weight:700; text-transform:uppercase; letter-spacing:0.07em; }
+    .badge-done { background:#D1FAE5; color:#065F46; }
+    .badge-active { background:#EDE9FE; color:#5B21B6; }
+    .badge-pending { background:#FEF3C7; color:#92400E; }
+    .badge-risk { background:#FEE2E2; color:#991B1B; }
+
+    /* Status dots */
+    .status { display: flex; align-items: center; gap: 8px; font-size: 0.82rem; color: var(--text-mid); margin-bottom: 6px; }
+    .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .dot-done { background: #10B981; }
+    .dot-active { background: #7C3AED; }
+    .dot-pending { background: #F59E0B; }
+    .dot-risk { background: #EF4444; }
+
+    /* Highlight / note boxes */
+    .highlight { background: rgba(91,33,182,0.05); border-left: 3px solid var(--violet); border-radius: 0 8px 8px 0; padding: 12px 16px; margin: 12px 0; font-size: 0.82rem; color: var(--text-mid); }
+    .note { background: rgba(245,158,11,0.06); border-left: 3px solid var(--gold); border-radius: 0 8px 8px 0; padding: 12px 16px; margin: 12px 0; font-size: 0.82rem; color: #78350F; }
+    .warn { background: #FEF2F2; border-left: 3px solid #EF4444; border-radius: 0 8px 8px 0; padding: 12px 16px; margin: 12px 0; font-size: 0.82rem; color: #991B1B; }
+
+    /* Arch diagram boxes */
+    .arch { display: flex; flex-wrap: wrap; gap: 12px; margin: 14px 0; }
+    .arch-box { border-radius: 10px; padding: 12px 16px; font-size: 0.78rem; font-weight: 600; text-align: center; border: 1.5px solid; min-width: 130px; flex: 1; }
+    .arch-client { background: rgba(91,33,182,0.05); border-color: var(--violet-light); color: var(--violet); }
+    .arch-api { background: rgba(245,158,11,0.06); border-color: var(--gold); color: #92400E; }
+    .arch-ai { background: rgba(16,185,129,0.06); border-color: #059669; color: #065F46; }
+    .arch-infra { background: rgba(99,102,241,0.05); border-color: #6366F1; color: #3730A3; }
+
+    /* Flow arrow */
+    .arrow { font-size: 1.2rem; color: var(--text-muted); display: flex; align-items: center; padding: 0 4px; }
+
+    /* Design swatches */
+    .swatch-row { display: flex; flex-wrap: wrap; gap: 10px; margin: 10px 0; }
+    .swatch { width: 64px; height: 48px; border-radius: 8px; border: 1px solid var(--border); display: flex; align-items: flex-end; justify-content: center; padding-bottom: 4px; font-size: 0.6rem; font-weight: 700; color: white; text-shadow: 0 1px 2px rgba(0,0,0,0.4); }
+
+    /* Section numbers */
+    .section-num { display:inline-block; background: linear-gradient(135deg,#5B21B6,#7C3AED); color:white; width:24px; height:24px; border-radius:50%; text-align:center; line-height:24px; font-size:0.7rem; font-weight:800; margin-right:8px; flex-shrink:0; }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="doc-header">
+  <h1>UNIVU</h1>
+  <div class="subtitle">Software Design Document — SDD v1.0</div>
+  <div class="badge">April 26, 2026 · ramarepalli86-hue/Univu</div>
+  <div class="meta">Next.js 14 · React 18 · TypeScript 5.4 · 4-Tier AI · astronomy-engine · Vercel</div>
+</div>
+
+<!-- TAB NAV -->
+<div class="tab-nav">
+  <button class="tab-btn active" onclick="switchTab('overview')">📐 Overview</button>
+  <button class="tab-btn" onclick="switchTab('architecture')">🏗 Architecture</button>
+  <button class="tab-btn" onclick="switchTab('components')">🧩 Components</button>
+  <button class="tab-btn" onclick="switchTab('api')">⚡ API & AI</button>
+  <button class="tab-btn" onclick="switchTab('data')">📊 Data Models</button>
+  <button class="tab-btn" onclick="switchTab('ui')">🎨 UI Design</button>
+  <button class="tab-btn" onclick="switchTab('security')">🔐 Security</button>
+  <button class="tab-btn" onclick="switchTab('roadmap')">🗺 Roadmap</button>
+</div>
+
+<!-- ═══════════ TAB 1: OVERVIEW ═══════════ -->
+<div id="tab-overview" class="tab-content active">
+
+  <div class="card">
+    <h2>1. Project Overview</h2>
+    <p>Univu is a full-stack astrology platform offering personalised Vedic, Western, Chinese, Egyptian, and Mayan readings powered by a 4-tier AI fallback chain and a local astronomy engine. It is a Next.js 14 App Router app deployed on Vercel, running entirely within a free-tier budget.</p>
+    <table>
+      <tr><th>Property</th><th>Value</th></tr>
+      <tr><td>App Name</td><td>Univu — Cosmic Blueprint</td></tr>
+      <tr><td>Version</td><td>1.0.0 (production)</td></tr>
+      <tr><td>Framework</td><td>Next.js 14.2.35 (App Router)</td></tr>
+      <tr><td>Language</td><td>TypeScript 5.4 strict</td></tr>
+      <tr><td>Styling</td><td>Tailwind CSS 3.4 + Framer Motion 11</td></tr>
+      <tr><td>3D Engine</td><td>Three.js 0.183</td></tr>
+      <tr><td>Deploy</td><td>Vercel free tier (Edge + Serverless)</td></tr>
+      <tr><td>Repo</td><td>ramarepalli86-hue/Univu (GitHub, main)</td></tr>
+      <tr><td>SDD Author</td><td>Auto-generated April 26, 2026</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>2. Core Goals</h2>
+    <ul>
+      <li><strong>Accuracy first</strong> — Planetary positions computed via <code>astronomy-engine</code> v2.1.19 (VSOP87, arcsecond accuracy). No pre-stored ephemeris data.</li>
+      <li><strong>AI-driven personalisation</strong> — 12 distinct reading sections per birth chart, each with a specific Vedic-trained prompt. All responses are chart-specific, never generic.</li>
+      <li><strong>Free-tier economics</strong> — Gemini (free quota) → Cerebras (free) → Groq ($0.59/1M) → OpenRouter free models. Monthly AI cost: effectively $0 for typical traffic.</li>
+      <li><strong>Privacy by design</strong> — Real name never reaches any AI model. Name is replaced with "the Seeker" before any API call. No user data persisted.</li>
+      <li><strong>Internationalisation</strong> — 19 languages, 11 Indic scripts for Panchangam, locale auto-detected from browser.</li>
+      <li><strong>Accessibility</strong> — Age gate, consent gate, disclaimers on all AI-generated content, PII protection.</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>3. Technology Stack</h2>
+    <table>
+      <tr><th>Layer</th><th>Technology</th><th>Version</th><th>Purpose</th></tr>
+      <tr><td>Frontend</td><td>React + Next.js App Router</td><td>18 + 14.2.35</td><td>SSR, routing, client components</td></tr>
+      <tr><td>Language</td><td>TypeScript</td><td>5.4</td><td>Type safety across all layers</td></tr>
+      <tr><td>Styling</td><td>Tailwind CSS + custom CSS variables</td><td>3.4</td><td>Design tokens, responsive layout</td></tr>
+      <tr><td>Animation</td><td>Framer Motion</td><td>11</td><td>Page transitions, micro-interactions</td></tr>
+      <tr><td>3D Visuals</td><td>Three.js</td><td>0.183</td><td>CelestialScene orbital animation</td></tr>
+      <tr><td>Astrology Engine</td><td>astronomy-engine</td><td>2.1.19</td><td>VSOP87 planet positions (arcsecond accuracy)</td></tr>
+      <tr><td>AI Tier 1</td><td>Google Gemini 2.5 Flash</td><td>@google/generative-ai 0.24</td><td>Primary provider — free quota, thinkingBudget:0</td></tr>
+      <tr><td>AI Tier 2</td><td>Cerebras llama3.1-8b</td><td>@cerebras/cerebras_cloud_sdk 1.64</td><td>Free secondary provider</td></tr>
+      <tr><td>AI Tier 3</td><td>Groq llama-3.3-70b-versatile</td><td>groq-sdk 1.1</td><td>Paid fallback ($0.59/1M tokens)</td></tr>
+      <tr><td>AI Tier 4</td><td>OpenRouter (gemma-3-27b, llama-3.1-8b, mistral-7b free)</td><td>openai 6.33 (compat)</td><td>Free 4th-tier fallback</td></tr>
+      <tr><td>Geocoding</td><td>OpenStreetMap Nominatim</td><td>—</td><td>City search, lat/lng lookup</td></tr>
+      <tr><td>Infrastructure</td><td>Vercel</td><td>Free tier</td><td>Edge middleware, serverless API routes, deploy</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>4. Build Status</h2>
+    <div class="status"><span class="dot dot-done"></span> Vedic birth chart engine (astronomy-engine, VSOP87 accuracy)</div>
+    <div class="status"><span class="dot dot-done"></span> 12-section AI reading with chart-specific prompts</div>
+    <div class="status"><span class="dot dot-done"></span> 4-tier AI fallback chain (Gemini → Cerebras → Groq → OpenRouter)</div>
+    <div class="status"><span class="dot dot-done"></span> Retry + exponential backoff per provider</div>
+    <div class="status"><span class="dot dot-done"></span> Interactive follow-up chat (CosmicOracle, always-visible)</div>
+    <div class="status"><span class="dot dot-done"></span> 4 top-level views: Astrology / Weekly / Vastu & Feng Shui / Panchangam</div>
+    <div class="status"><span class="dot dot-done"></span> 10-tab ReportCard (overview, love, career, health, timeline, spiritual, weekly, vastu, charts, story)</div>
+    <div class="status"><span class="dot dot-done"></span> Cinematic StoryAnimator (8 scenes, mythic-anime voice prompts)</div>
+    <div class="status"><span class="dot dot-done"></span> Dasha-first timing (antardasha scan in 3-year blocks for ages 21+)</div>
+    <div class="status"><span class="dot dot-done"></span> Admin dashboard (/admin/dashboard) with 4 tabs — Overview, Cost, Usage, Logs</div>
+    <div class="status"><span class="dot dot-done"></span> Usage tracker (in-memory: per provider, per route, latency, fallbacks)</div>
+    <div class="status"><span class="dot dot-done"></span> Budget guard ($100/month, per-provider cost rates)</div>
+    <div class="status"><span class="dot dot-done"></span> 19-language i18n, 11 Indic scripts for Panchangam</div>
+    <div class="status"><span class="dot dot-done"></span> Manglik 7-rule BPHS cancellations, Atmakaraka, Sade Sati</div>
+    <div class="status"><span class="dot dot-done"></span> Cosmic Dawn UI revamp (violet/gold palette, modern 2026 design)</div>
+    <div class="status"><span class="dot dot-active"></span> CelestialScene — show computed planet positions (in progress)</div>
+    <div class="status"><span class="dot dot-pending"></span> Vercel production deploy (maintenance mode ON)</div>
+  </div>
+
+</div>
+
+<!-- ═══════════ TAB 2: ARCHITECTURE ═══════════ -->
+<div id="tab-architecture" class="tab-content">
+
+  <div class="card">
+    <h2>1. High-Level Architecture</h2>
+    <div class="arch">
+      <div class="arch-box arch-client">🖥 Browser<br><small>React + Next.js<br>Framer Motion, Three.js</small></div>
+      <div class="arrow">→</div>
+      <div class="arch-box arch-infra">⚡ Vercel Edge<br><small>Middleware<br>Maintenance mode<br>CSP headers</small></div>
+      <div class="arrow">→</div>
+      <div class="arch-box arch-api">🔌 API Routes<br><small>/api/reading<br>/api/personal-reading<br>/api/chat<br>/api/enrich-story<br>/api/admin/stats</small></div>
+      <div class="arrow">→</div>
+      <div class="arch-box arch-ai">🤖 AI Providers<br><small>Gemini (1st)<br>Cerebras (2nd)<br>Groq (3rd)<br>OpenRouter (4th)</small></div>
+    </div>
+    <div class="arch" style="margin-top:10px;">
+      <div class="arch-box arch-client">📊 src/lib/astrology.ts<br><small>Local engine (2173 lines)<br>astronomy-engine VSOP87<br>No external API calls</small></div>
+      <div class="arrow">→</div>
+      <div class="arch-box arch-api">🔁 src/lib/aiProvider.ts<br><small>4-tier fallback<br>Retry + backoff<br>Usage tracking</small></div>
+      <div class="arrow">→</div>
+      <div class="arch-box arch-infra">📈 src/lib/usageTracker.ts<br><small>In-memory stats<br>Per-provider breakdown<br>Latency logs</small></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>2. AI Provider Fallback Chain</h2>
+    <pre>callAI(opts)
+ │
+ ├─ 1. Gemini 2.5 Flash (free, thinkingBudget:0)
+ │     retry ×2 with exponential backoff (150ms base)
+ │     ✓ return if text ≠ empty
+ │     ✗ push to errors[], try next
+ │
+ ├─ 2. Cerebras llama3.1-8b (free)
+ │     retry ×2
+ │     ✓ return if text ≠ empty
+ │     ✗ push to errors[], try next
+ │
+ ├─ 3. Groq llama-3.3-70b-versatile ($0.59/1M tokens)
+ │     retry ×2
+ │     ✓ return if text ≠ empty
+ │     ✗ push to errors[], try next
+ │
+ ├─ 4. OpenRouter free models (tried in order)
+ │     ├─ google/gemma-3-27b-it:free
+ │     ├─ meta-llama/llama-3.1-8b-instruct:free
+ │     └─ mistralai/mistral-7b-instruct:free
+ │     ✓ return on first success
+ │     ✗ throw Error("All AI providers failed: …")
+ │
+ └─ On success: trackRequest() → usageTracker, addTokens() → budget</pre>
+  </div>
+
+  <div class="card">
+    <h2>3. Data Flow — Birth Chart Reading</h2>
+    <pre>User fills IntakeForm (12 fields)
+  │
+  ▼
+POST /api/reading
+  ├─ apiGuard(req)  → rate limit 100/min/IP, origin check, sanitise()
+  ├─ Parse: name, dob, timeOfBirth, birthLat/Lng, currentLat/Lng, gender, tradition…
+  ├─ julianDay(dob, timeOfBirth, birthLng)   ← local→UTC conversion
+  ├─ lahiriAyanamsa(year)                    ← 23.856° + drift
+  ├─ SunPosition(birthDateUTC)               ← astronomy-engine (VSOP87)
+  ├─ EclipticGeoMoon(birthDateUTC)           ← astronomy-engine
+  ├─ GeoVector(Mercury/Venus/Mars/Jupiter/Saturn, birthDateUTC)  ← astronomy-engine
+  ├─ calculateLagna(jd, T, lat, lng, ayanamsa)
+  ├─ calculatePanchanga(sunSidereal, moonSidereal, jd)
+  ├─ calculateDashaTimeline(moonSidereal, birthYear)
+  ├─ checkManglik(planets, moonRashiIdx)     ← 7-rule BPHS cancellations
+  └─ return FullReading (50+ fields)
+
+Client receives FullReading
+  ▼
+ReportCard.tsx renders 10 tabs
+  ├─ Each AI tab: fetch /api/personal-reading { section, context }
+  │     ├─ budgetGuard()
+  │     ├─ buildSectionPrompt(section, context)  ← chart-specific prompt
+  │     └─ callAI() → 4-tier fallback → return { text, provider, tokensUsed }
+  └─ StoryAnimator: fetch /api/enrich-story per scene (mythic-anime voice)</pre>
+  </div>
+
+  <div class="card">
+    <h2>4. File Structure</h2>
+    <pre>src/
+├── app/
+│   ├── page.tsx                    ← Main page, 4 views, Cosmic Dawn UI          352 lines
+│   ├── layout.tsx                  ← Root layout, meta, JSON-LD
+│   ├── globals.css                 ← Design tokens, Tailwind layers
+│   ├── api/
+│   │   ├── reading/route.ts        ← Astrology engine endpoint                   ~80 lines
+│   │   ├── personal-reading/route.ts ← 12-section AI reading                    655 lines
+│   │   ├── enrich-story/route.ts   ← Mythic-anime story scenes                  199 lines
+│   │   ├── chat/route.ts           ← CosmicOracle chat (maxTokens:1800)
+│   │   ├── usage-alert/route.ts    ← Budget monitoring
+│   │   └── admin/stats/route.ts    ← Dashboard data (localhost auto-allowed)      25 lines
+│   ├── admin/dashboard/page.tsx    ← Admin UI, 4 tabs                           612 lines
+│   └── maintenance/page.tsx        ← Coming soon page
+├── components/
+│   ├── IntakeForm.tsx              ← 12-field birth chart form
+│   ├── ReportCard.tsx              ← 10-tab reading display                     2063 lines
+│   ├── WeeklyForecast.tsx          ← Standalone weekly (3 sub-tabs)
+│   ├── VastuFengShui.tsx           ← Standalone vastu (3 modes)
+│   ├── Panchangam.tsx              ← Daily Vedic calendar, 11 scripts
+│   ├── StoryAnimator.tsx           ← Cinematic life story, tone prop             919 lines
+│   ├── CosmicOracle.tsx            ← Floating AI chat widget
+│   ├── CelestialScene.tsx          ← Three.js 3D intro, planetPositions prop
+│   ├── CityAutocomplete.tsx        ← Nominatim city search
+│   ├── VedicChart.tsx              ← South Indian square chart
+│   ├── WesternChart.tsx            ← Western wheel chart
+│   ├── StarField.tsx               ← Background particles
+│   ├── DisclaimerBanner.tsx        ← Top disclaimer
+│   ├── AgeGate.tsx                 ← Consent gate
+│   └── LanguageSelector.tsx        ← 19-language picker
+├── i18n/                           ← 19 translation JSON files + index.ts
+└── lib/
+    ├── astrology.ts                ← MAIN ENGINE (VSOP87 via astronomy-engine)   2173 lines
+    ├── aiProvider.ts               ← 4-tier fallback + retry/backoff              242 lines
+    ├── usageTracker.ts             ← In-memory usage stats                        203 lines
+    ├── budget.ts                   ← Token accounting, $100/mo cap                 79 lines
+    ├── apiGuard.ts                 ← Rate limit + sanitise                        123 lines
+    └── cities.ts                   ← City database</pre>
+  </div>
+
+</div>
+
+<!-- ═══════════ TAB 3: COMPONENTS ═══════════ -->
+<div id="tab-components" class="tab-content">
+
+  <div class="card">
+    <h2>1. Component Tree</h2>
+    <pre>page.tsx (HomePage)
+├── StarField                       [background particles]
+├── DisclaimerBanner                [top disclaimer]
+├── AgeGate                         [consent gate]
+│
+├── Header
+│   ├── Logo pill (UNIVU wordmark + orrery SVG)
+│   ├── Tagline + tradition pills
+│   └── Nav (4 pill tabs) + LanguageSelector
+│
+├── [view === 'astrology']
+│   ├── IntakeForm                  [12-field form → /api/reading]
+│   └── ReportCard                  [10-tab reading display]
+│       ├── AISection ×6            [overview, love, career, health, timeline, spiritual]
+│       ├── WeeklyReportSection     [4 sub-tabs + personal weekly]
+│       ├── VastuSection            [pre-filled from chart, 3 modes]
+│       ├── VedicChart              [South Indian grid]
+│       ├── WesternChart            [Western wheel]
+│       └── StoryAnimator           [8 mythic-anime life chapters]
+│
+├── [view === 'weekly']   → WeeklyForecast (standalone, no chart needed)
+├── [view === 'vastu']    → VastuFengShui (standalone, 3 modes)
+├── [view === 'panchangam'] → Panchangam (daily, 11 Indic scripts)
+│
+├── FeedbackWidget                  [star rating + comment]
+└── AstroChat / CosmicOracle        [floating AI chat, always visible]</pre>
+  </div>
+
+  <div class="card">
+    <h2>2. ReportCard — 10-Tab System</h2>
+    <table>
+      <tr><th>Tab</th><th>Component/Section</th><th>AI Section Key</th><th>Notes</th></tr>
+      <tr><td>overview</td><td>AISection</td><td><code>overview</code></td><td>Concern banner, chart preview, Panchanga</td></tr>
+      <tr><td>love</td><td>AISection</td><td><code>love</code></td><td>Venus, 7th house, Manglik, timing</td></tr>
+      <tr><td>career</td><td>AISection</td><td><code>career</code></td><td>10th house, Saturn, Jupiter, dasha timing</td></tr>
+      <tr><td>health</td><td>AISection</td><td><code>health</code></td><td>6th/8th houses, dasha, food Rx</td></tr>
+      <tr><td>timeline</td><td>AISection</td><td><code>timeline</code></td><td>Full dasha timeline, Saturn/Jupiter returns</td></tr>
+      <tr><td>spiritual</td><td>AISection</td><td><code>spiritual</code></td><td>Rahu/Ketu, atmakaraka, 9th/12th houses</td></tr>
+      <tr><td>weekly</td><td>WeeklyReportSection</td><td><code>weekly_*</code></td><td>4 sub-tabs: personal/rashi/zodiac/chinese</td></tr>
+      <tr><td>vastu</td><td>VastuSection</td><td><code>vastu</code></td><td>3 modes, pre-filled from chart</td></tr>
+      <tr><td>charts</td><td>VedicChart + WesternChart</td><td>—</td><td>Computed, no AI</td></tr>
+      <tr><td>story</td><td>StoryAnimator</td><td><code>enrich-story</code></td><td>8 scenes, mythic-anime voice, tone prop</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>3. Key Component Props</h2>
+    <h3>StoryAnimator</h3>
+    <pre>interface StoryAnimatorProps {
+  name: string;
+  gender?: string;
+  storyText: string;
+  tone?: 'default' | 'mythic';   // NEW — mythic = anime epic voice
+  storyEvents?: StoryEvent[];
+  lagnaSign?: string;
+  moonSign?: string;
+  sunSign?: string;
+  birthYear?: number;
+  planets?: Array&lt;{ name: string; rashi: string; house: number }&gt;;
+  currentDasha?: string;
+}</pre>
+    <h3>CelestialScene</h3>
+    <pre>interface CelestialSceneProps {
+  sunSign?: string;
+  moonSign?: string;
+  rashi?: string;
+  nakshatra?: string;
+  isPlaying?: boolean;
+  planetPositions?: {          // NEW — computed positions from astrology.ts
+    name: string; x: number; y: number; z: number
+  }[];
+}</pre>
+  </div>
+
+</div>
+
+<!-- ═══════════ TAB 4: API & AI ═══════════ -->
+<div id="tab-api" class="tab-content">
+
+  <div class="card">
+    <h2>1. API Route Map</h2>
+    <table>
+      <tr><th>Route</th><th>Method</th><th>Guards</th><th>Input</th><th>Output</th><th>maxTokens</th></tr>
+      <tr>
+        <td><code>/api/reading</code></td><td>POST</td><td>apiGuard</td>
+        <td>name, dob, timeOfBirth, birthLat/Lng, currentLat/Lng, gender, chartType, vedicSystem, tradition, maritalStatus, employment, concern, language</td>
+        <td><code>{ disclaimer, reading: FullReading }</code></td><td>—</td>
+      </tr>
+      <tr>
+        <td><code>/api/personal-reading</code></td><td>POST</td><td>apiGuard + budgetGuard</td>
+        <td><code>{ section: string, context: ReadingContext }</code></td>
+        <td><code>{ text, section, tokensUsed, provider }</code></td><td>1200</td>
+      </tr>
+      <tr>
+        <td><code>/api/enrich-story</code></td><td>POST</td><td>apiGuard + budgetGuard</td>
+        <td>name, gender, sceneIndex, lagnaSign, moonSign, sunSign, birthYear, currentDasha, planet, planets[]</td>
+        <td><code>{ enriched, sceneIndex, model, tokensUsed }</code></td><td>750</td>
+      </tr>
+      <tr>
+        <td><code>/api/chat</code></td><td>POST</td><td>apiGuard + budgetGuard</td>
+        <td>messages[], chartContext?</td>
+        <td><code>{ reply, tokensUsed, provider }</code></td><td>1800</td>
+      </tr>
+      <tr>
+        <td><code>/api/usage-alert</code></td><td>GET</td><td>apiGuard</td>
+        <td>—</td><td>Budget stats JSON</td><td>—</td>
+      </tr>
+      <tr>
+        <td><code>/api/admin/stats</code></td><td>GET</td><td>localhost auto / ADMIN_SECRET header</td>
+        <td>—</td><td>Full dashboard JSON (usageTracker + budget)</td><td>—</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>2. AI Provider Configuration</h2>
+    <table>
+      <tr><th>Provider</th><th>Tier</th><th>Model</th><th>Cost</th><th>Env Key</th><th>SDK</th></tr>
+      <tr><td>Google Gemini</td><td>1st</td><td>gemini-2.5-flash</td><td>Free (quota)</td><td>GEMINI_API_KEY</td><td>@google/generative-ai</td></tr>
+      <tr><td>Cerebras</td><td>2nd</td><td>llama3.1-8b</td><td>Free</td><td>CEREBRAS_API_KEY</td><td>@cerebras/cerebras_cloud_sdk</td></tr>
+      <tr><td>Groq</td><td>3rd</td><td>llama-3.3-70b-versatile</td><td>$0.59/1M tokens</td><td>Grok_Univu_Key / GROQ_API_KEY</td><td>groq-sdk</td></tr>
+      <tr><td>OpenRouter</td><td>4th</td><td>gemma-3-27b → llama-3.1-8b → mistral-7b (all :free)</td><td>Free</td><td>OPENROUTER_API_KEY</td><td>openai (compat)</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>3. Chat System Prompt Architecture</h2>
+    <p>The chat route injects chart context when a reading has been generated. Dasha-first timing is enforced via rules 10–14 in the system prompt.</p>
+    <pre>System prompt = ASTRO_SYSTEM base (13 rules)
+  + IF chartContext:
+      "IMPORTANT — The user's ACTUAL chart data:
+       {lagnaSign, moonSign, sunSign, currentDasha, antardasha, concern}
+       Rules 14 additional: cite exact houses, dasha scan, NEVER invent,
+       Timing method: antardasha scan in 3-year blocks from NOW"
+  + Current year injected: ${new Date().getFullYear()}
+  + Hard limits: never predict marriage &gt;45, never give timing &gt;7yr window only</pre>
+  </div>
+
+  <div class="card">
+    <h2>4. Story Enrichment Prompt (Mythic-Anime Voice)</h2>
+    <p>Rewrote April 26, 2026. Full anime-epic style — FMA Brotherhood gravitas, Princess Mononoke lyricism, Fate/Zero intensity.</p>
+    <pre>System:
+"You are a master cosmic storyteller writing in the style of epic anime mythology.
+Think: Fullmetal Alchemist Brotherhood, Princess Mononoke, Fate/Zero.
+- Every planet is a god, every transit is a trial, every dasha is a cosmic chapter.
+- Vivid sensory detail: color, sound/silence, texture/weight, sky/celestial image.
+- 3-part structure per scene:
+  ✦ Opening narrative (3 sentences, cinematic)
+  ✦ Challenge: [planetary tension → real-life wound]
+  ✦ Lesson: [specific remedy, timing, practice]
+- Length: 230–300 words. Never generic. Mythic voice always."
+
+maxTokens: 750  temperature: 0.88</pre>
+  </div>
+
+</div>
+
+<!-- ═══════════ TAB 5: DATA MODELS ═══════════ -->
+<div id="tab-data" class="tab-content">
+
+  <div class="card">
+    <h2>1. FullReading (output of /api/reading)</h2>
+    <pre>interface FullReading {
+  // Vedic
+  lagnaSign: string;          // e.g. "Vrishabha"
+  moonSign: string;
+  sunSign: string;
+  sunRashi: number;           // 0-11 sidereal index
+  moonRashi: number;
+  lagnaRashi: number;
+  nakshatra: string;          // e.g. "Rohini"
+  nakshatraIndex: number;     // 0-26
+  nakshatraPada: number;      // 1-4
+  // Western
+  westernSunSign: string;     // e.g. "Leo"
+  // Planets
+  planets: PlanetPosition[];  // Sun, Moon, Mercury, Venus, Mars, Jupiter, Saturn, Rahu, Ketu, Lagna
+  // Dashas
+  dashaTimeline: DashaPeriod[];
+  currentDasha: string;
+  currentAntardasha: string;
+  // Additional
+  manglik: ManglikStatus;
+  sadeSati: SadeSatiStatus;
+  atmakaraka: { planet: string; sign: string; house: number };
+  panchanga: PanchangaResult;
+  chineseZodiac: string;
+  egyptianDecan: string;
+  mayanSign: string;
+  // User context (sanitised)
+  name: string;               // NOTE: this is PII — never sent to AI model
+  gender: string;
+  concern: string;
+  tradition: string;
+  vedicSystem: string;
+  birthCity: string;
+  currentCity: string;
+  language: Locale;
+}</pre>
+  </div>
+
+  <div class="card">
+    <h2>2. PlanetPosition</h2>
+    <pre>interface PlanetPosition {
+  name: string;              // "Sun" | "Moon" | "Mercury" … "Ketu" | "Lagna"
+  abbreviation: string;      // "Su" | "Mo" | etc.
+  tropicalLongitude: number; // 0-360, astronomy-engine output
+  siderealLongitude: number; // tropical - lahiriAyanamsa
+  rashi: string;             // Vedic rashi name
+  rashiIndex: number;        // 0-11
+  house: number;             // 1-12 (equal house)
+  nakshatra: string;         // 1 of 27 nakshatras
+  nakshatraIndex: number;    // 0-26
+  nakshatraPada: number;     // 1-4
+  retrograde: boolean;       // true if daily motion &lt; 0
+}</pre>
+  </div>
+
+  <div class="card">
+    <h2>3. UsageTracker In-Memory Model</h2>
+    <pre>// Per-request log entry
+interface RequestLog {
+  ts: number;          // Date.now()
+  route: string;       // 'chat' | 'personal-reading' | 'enrich-story' | …
+  provider: string;    // 'gemini' | 'cerebras' | 'groq' | 'openrouter'
+  tokens: number;
+  latencyMs: number;
+  success: boolean;
+  fallbacks: number;   // how many providers failed before this one
+  costUSD: number;     // calculated from COST_PER_M_TOKENS
+  errorMsg?: string;
+}
+
+// getDashboardData() returns:
+{
+  totalRequests, totalTokens, totalCostUSD,
+  budgetUSD: 100, budgetPercent,
+  byProvider: { gemini, cerebras, groq, openrouter },
+  byRoute: { chat, 'personal-reading', 'enrich-story', … },
+  recentLogs: RequestLog[],   // last 100
+  errors: RequestLog[],        // failed only
+}</pre>
+  </div>
+
+</div>
+
+<!-- ═══════════ TAB 6: UI DESIGN ═══════════ -->
+<div id="tab-ui" class="tab-content">
+
+  <div class="card">
+    <h2>1. Design System — Cosmic Dawn (v2, April 2026)</h2>
+    <p>Replaces the old warm amber parchment theme. Goal: refreshing, modern, balanced — not dark, not heavy. Cosmic but clean.</p>
+    <h3>Palette</h3>
+    <div class="swatch-row">
+      <div class="swatch" style="background:#FAFBFF;">
+        <span style="color:#0F0A23;text-shadow:none;">BG</span>
+      </div>
+      <div class="swatch" style="background:#5B21B6;">Primary</div>
+      <div class="swatch" style="background:#7C3AED;">Violet</div>
+      <div class="swatch" style="background:#F59E0B;">Gold</div>
+      <div class="swatch" style="background:#D97706;">Amber</div>
+      <div class="swatch" style="background:#0F0A23;">Text</div>
+      <div class="swatch" style="background:#3D3660;">Text-mid</div>
+      <div class="swatch" style="background:#6B7280;">Muted</div>
+      <div class="swatch" style="background:#FFFFFF;border:1px solid #E5E0F0;"><span style="color:#0F0A23;text-shadow:none;font-size:0.55rem">Card</span></div>
+    </div>
+    <table>
+      <tr><th>Token</th><th>Value</th><th>Use</th></tr>
+      <tr><td>bg-app</td><td>#FAFBFF</td><td>Page background</td></tr>
+      <tr><td>violet-primary</td><td>#5B21B6</td><td>Primary buttons, key accents</td></tr>
+      <tr><td>violet-mid</td><td>#7C3AED</td><td>Hover, tab active, headings</td></tr>
+      <tr><td>gold-accent</td><td>#F59E0B</td><td>Warm accent, links, pills</td></tr>
+      <tr><td>gold-dark</td><td>#D97706</td><td>Hover gold</td></tr>
+      <tr><td>text-primary</td><td>#0F0A23</td><td>Main body text</td></tr>
+      <tr><td>text-mid</td><td>#3D3660</td><td>Secondary text</td></tr>
+      <tr><td>text-muted</td><td>#6B7280</td><td>Placeholder, captions</td></tr>
+      <tr><td>surface</td><td>#FFFFFF</td><td>Cards, inputs, modals</td></tr>
+      <tr><td>border</td><td>#E5E0F0</td><td>Borders, dividers</td></tr>
+    </table>
+    <h3>Typography</h3>
+    <table>
+      <tr><th>Element</th><th>Font</th><th>Size</th><th>Weight</th></tr>
+      <tr><td>H1 / Logo</td><td>Cinzel, Georgia, serif</td><td>2.1rem</td><td>700</td></tr>
+      <tr><td>H2 / Section</td><td>Noto Serif Devanagari, Georgia</td><td>1.05rem</td><td>700</td></tr>
+      <tr><td>Body</td><td>Inter, system-ui</td><td>0.875rem</td><td>400</td></tr>
+      <tr><td>Labels</td><td>Inter</td><td>0.75rem</td><td>600</td></tr>
+      <tr><td>Code / mono</td><td>JetBrains Mono, Fira Code</td><td>0.78rem</td><td>400</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>2. Component Design Patterns</h2>
+    <h3>Navigation (Top-level 4 tabs)</h3>
+    <ul>
+      <li>Pill-shaped buttons, inline flex row, soft wrap on mobile</li>
+      <li>Active: violet gradient bg + white text + soft shadow</li>
+      <li>Inactive: transparent bg, violet border, violet text</li>
+      <li>Hover: light violet tint bg</li>
+    </ul>
+    <h3>Cards</h3>
+    <ul>
+      <li>Pure white bg, 1px solid #E5E0F0 border, 12px radius, subtle shadow</li>
+      <li>Top accent: 3px solid violet bar (card-main)</li>
+      <li>Padding: 1.75rem desktop / 1.25rem mobile</li>
+    </ul>
+    <h3>Primary Button</h3>
+    <ul>
+      <li>Gradient: violet #5B21B6 → #7C3AED with gold spark</li>
+      <li>White text, 12px radius, letter-spacing 0.02em</li>
+      <li>Hover: shift gradient, translateY(-1px)</li>
+    </ul>
+    <h3>Form Inputs</h3>
+    <ul>
+      <li>White bg, #E5E0F0 border, 12px radius</li>
+      <li>Focus: violet border + 0 0 0 3px rgba(92,33,182,0.12) glow</li>
+      <li>Caret: gold #F59E0B</li>
+    </ul>
+    <h3>Background</h3>
+    <ul>
+      <li>#FAFBFF base — very soft lavender-white, like dawn sky</li>
+      <li>Two subtle radial gradients: violet at top-right, gold at bottom-left</li>
+      <li>Floating zodiac symbols: very low opacity (0.06), violet/gold tones</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>3. Responsive Breakpoints</h2>
+    <table>
+      <tr><th>Screen</th><th>Breakpoint</th><th>Changes</th></tr>
+      <tr><td>Mobile</td><td>&lt; 640px (sm)</td><td>Single-column layout, smaller logo, nav wraps, reduced padding</td></tr>
+      <tr><td>Tablet</td><td>640px–1024px</td><td>2-column form grid, nav fits on one row</td></tr>
+      <tr><td>Desktop</td><td>&gt; 1024px</td><td>max-w-5xl centered, 3-column form grids, full padding</td></tr>
+    </table>
+  </div>
+
+</div>
+
+<!-- ═══════════ TAB 7: SECURITY ═══════════ -->
+<div id="tab-security" class="tab-content">
+
+  <div class="card">
+    <h2>1. Security Architecture</h2>
+    <pre>Request Flow:
+
+Browser
+  ↓
+Vercel Edge Middleware (middleware.ts)
+  ├── MAINTENANCE=true → redirect /maintenance (except localhost)
+  └── Pass through
+
+Next.js API Route Handler
+  ↓
+apiGuard(req)
+  ├── Rate limit: 100 req/IP/min (in-memory Map) → 429 Retry-After:60
+  ├── Origin check: univu.vercel.app | *.vercel.app | localhost → else 403
+  ├── Request size check → 413 if oversized
+  └── sanitise(value, maxLen) — strips HTML tags, injection chars on all string inputs
+
+budgetGuard()  [AI routes only]
+  ├── Check getStats().isOverBudget
+  └── $100/month cap, per-provider rates; FORCE_SHUTDOWN env override
+
+PII protection
+  └── name replaced with "the Seeker" in ALL AI prompts before any API call</pre>
+  </div>
+
+  <div class="card">
+    <h2>2. HTTP Security Headers</h2>
+    <table>
+      <tr><th>Header</th><th>Value / Policy</th></tr>
+      <tr><td>Content-Security-Policy</td><td>default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; connect-src includes Groq, Gemini, Cerebras, OpenRouter, Nominatim; frame-ancestors 'none'</td></tr>
+      <tr><td>Strict-Transport-Security</td><td>max-age=63072000; includeSubDomains; preload</td></tr>
+      <tr><td>X-Frame-Options</td><td>DENY</td></tr>
+      <tr><td>X-Content-Type-Options</td><td>nosniff</td></tr>
+      <tr><td>X-XSS-Protection</td><td>1; mode=block</td></tr>
+      <tr><td>Referrer-Policy</td><td>strict-origin-when-cross-origin</td></tr>
+      <tr><td>Permissions-Policy</td><td>camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()</td></tr>
+      <tr><td>Cache-Control (API)</td><td>no-store</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>3. Admin Dashboard Security</h2>
+    <ul>
+      <li>Localhost requests auto-allowed (no key needed during development).</li>
+      <li>Production: requires <code>X-Admin-Secret</code> header matching <code>ADMIN_SECRET</code> env var.</li>
+      <li>No authentication beyond the secret header — intended for single admin use only.</li>
+      <li>URL: <code>/admin/dashboard</code> (not linked from UI, obscurity by design).</li>
+    </ul>
+  </div>
+
+</div>
+
+<!-- ═══════════ TAB 8: ROADMAP ═══════════ -->
+<div id="tab-roadmap" class="tab-content">
+
+  <div class="card">
+    <h2>Immediate (Next Session)</h2>
+    <div class="status"><span class="dot dot-active"></span> Wire computed planet positions from <code>astrology.ts</code> into <code>CelestialScene.tsx</code> — show actual ecliptic positions, not decorative orbits</div>
+    <div class="status"><span class="dot dot-pending"></span> Add <code>tone: 'mythic'</code> server-side parameter to <code>/api/enrich-story</code> (currently client-side transform only)</div>
+    <div class="status"><span class="dot dot-pending"></span> Turn maintenance mode OFF and deploy to Vercel production</div>
+    <div class="status"><span class="dot dot-pending"></span> Fix Gemini key format (verify <code>AIza…</code> prefix) — currently appears malformed</div>
+  </div>
+
+  <div class="card">
+    <h2>Short-Term (1–2 Weeks)</h2>
+    <div class="status"><span class="dot dot-pending"></span> Add real persistence to admin usage tracker (Redis or Vercel KV) — currently resets on cold start</div>
+    <div class="status"><span class="dot dot-pending"></span> Add <code>ADMIN_SECRET</code> to Vercel environment variables for production dashboard access</div>
+    <div class="status"><span class="dot dot-pending"></span> Next project PRD — capture user's next project idea as a 1-page spec</div>
+    <div class="status"><span class="dot dot-pending"></span> Mobile UX audit — StoryAnimator and ReportCard on small screens</div>
+  </div>
+
+  <div class="card">
+    <h2>Medium-Term (1 Month)</h2>
+    <div class="status"><span class="dot dot-pending"></span> Real-time transits overlay — show current-day planetary positions on top of birth chart</div>
+    <div class="status"><span class="dot dot-pending"></span> Solar return chart — annual birthday chart generation</div>
+    <div class="status"><span class="dot dot-pending"></span> PDF export — ReportCard to downloadable PDF</div>
+    <div class="status"><span class="dot dot-pending"></span> User history — save readings to localStorage or Vercel KV (no account needed)</div>
+    <div class="status"><span class="dot dot-pending"></span> Synastry / compatibility chart — compare two birth charts</div>
+  </div>
+
+  <div class="card">
+    <h2>Technical Debt</h2>
+    <div class="note">
+      <strong>CelestialScene</strong> — planet positions are still decorative orbits. Need a small adapter in <code>astrology.ts</code> to export scaled world-space XYZ for Three.js.
+    </div>
+    <div class="note">
+      <strong>Usage Tracker</strong> — in-memory only. Resets on Vercel cold starts. Fine for dev monitoring, not for production billing audits.
+    </div>
+    <div class="note">
+      <strong>Admin Dashboard</strong> — no authentication in dev (localhost auto). Must add <code>ADMIN_SECRET</code> before production launch.
+    </div>
+  </div>
+
+</div>
+
+<script>
+function switchTab(id) {
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  const map = { overview:0, architecture:1, components:2, api:3, data:4, ui:5, security:6, roadmap:7 };
+  document.querySelectorAll('.tab-btn')[map[id] ?? 0].classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+</script>
+</body>
+</html>

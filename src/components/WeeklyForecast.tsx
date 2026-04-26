@@ -3,9 +3,9 @@
 import { useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
 
-const TEAL   = '#1A6B6B';
-const AMBER  = '#D4880A';
-const TEAL_L = '#2A8A8A';
+const TEAL   = '#5B21B6';
+const AMBER  = '#F59E0B';
+const TEAL_L = '#7C3AED';
 
 // ── Sign / animal lists ────────────────────────────────────────────────────────
 
@@ -196,7 +196,7 @@ export default function WeeklyForecast() {
           <button key={st.id} onClick={() => { setSubTab(st.id); setText(''); setLastKey(''); }}
             className="flex-1 min-w-[100px] flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-lg transition-all"
             style={subTab === st.id
-              ? { background: `linear-gradient(135deg,${TEAL},${TEAL_L})`, color: '#fff', boxShadow: '0 2px 8px rgba(26,107,107,0.25)' }
+              ? { background: `linear-gradient(135deg,${TEAL},${TEAL_L})`, color: '#fff', boxShadow: '0 2px 8px rgba(91,33,182,0.25)' }
               : { color: '#6B7280' }}>
             <span>{st.icon}</span> {st.label}
           </button>
@@ -229,7 +229,7 @@ export default function WeeklyForecast() {
                 <button key={r} onClick={() => setSelectedRashi(r)}
                   className="px-2 py-2.5 text-xs font-medium rounded-lg border transition-all text-left"
                   style={isSel
-                    ? { background: `linear-gradient(135deg,rgba(26,107,107,0.12),rgba(212,136,10,0.08))`, borderColor: TEAL, color: TEAL }
+                    ? { background: `linear-gradient(135deg,rgba(91,33,182,0.12),rgba(245,158,11,0.08))`, borderColor: TEAL, color: TEAL }
                     : { background: '#FAFAF8', borderColor: '#E5E7EB', color: '#4B5563' }}>
                   <span className="mr-1">{RASHI_EMOJI[r] || '•'}</span>
                   {r.split(' (')[0]}
@@ -253,7 +253,7 @@ export default function WeeklyForecast() {
                 <button key={s} onClick={() => setSelectedZodiac(s)}
                   className="px-2 py-2.5 text-xs font-medium rounded-lg border transition-all text-left"
                   style={isSel
-                    ? { background: `linear-gradient(135deg,rgba(26,107,107,0.12),rgba(212,136,10,0.08))`, borderColor: TEAL, color: TEAL }
+                    ? { background: `linear-gradient(135deg,rgba(91,33,182,0.12),rgba(245,158,11,0.08))`, borderColor: TEAL, color: TEAL }
                     : { background: '#FAFAF8', borderColor: '#E5E7EB', color: '#4B5563' }}>
                   <span className="mr-1">{ZODIAC_EMOJI[s] || '•'}</span>
                   {s}
@@ -277,7 +277,7 @@ export default function WeeklyForecast() {
                 <button key={a} onClick={() => setSelectedAnimal(a)}
                   className="px-2 py-2.5 text-xs font-medium rounded-lg border transition-all text-left"
                   style={isSel
-                    ? { background: `linear-gradient(135deg,rgba(26,107,107,0.12),rgba(212,136,10,0.08))`, borderColor: TEAL, color: TEAL }
+                    ? { background: `linear-gradient(135deg,rgba(91,33,182,0.12),rgba(245,158,11,0.08))`, borderColor: TEAL, color: TEAL }
                     : { background: '#FAFAF8', borderColor: '#E5E7EB', color: '#4B5563' }}>
                   <span className="mr-1">{ANIMAL_EMOJI[a] || '•'}</span>
                   {a}
@@ -292,7 +292,7 @@ export default function WeeklyForecast() {
       {lastKey !== fetchKey && (
         <button onClick={handleGenerate} disabled={loading}
           className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl font-semibold text-sm transition-all disabled:opacity-40 disabled:cursor-not-allowed"
-          style={{ background: `linear-gradient(135deg,${TEAL} 0%,#1E8080 40%,${AMBER} 100%)`, color: '#fff', boxShadow: '0 4px 20px rgba(26,107,107,0.28)' }}>
+          style={{ background: `linear-gradient(135deg,${TEAL} 0%,#7C3AED 40%,${AMBER} 100%)`, color: '#fff', boxShadow: '0 4px 20px rgba(91,33,182,0.28)' }}>
           {loading
             ? <><span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> Consulting the stars…</>
             : subTab === 'rashi' ? `🕉️ Get ${selectedRashi.split(' (')[0]} Rashi Forecast`
@@ -314,7 +314,7 @@ export default function WeeklyForecast() {
             </p>
             <button onClick={() => { setText(''); setLastKey(''); }}
               className="text-[10px] px-3 py-1 rounded-full border font-medium"
-              style={{ color: TEAL, borderColor: 'rgba(26,107,107,0.3)' }}>
+              style={{ color: TEAL, borderColor: 'rgba(91,33,182,0.3)' }}>
               ← New Forecast
             </button>
           </div>

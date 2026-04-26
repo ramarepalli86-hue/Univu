@@ -3,9 +3,9 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 
-const TEAL   = '#1A6B6B';
-const AMBER  = '#D4880A';
-const TEAL_L = '#2A8A8A';
+const TEAL   = '#5B21B6';
+const AMBER  = '#F59E0B';
+const TEAL_L = '#7C3AED';
 
 // ── Localisation helpers ────────────────────────────────────────────────────
 
@@ -263,7 +263,7 @@ export default function Panchangam({ locale = 'en' }: PanchangamProps) {
     <button onClick={() => setSection(id)}
       className="px-4 py-2 text-xs font-semibold rounded-xl transition-all whitespace-nowrap"
       style={section === id
-        ? { background:`linear-gradient(135deg,${TEAL},${TEAL_L})`, color:'#fff', boxShadow:'0 2px 8px rgba(26,107,107,0.25)' }
+        ? { background:`linear-gradient(135deg,${TEAL},${TEAL_L})`, color:'#fff', boxShadow:'0 2px 8px rgba(91,33,182,0.25)' }
         : { color:'#6B7280' }
       }>{label}</button>
   );
@@ -273,7 +273,7 @@ export default function Panchangam({ locale = 'en' }: PanchangamProps) {
       className="max-w-4xl mx-auto space-y-5">
 
       {/* ── Hero header ── */}
-      <div className="rounded-2xl overflow-hidden border" style={{ borderColor:'rgba(26,107,107,0.25)', background:'linear-gradient(135deg,rgba(26,107,107,0.1),rgba(212,136,10,0.07))' }}>
+      <div className="rounded-2xl overflow-hidden border" style={{ borderColor:'rgba(91,33,182,0.25)', background:'linear-gradient(135deg,rgba(26,107,107,0.1),rgba(212,136,10,0.07))' }}>
         <div className="px-5 py-5 flex items-start gap-4">
           <span className="text-5xl flex-shrink-0">🪔</span>
           <div className="flex-1">
@@ -391,7 +391,7 @@ export default function Panchangam({ locale = 'en' }: PanchangamProps) {
               <div className="px-4 py-3 space-y-2">
                 <p className="text-sm leading-relaxed" style={{ color:'#374151' }}>{m.description}</p>
                 {(loc === 'te') && (
-                  <p className="text-xs p-2.5 rounded-lg leading-relaxed" style={{ background:'rgba(212,136,10,0.08)', color:'#92400E' }}>
+                  <p className="text-xs p-2.5 rounded-lg leading-relaxed" style={{ background:'rgba(245,158,11,0.08)', color:'#92400E' }}>
                     <strong>తెలుగులో:</strong> {m.telugu}
                   </p>
                 )}
@@ -423,7 +423,7 @@ export default function Panchangam({ locale = 'en' }: PanchangamProps) {
                 <div className="px-4 py-3">
                   <p className="text-[10px] font-bold uppercase tracking-wide mb-1.5" style={{ color:TEAL }}>✅ Auspicious Days</p>
                   <div className="flex flex-wrap gap-1 mb-2">
-                    {item.good.map(d => <span key={d} className="text-xs px-2 py-0.5 rounded-full font-medium" style={{ background:'rgba(26,107,107,0.12)', color:TEAL }}>{d}</span>)}
+                    {item.good.map(d => <span key={d} className="text-xs px-2 py-0.5 rounded-full font-medium" style={{ background:'rgba(91,33,182,0.12)', color:TEAL }}>{d}</span>)}
                   </div>
                   <p className="text-[10px] font-bold uppercase tracking-wide mb-1" style={{ color:'#DC2626' }}>❌ Avoid</p>
                   <div className="flex flex-wrap gap-1">

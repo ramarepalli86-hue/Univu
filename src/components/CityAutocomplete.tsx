@@ -106,12 +106,12 @@ export default function CityAutocomplete({
     setSuggestions([]);
   }
 
-  const TEAL = '#1A6B6B';
+  const TEAL = '#5B21B6';
 
   return (
     <div ref={wrapperRef} className="relative">
       {label && (
-        <label className="block text-sm font-medium mb-1.5" style={{ color: '#1A4A4A' }}>
+        <label className="block text-sm font-medium mb-1.5" style={{ color: '#3B0764' }}>
           {icon && <span className="inline mr-1.5">{icon}</span>}
           {label}
         </label>
@@ -126,7 +126,7 @@ export default function CityAutocomplete({
           style={{
             background: '#FFFFFF',
             border: '1.5px solid #DDD8CE',
-            color: '#1E1B17',
+            color: '#0F0A23',
           }}
           placeholder={placeholder || 'Type any city in the world…'}
           autoComplete="off"
@@ -151,7 +151,7 @@ export default function CityAutocomplete({
               onMouseEnter={e => { (e.currentTarget as HTMLLIElement).style.background = 'rgba(26,107,107,0.06)'; }}
               onMouseLeave={e => { (e.currentTarget as HTMLLIElement).style.background = ''; }}
             >
-              <span className="font-medium" style={{ color: '#1E1B17' }}>
+              <span className="font-medium" style={{ color: '#0F0A23' }}>
                 {s.entry.city}
               </span>
               {(s.entry.state || s.entry.country) && (

@@ -2,155 +2,161 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ══════════════════════════════════════════════════════
+   COSMIC DAWN — Design System v2  (April 2026)
+   Palette: soft lavender-white bg · deep violet primary
+            warm gold accent · pure-white cards
+   NOT dark. NOT old parchment. Refreshing & balanced.
+══════════════════════════════════════════════════════ */
+
 @layer base {
-  /* Warm amber parchment — like candlelight on ancient paper */
   body {
     @apply antialiased font-body;
-    background-color: #FAF0DC;
-    color: #3A3530;
+    background-color: #FAFBFF;
+    color: #0F0A23;
     min-height: 100vh;
   }
 
-  /* Warm amber radial overlays — amber glow in top-left, deep orange warmth bottom-right */
+  /* Subtle radial glow — violet top-right, gold bottom-left */
   body::before {
     content: '';
     position: fixed;
-    top: 0; right: 0; bottom: 0; left: 0; /* Safari/IE compat — avoid inset shorthand */
+    top: 0; right: 0; bottom: 0; left: 0;
     background:
-      radial-gradient(ellipse at 15% 0%,   rgba(212,136,10,0.10) 0%, transparent 55%),
-      radial-gradient(ellipse at 85% 100%, rgba(180,90,20,0.08)   0%, transparent 55%),
-      radial-gradient(ellipse at 50% 50%,  rgba(255,200,100,0.04) 0%, transparent 70%);
+      radial-gradient(ellipse at 85% 0%,   rgba(124,58,237,0.07) 0%, transparent 55%),
+      radial-gradient(ellipse at 10% 100%, rgba(245,158,11,0.06)  0%, transparent 55%),
+      radial-gradient(ellipse at 50% 50%,  rgba(91,33,182,0.03)   0%, transparent 70%);
     pointer-events: none;
     z-index: 0;
   }
 
   #__next, main, [data-nextjs-scroll-focus-boundary] { position: relative; z-index: 1; }
 
-  ::selection { background: rgba(26,107,107,0.18); color: #0A3535; }
+  ::selection { background: rgba(124,58,237,0.15); color: #2D0F6B; }
 
   h1, h2, h3, h4, h5 {
     font-family: 'Noto Serif Devanagari', Georgia, serif;
-    color: #1E1B17;
+    color: #0F0A23;
   }
 
-  a { color: #1A6B6B; }
-  a:hover { color: #D4880A; }
+  a { color: #7C3AED; }
+  a:hover { color: #D97706; }
 }
 
 @layer components {
 
-  /* ── Primary button — teal-to-amber gradient ─────── */
+  /* ── Primary button — violet gradient ──────────────────────────────── */
   .btn-primary {
     @apply px-8 py-3 rounded-xl font-semibold transition-all duration-200
            disabled:opacity-40 disabled:cursor-not-allowed;
-    background: linear-gradient(135deg, #1A6B6B 0%, #1E8080 45%, #D4880A 100%);
-    color: #FFFDF8;
+    background: linear-gradient(135deg, #5B21B6 0%, #7C3AED 55%, #8B5CF6 100%);
+    color: #FFFFFF;
     letter-spacing: 0.02em;
-    box-shadow: 0 2px 12px rgba(26,107,107,0.25), 0 1px 3px rgba(0,0,0,0.12);
+    box-shadow: 0 2px 14px rgba(91,33,182,0.28), 0 1px 3px rgba(0,0,0,0.08);
   }
   .btn-primary:hover:not(:disabled) {
-    background: linear-gradient(135deg, #1E8080 0%, #2A9A9A 45%, #E69A20 100%);
-    box-shadow: 0 4px 20px rgba(26,107,107,0.30), 0 2px 6px rgba(0,0,0,0.14);
+    background: linear-gradient(135deg, #6D28D9 0%, #8B5CF6 55%, #A78BFA 100%);
+    box-shadow: 0 4px 22px rgba(91,33,182,0.35), 0 2px 6px rgba(0,0,0,0.10);
     transform: translateY(-1px);
   }
   .btn-primary:active:not(:disabled) { transform: translateY(0); }
 
-  /* ── Secondary button — teal-bordered, light fill ───────────────────── */
+  /* ── Secondary button — violet-bordered ─────────────────────────────── */
   .btn-secondary {
     @apply px-6 py-2.5 rounded-xl font-medium transition-all duration-200;
     background: #FFFFFF;
-    border: 1.5px solid #114A4A;
-    color: #114A4A;
+    border: 1.5px solid #7C3AED;
+    color: #5B21B6;
   }
   .btn-secondary:hover {
-    background: #F0F8F8;
-    border-color: #1A6060;
-    color: #0A3535;
+    background: #F5F3FF;
+    border-color: #5B21B6;
+    color: #3B0764;
   }
 
-  /* ── Cards — white with a warm shadow and teal-left accent ──────────── */
+  /* ── Cards ─────────────────────────────────────────────────────────── */
   .card-main {
     background: #FFFFFF;
-    border: 1px solid #E0DDD6;
-    border-top: 3px solid #1A6B6B;
+    border: 1px solid #E5E2F5;
+    border-top: 3px solid #7C3AED;
     border-radius: 1rem;
     padding: 1.75rem;
-    box-shadow: 0 4px 24px rgba(26,107,107,0.08), 0 1px 4px rgba(0,0,0,0.05);
+    box-shadow: 0 4px 24px rgba(91,33,182,0.07), 0 1px 4px rgba(0,0,0,0.04);
   }
 
   .card-accent {
-    background: #FAF8F4;
-    border: 1px solid #E6E1D9;
-    border-left: 3px solid #114A4A;
+    background: #FAFAFF;
+    border: 1px solid #EDE9FE;
+    border-left: 3px solid #7C3AED;
     border-radius: 0.875rem;
     padding: 1.25rem;
   }
 
-  /* ── Inputs — off-white with teal focus ring ─────────────────────────── */
+  /* ── Inputs ─────────────────────────────────────────────────────────── */
   .input-field {
     @apply w-full px-4 py-3 rounded-xl transition-all duration-200 outline-none;
-    background: #FDFCF9;
-    border: 1.5px solid #D4CEC4;
-    color: #1E1B17;
-    caret-color: #C4820A;
+    background: #FFFFFF;
+    border: 1.5px solid #DDD8F5;
+    color: #0F0A23;
+    caret-color: #7C3AED;
   }
-  .input-field::placeholder { color: #8A8278; }
+  .input-field::placeholder { color: #9CA3AF; }
   .input-field:focus {
-    border-color: #114A4A;
-    box-shadow: 0 0 0 3px rgba(17,74,74,0.12);
+    border-color: #7C3AED;
+    box-shadow: 0 0 0 3px rgba(124,58,237,0.12);
   }
 
   .select-field {
     @apply w-full px-4 py-3 rounded-xl appearance-none transition-all duration-200 outline-none cursor-pointer;
-    background: #FDFCF9;
-    border: 1.5px solid #D4CEC4;
-    color: #1E1B17;
+    background: #FFFFFF;
+    border: 1.5px solid #DDD8F5;
+    color: #0F0A23;
   }
   .select-field:focus {
-    border-color: #114A4A;
-    box-shadow: 0 0 0 3px rgba(17,74,74,0.12);
+    border-color: #7C3AED;
+    box-shadow: 0 0 0 3px rgba(124,58,237,0.12);
   }
 
-  /* ── Toggle / option buttons ─────────────────────────────────────────── */
+  /* ── Tabs ────────────────────────────────────────────────────────────── */
   .tab-active {
-    background: linear-gradient(135deg, rgba(26,107,107,0.10) 0%, rgba(212,136,10,0.08) 100%);
-    border: 1.5px solid #1A6B6B;
-    color: #1A4A4A;
+    background: linear-gradient(135deg, rgba(91,33,182,0.10) 0%, rgba(245,158,11,0.07) 100%);
+    border: 1.5px solid #7C3AED;
+    color: #3B0764;
     font-weight: 600;
   }
   .tab-inactive {
     background: #FFFFFF;
-    border: 1.5px solid #D4CEC4;
-    color: #5E584F;
+    border: 1.5px solid #E5E2F5;
+    color: #6B7280;
   }
   .tab-inactive:hover {
-    border-color: #114A4A;
-    color: #0A3535;
-    background: #F0F8F8;
+    border-color: #C4B5FD;
+    color: #4B1D96;
+    background: #F5F3FF;
   }
 
   /* ── Section headings ────────────────────────────────────────────────── */
   .section-heading {
     @apply text-lg font-display font-semibold flex items-center gap-2;
-    color: #1A6B6B;
+    color: #5B21B6;
   }
 
-  /* ── Divider — teal-to-amber fade ────────────────────────────── */
+  /* ── Divider — violet-to-gold fade ───────────────────────────────────── */
   .gold-divider {
     border: none;
     height: 1.5px;
-    background: linear-gradient(90deg, transparent 0%, #1A6B6B 30%, #D4880A 70%, transparent 100%);
-    opacity: 0.25;
+    background: linear-gradient(90deg, transparent 0%, #7C3AED 30%, #F59E0B 70%, transparent 100%);
+    opacity: 0.20;
   }
 
   /* ── Chart cell ──────────────────────────────────────────────────────── */
   .chart-cell {
-    border: 1px solid #D4CEC4;
+    border: 1px solid #E5E2F5;
     padding: 0.5rem;
     font-size: 0.75rem;
     text-align: center;
-    color: #5E584F;
-    background: #FDFCF9;
+    color: #6B7280;
+    background: #FAFAFF;
     min-height: 60px;
     display: flex;
     align-items: center;
@@ -159,16 +165,16 @@
 
   /* ── Disclaimer bar ──────────────────────────────────────────────────── */
   .disclaimer-bar {
-    background: rgba(17,74,74,0.05);
-    border-bottom: 1px solid rgba(17,74,74,0.12);
-    color: #5E584F;
+    background: rgba(91,33,182,0.04);
+    border-bottom: 1px solid rgba(91,33,182,0.10);
+    color: #6B7280;
   }
 
-  /* ── Luxury badge — teal-amber ──────────────────────────────────────── */
+  /* ── Badge ──────────────────────────────────────────────────────────── */
   .badge-gold {
-    background: linear-gradient(135deg, rgba(26,107,107,0.10) 0%, rgba(212,136,10,0.08) 100%);
-    border: 1px solid rgba(212,136,10,0.35);
-    color: #1A6B6B;
+    background: linear-gradient(135deg, rgba(91,33,182,0.08) 0%, rgba(245,158,11,0.10) 100%);
+    border: 1px solid rgba(245,158,11,0.40);
+    color: #92400E;
     border-radius: 9999px;
     padding: 0.2rem 0.75rem;
     font-size: 0.7rem;
@@ -178,13 +184,13 @@
   }
 }
 
-/* ── Scrollbar — teal thin ───────────────────────────────────────────────── */
+/* ── Scrollbar — violet thin ─────────────────────────────────────────────── */
 ::-webkit-scrollbar { width: 5px; }
-::-webkit-scrollbar-track { background: #F0EDE7; }
-::-webkit-scrollbar-thumb { background: rgba(17,74,74,0.3); border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: rgba(17,74,74,0.5); }
+::-webkit-scrollbar-track { background: #F0EDFF; }
+::-webkit-scrollbar-thumb { background: rgba(124,58,237,0.25); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(124,58,237,0.45); }
 
-/* ── Fade-in animation — CSS fallback so content shows even before JS ─────── */
+/* ── Fade-in animation ───────────────────────────────────────────────────── */
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(-12px); }
   to   { opacity: 1; transform: translateY(0); }
@@ -193,14 +199,13 @@
   animation: fadeIn 0.5s ease forwards;
 }
 
-/* ── Select option light override ────────────────────────────────────────── */
+/* ── Select option override ──────────────────────────────────────────────── */
 select option {
-  background: #FDFCF9;
-  color: #1E1B17;
+  background: #FFFFFF;
+  color: #0F0A23;
 }
 
 /* ── Safari / older browser fixes ──────────────────────────────────────── */
-/* Safari requires -webkit-backdrop-filter; Tailwind only emits backdrop-filter */
 @supports (-webkit-backdrop-filter: blur(1px)) {
   .backdrop-blur-sm  { -webkit-backdrop-filter: blur(4px);  backdrop-filter: blur(4px); }
   .backdrop-blur-md  { -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
@@ -209,7 +214,6 @@ select option {
   .backdrop-blur-2xl { -webkit-backdrop-filter: blur(40px); backdrop-filter: blur(40px); }
 }
 
-/* Tailwind inset-0 generates `inset:0` — Safari <14.1 and IE need explicit props */
 .inset-0 {
   top: 0; right: 0; bottom: 0; left: 0;
 }

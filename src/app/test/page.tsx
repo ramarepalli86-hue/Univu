@@ -5,8 +5,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import ReportCard, { ReadingResult } from '@/components/ReportCard';
 import { getTranslations } from '@/i18n';
 
-const TEAL = '#1A6B6B';
-const AMBER = '#D4880A';
+const TEAL = '#5B21B6';
+const AMBER = '#F59E0B';
 const BORDER = '#DDD8CE';
 const BG = '#FAFAF8';
 
@@ -130,7 +130,7 @@ export default function TestPage() {
           {/* Run button */}
           <button onClick={runTest} disabled={loading}
             className="mt-4 w-full py-3 rounded-xl font-semibold text-base flex items-center justify-center gap-2 transition-all disabled:opacity-50"
-            style={{ background: `linear-gradient(135deg, ${TEAL} 0%, #1E8080 40%, ${AMBER} 100%)`, color: '#FFFFFF', boxShadow: '0 4px 16px rgba(26,107,107,0.25)' }}>
+            style={{ background: `linear-gradient(135deg, ${TEAL} 0%, #7C3AED 40%, ${AMBER} 100%)`, color: '#FFFFFF', boxShadow: '0 4px 16px rgba(91,33,182,0.25)' }}>
             {loading
               ? <><span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" /> Running test…</>
               : `▶ Run Test with "${TEST_PROFILES[profileIdx].data.name}"`}

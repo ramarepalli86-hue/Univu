@@ -43,17 +43,17 @@ function FeedbackWidget() {
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.3 }}
       className="mt-10 rounded-2xl p-6 text-center"
-      style={{ background: 'rgba(26,107,107,0.05)', border: '1px solid rgba(26,107,107,0.15)' }}
+      style={{ background: 'rgba(91,33,182,0.04)', border: '1px solid rgba(91,33,182,0.12)' }}
     >
       {submitted ? (
         <div>
           <p className="text-2xl mb-2">🙏</p>
-          <p className="font-semibold" style={{ color: '#1A6B6B' }}>Thank you for your feedback!</p>
-          <p className="text-xs mt-1" style={{ color: '#8A8278' }}>It helps us improve Univu for everyone.</p>
+          <p className="font-semibold" style={{ color: '#5B21B6' }}>Thank you for your feedback!</p>
+          <p className="text-xs mt-1" style={{ color: '#6B7280' }}>It helps us improve Univu for everyone.</p>
         </div>
       ) : (
         <form onSubmit={handleSubmit}>
-          <p className="text-sm font-semibold mb-3" style={{ color: '#1A6B6B' }}>How was your reading?</p>
+          <p className="text-sm font-semibold mb-3" style={{ color: '#5B21B6' }}>How was your reading?</p>
           {/* Stars */}
           <div className="flex justify-center gap-2 mb-4">
             {[1,2,3,4,5].map(n => (
@@ -64,7 +64,7 @@ function FeedbackWidget() {
                 onMouseEnter={() => setHover(n)}
                 onMouseLeave={() => setHover(0)}
                 className="text-2xl transition-transform hover:scale-110"
-                style={{ color: n <= (hover || stars) ? '#D4880A' : '#D1C5B0' }}
+                style={{ color: n <= (hover || stars) ? '#F59E0B' : '#D1C5B0' }}
               >
                 ★
               </button>
@@ -78,8 +78,8 @@ function FeedbackWidget() {
             rows={3}
             className="w-full text-sm px-3 py-2.5 rounded-xl resize-none outline-none mb-3"
             style={{
-              background: 'rgba(255,255,255,0.8)',
-              border: '1px solid rgba(26,107,107,0.2)',
+              background: 'rgba(255,255,255,0.9)',
+              border: '1px solid rgba(91,33,182,0.15)',
               color: '#1F2937',
             }}
           />
@@ -87,7 +87,7 @@ function FeedbackWidget() {
             type="submit"
             disabled={!stars || submitting}
             className="px-6 py-2 rounded-xl text-sm font-semibold text-white transition-opacity disabled:opacity-40"
-            style={{ background: 'linear-gradient(135deg, #1A6B6B, #2A8A8A)' }}
+            style={{ background: 'linear-gradient(135deg, #5B21B6, #7C3AED)' }}
           >
             {submitting ? 'Sending…' : 'Send Feedback'}
           </button>
@@ -136,7 +136,7 @@ export default function HomePage() {
   }
 
   return (
-    <div className="relative min-h-screen" style={{ background: 'linear-gradient(160deg, #FDF6E8 0%, #FAF0DC 45%, #F5E8D0 100%)' }}>
+    <div className="relative min-h-screen" style={{ background: 'linear-gradient(160deg, #F5F3FF 0%, #FAFAFF 45%, #F0F4FF 100%)' }}>
       <StarField />
       <DisclaimerBanner t={t} />
       <AgeGate t={t} underage={false} />
@@ -150,7 +150,7 @@ export default function HomePage() {
               top: `${[8,20,5,35,12,28,45,15,60,30,75,55,90,80,70,50][i]}%`,
               transform: `rotate(${(i * 23) % 360}deg)`,
               fontSize: `${1.2 + (i % 3) * 0.5}rem`,
-              color: i % 3 === 0 ? '#1A6B6B' : i % 3 === 1 ? '#D4880A' : '#2A8A8A',
+              color: i % 3 === 0 ? '#7C3AED' : i % 3 === 1 ? '#F59E0B' : '#A78BFA',
             }}>
             {sym}
           </span>
@@ -164,8 +164,8 @@ export default function HomePage() {
           <div className="flex justify-center mb-5">
             <div className="relative inline-flex items-center gap-3 px-6 py-3 rounded-2xl"
               style={{
-                background: 'linear-gradient(135deg, #1A6B6B 0%, #1E8080 40%, #D4880A 100%)',
-                boxShadow: '0 4px 20px rgba(26,107,107,0.35), 0 2px 8px rgba(212,136,10,0.2)',
+                background: 'linear-gradient(135deg, #5B21B6 0%, #7C3AED 45%, #8B5CF6 100%)',
+                boxShadow: '0 4px 22px rgba(91,33,182,0.35), 0 2px 8px rgba(245,158,11,0.15)',
               }}>
               {/* Icon mark — orrery/eye-of-cosmos */}
               <svg width="52" height="52" viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -198,10 +198,10 @@ export default function HomePage() {
               </div>
             </div>
           </div>
-          <p className="text-base sm:text-lg mt-2 font-medium" style={{ color: '#1A6B6B' }}>
+          <p className="text-base sm:text-lg mt-2 font-medium" style={{ color: '#5B21B6' }}>
             {t.tagline || 'See the universe. Know yourself.'}
           </p>
-          <p className="text-sm mt-1 italic" style={{ color: '#7A8A80' }}>
+          <p className="text-sm mt-1 italic" style={{ color: '#7C6FA0' }}>
             {t.hero_subtitle || 'Vedic · Western · Chinese · Egyptian · Mayan traditions'}
           </p>
 
@@ -211,7 +211,7 @@ export default function HomePage() {
             target="_blank"
             rel="noopener noreferrer"
             className="inline-block mt-2 text-xs font-semibold hover:underline transition-opacity hover:opacity-75"
-            style={{ color: '#D4880A', letterSpacing: '0.06em' }}
+            style={{ color: '#F59E0B', letterSpacing: '0.06em' }}
           >
             🌐 univu.vercel.app
           </a>
@@ -220,7 +220,7 @@ export default function HomePage() {
           <div className="flex flex-wrap justify-center gap-2 mt-4">
             {[['🕉️','Vedic'],['♈','Western'],['☯️','Chinese'],['𓂀','Egyptian'],['☀️','Mayan']].map(([icon, name]) => (
               <span key={name} className="text-xs px-3 py-1 rounded-full font-medium"
-                style={{ background: 'rgba(26,107,107,0.08)', color: '#1A6B6B', border: '1px solid rgba(26,107,107,0.18)' }}>
+                style={{ background: 'rgba(91,33,182,0.07)', color: '#5B21B6', border: '1px solid rgba(91,33,182,0.15)' }}>
                 {icon} {name}
               </span>
             ))}
@@ -232,29 +232,29 @@ export default function HomePage() {
               <button onClick={() => setView('astrology')}
                 className="px-4 py-2.5 text-xs sm:text-sm font-semibold rounded-xl transition-all"
                 style={view === 'astrology'
-                  ? { background: 'linear-gradient(135deg,#1A6B6B,#2A8A8A)', color: '#fff', boxShadow: '0 2px 10px rgba(26,107,107,0.3)' }
-                  : { color: '#1A6B6B', border: '1px solid rgba(26,107,107,0.3)', background: 'transparent' }
+                  ? { background: 'linear-gradient(135deg,#5B21B6,#7C3AED)', color: '#fff', boxShadow: '0 2px 10px rgba(91,33,182,0.3)' }
+                  : { color: '#5B21B6', border: '1px solid rgba(91,33,182,0.25)', background: 'transparent' }
                 }
               >{"\uD83D\uDD2E"} My Astrology</button>
               <button onClick={() => setView('weekly')}
                 className="px-4 py-2.5 text-xs sm:text-sm font-semibold rounded-xl transition-all"
                 style={view === 'weekly'
-                  ? { background: 'linear-gradient(135deg,#1A6B6B,#2A8A8A)', color: '#fff', boxShadow: '0 2px 10px rgba(26,107,107,0.3)' }
-                  : { color: '#1A6B6B', border: '1px solid rgba(26,107,107,0.3)', background: 'transparent' }
+                  ? { background: 'linear-gradient(135deg,#5B21B6,#7C3AED)', color: '#fff', boxShadow: '0 2px 10px rgba(91,33,182,0.3)' }
+                  : { color: '#5B21B6', border: '1px solid rgba(91,33,182,0.25)', background: 'transparent' }
                 }
               >{"\uD83D\uDCC5"} Weekly Forecast</button>
               <button onClick={() => setView('vastu')}
                 className="px-4 py-2.5 text-xs sm:text-sm font-semibold rounded-xl transition-all"
                 style={view === 'vastu'
-                  ? { background: 'linear-gradient(135deg,#1A6B6B,#2A8A8A)', color: '#fff', boxShadow: '0 2px 10px rgba(26,107,107,0.3)' }
-                  : { color: '#1A6B6B', border: '1px solid rgba(26,107,107,0.3)', background: 'transparent' }
+                  ? { background: 'linear-gradient(135deg,#5B21B6,#7C3AED)', color: '#fff', boxShadow: '0 2px 10px rgba(91,33,182,0.3)' }
+                  : { color: '#5B21B6', border: '1px solid rgba(91,33,182,0.25)', background: 'transparent' }
                 }
               >{"\uD83C\uDFE0"} Vastu & Feng Shui</button>
               <button onClick={() => setView('panchangam')}
                 className="px-4 py-2.5 text-xs sm:text-sm font-semibold rounded-xl transition-all"
                 style={view === 'panchangam'
-                  ? { background: 'linear-gradient(135deg,#1A6B6B,#2A8A8A)', color: '#fff', boxShadow: '0 2px 10px rgba(26,107,107,0.3)' }
-                  : { color: '#1A6B6B', border: '1px solid rgba(26,107,107,0.3)', background: 'transparent' }
+                  ? { background: 'linear-gradient(135deg,#5B21B6,#7C3AED)', color: '#fff', boxShadow: '0 2px 10px rgba(91,33,182,0.3)' }
+                  : { color: '#5B21B6', border: '1px solid rgba(91,33,182,0.25)', background: 'transparent' }
                 }
               >{"\uD83E\uDEB7"} Panchangam</button>
             </div>
@@ -302,9 +302,9 @@ export default function HomePage() {
               <button
                 onClick={() => { setReading(null); }}
                 className="mb-6 text-sm font-medium transition-colors"
-                style={{ color: '#1A6B6B' }}
-                onMouseEnter={e => (e.currentTarget.style.color = '#D4880A')}
-                onMouseLeave={e => (e.currentTarget.style.color = '#1A6B6B')}
+                style={{ color: '#5B21B6' }}
+                onMouseEnter={e => (e.currentTarget.style.color = '#F59E0B')}
+                onMouseLeave={e => (e.currentTarget.style.color = '#5B21B6')}
               >
                 ← Back to Home
               </button>
@@ -315,11 +315,11 @@ export default function HomePage() {
         </AnimatePresence>
         )}
 
-        <footer className="mt-16 pt-6 text-center space-y-3" style={{ borderTop: '1.5px solid', borderImage: 'linear-gradient(90deg, transparent, #1A6B6B, #D4880A, transparent) 1' }}>
-          <p className="text-xs" style={{ color: '#8A8278' }}>
+        <footer className="mt-16 pt-6 text-center space-y-3" style={{ borderTop: '1.5px solid', borderImage: 'linear-gradient(90deg, transparent, #7C3AED, #F59E0B, transparent) 1' }}>
+          <p className="text-xs" style={{ color: '#6B7280' }}>
             For entertainment and information only. Consult a professional astrologer for accurate guidance.
           </p>
-          <p className="text-xs font-semibold" style={{ color: '#1A6B6B' }}>
+          <p className="text-xs font-semibold" style={{ color: '#5B21B6' }}>
             {t.footer_text || '© 2026 Univu'}
           </p>
           <a
@@ -327,7 +327,7 @@ export default function HomePage() {
             target="_blank"
             rel="noopener noreferrer"
             className="inline-block text-xs font-semibold hover:underline transition-opacity hover:opacity-80"
-            style={{ color: '#D4880A', letterSpacing: '0.05em' }}
+            style={{ color: '#F59E0B', letterSpacing: '0.05em' }}
           >
             🌐 univu.vercel.app
           </a>

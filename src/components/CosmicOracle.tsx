@@ -3,8 +3,8 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const TEAL = '#1A6B6B';
-const AMBER = '#D4880A';
+const TEAL = '#5B21B6';
+const AMBER = '#F59E0B';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -95,7 +95,7 @@ export default function CosmicOracle({ chartContext }: AstroChatProps) {
       <button
         onClick={() => setOpen(o => !o)}
         className="fixed bottom-20 sm:bottom-6 right-4 sm:right-6 z-[9999] w-14 h-14 rounded-full flex items-center justify-center shadow-xl transition-transform hover:scale-105 active:scale-95"
-        style={{ background: `linear-gradient(135deg, ${TEAL}, #2A8A8A)`, boxShadow: `0 4px 20px rgba(26,107,107,0.45)` }}
+        style={{ background: `linear-gradient(135deg, ${TEAL}, #7C3AED)`, boxShadow: `0 4px 20px rgba(91,33,182,0.40)` }}
         aria-label="Open Cosmic Oracle chat"
       >
         {open
@@ -124,7 +124,7 @@ export default function CosmicOracle({ chartContext }: AstroChatProps) {
           >
             {/* Header */}
             <div className="flex items-center gap-3 px-4 py-3 flex-shrink-0"
-              style={{ background: `linear-gradient(135deg, ${TEAL}, #2A8A8A)` }}>
+              style={{ background: `linear-gradient(135deg, ${TEAL}, #7C3AED)` }}>
               <div className="w-8 h-8 rounded-full flex items-center justify-center text-base flex-shrink-0"
                 style={{ background: 'rgba(255,255,255,0.2)' }}>🔮</div>
               <div className="flex-1 min-w-0">
@@ -147,7 +147,7 @@ export default function CosmicOracle({ chartContext }: AstroChatProps) {
                   <div
                     className="max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed"
                     style={m.role === 'user'
-                      ? { background: `linear-gradient(135deg, ${TEAL}, #2A8A8A)`, color: 'white', borderBottomRightRadius: '4px' }
+                      ? { background: `linear-gradient(135deg, ${TEAL}, #7C3AED)`, color: 'white', borderBottomRightRadius: '4px' }
                       : { background: m.error ? '#FFF5F5' : 'rgba(26,107,107,0.06)', color: '#1F2937', borderBottomLeftRadius: '4px', border: m.error ? '1px solid #FCA5A5' : '1px solid rgba(26,107,107,0.1)' }
                     }
                   >
@@ -187,7 +187,7 @@ export default function CosmicOracle({ chartContext }: AstroChatProps) {
                     {STARTER_QUESTIONS.map(q => (
                       <button key={q} onClick={() => sendMessage(q)}
                         className="text-xs px-3 py-1.5 rounded-full border transition-colors hover:bg-teal-50"
-                        style={{ borderColor: 'rgba(26,107,107,0.25)', color: TEAL, background: 'rgba(26,107,107,0.04)' }}>
+                        style={{ borderColor: 'rgba(91,33,182,0.25)', color: TEAL, background: 'rgba(26,107,107,0.04)' }}>
                         {q}
                       </button>
                     ))}
@@ -219,7 +219,7 @@ export default function CosmicOracle({ chartContext }: AstroChatProps) {
                   onClick={() => sendMessage(input)}
                   disabled={!input.trim() || loading}
                   className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 transition-opacity disabled:opacity-40"
-                  style={{ background: `linear-gradient(135deg, ${TEAL}, #2A8A8A)` }}
+                  style={{ background: `linear-gradient(135deg, ${TEAL}, #7C3AED)` }}
                 >
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                     <path d="M2 8h12M9 3l5 5-5 5" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>

@@ -10,11 +10,11 @@ export default function Maintenance() {
           <svg width="64" height="64" viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
             <circle cx="26" cy="26" r="23" stroke="rgba(212,136,10,0.4)" strokeWidth="1.2" strokeDasharray="4 2.5"/>
             <circle cx="26" cy="26" r="15" stroke="rgba(26,107,107,0.8)" strokeWidth="1.5" fill="none"/>
-            <circle cx="26" cy="26" r="6" fill="#D4880A" opacity="0.9"/>
-            <circle cx="26" cy="11" r="2.2" fill="#D4880A" opacity="0.7"/>
-            <circle cx="26" cy="41" r="2.2" fill="#D4880A" opacity="0.7"/>
-            <circle cx="11" cy="26" r="2.2" fill="#D4880A" opacity="0.7"/>
-            <circle cx="41" cy="26" r="2.2" fill="#D4880A" opacity="0.7"/>
+            <circle cx="26" cy="26" r="6" fill="#F59E0B" opacity="0.9"/>
+            <circle cx="26" cy="11" r="2.2" fill="#F59E0B" opacity="0.7"/>
+            <circle cx="26" cy="41" r="2.2" fill="#F59E0B" opacity="0.7"/>
+            <circle cx="11" cy="26" r="2.2" fill="#F59E0B" opacity="0.7"/>
+            <circle cx="41" cy="26" r="2.2" fill="#F59E0B" opacity="0.7"/>
           </svg>
         </div>
 
@@ -27,7 +27,7 @@ export default function Maintenance() {
           </p>
         </div>
 
-        <div className="h-px w-24 mx-auto" style={{ background: 'linear-gradient(90deg, transparent, #D4880A, transparent)' }} />
+        <div className="h-px w-24 mx-auto" style={{ background: 'linear-gradient(90deg, transparent, #F59E0B, transparent)' }} />
 
         <div className="space-y-3">
           <p className="text-2xl font-semibold" style={{ color: '#E5E7EB' }}>

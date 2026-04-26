@@ -4,8 +4,8 @@ import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import CityAutocomplete from './CityAutocomplete';
 
-const TEAL   = '#1A6B6B';
-const AMBER  = '#D4880A';
+const TEAL   = '#5B21B6';
+const AMBER  = '#F59E0B';
 
 // ── Minimal context for the API (no birth chart required) ────────────────────
 function buildMinimalContext() {
@@ -270,8 +270,8 @@ export default function VastuFengShui() {
   }
 
   const inpCls = 'w-full px-3 py-2.5 rounded-xl text-sm outline-none transition-all';
-  const inpSt: React.CSSProperties = { border: '1.5px solid #DDD8CE', background: '#fff', color: '#1E1B17' };
-  const focusSt: React.CSSProperties = { borderColor: TEAL, boxShadow: '0 0 0 3px rgba(26,107,107,0.12)' };
+  const inpSt: React.CSSProperties = { border: '1.5px solid #DDD8CE', background: '#fff', color: '#0F0A23' };
+  const focusSt: React.CSSProperties = { borderColor: TEAL, boxShadow: '0 0 0 3px rgba(91,33,182,0.12)' };
 
   return (
     <div className="rounded-2xl p-5 sm:p-7 space-y-5"
@@ -317,7 +317,7 @@ export default function VastuFengShui() {
                 }}
                 className="rounded-xl p-2.5 text-left border transition-all"
                 style={active
-                  ? { background: 'linear-gradient(135deg,rgba(26,107,107,0.12),rgba(212,136,10,0.08))', border: `1.5px solid ${TEAL}` }
+                  ? { background: 'linear-gradient(135deg,rgba(91,33,182,0.12),rgba(245,158,11,0.08))', border: `1.5px solid ${TEAL}` }
                   : { background: '#FAFAF8', border: '1.5px solid #E5E7EB' }}>
                 <div className="text-xs font-bold" style={{ color: active ? TEAL : '#4A4540' }}>{opt.label}</div>
                 <div className="text-[10px] mt-0.5" style={{ color: '#9CA3AF' }}>{opt.sub}</div>
@@ -433,7 +433,7 @@ export default function VastuFengShui() {
 
       {/* ── OPTIONAL: Person details ── */}
       {form.personEnabled && (
-        <div className="rounded-xl p-4 space-y-3" style={{ background: 'rgba(26,107,107,0.04)', border: '1px solid rgba(26,107,107,0.12)' }}>
+        <div className="rounded-xl p-4 space-y-3" style={{ background: 'rgba(26,107,107,0.04)', border: '1px solid rgba(91,33,182,0.12)' }}>
           <p className="text-xs font-bold uppercase tracking-wider" style={{ color: TEAL }}>👤 Your Details (optional — improves personalisation)</p>
           <div className="grid sm:grid-cols-3 gap-3">
             <div>
@@ -507,7 +507,7 @@ export default function VastuFengShui() {
       {!submitted && (
         <button onClick={handleGenerate} disabled={loading || !form.houseCity}
           className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl font-semibold text-sm transition-all disabled:opacity-40 disabled:cursor-not-allowed"
-          style={{ background: `linear-gradient(135deg,${TEAL} 0%,#1E8080 40%,${AMBER} 100%)`, color: '#fff', boxShadow: '0 4px 20px rgba(26,107,107,0.28)' }}>
+          style={{ background: `linear-gradient(135deg,${TEAL} 0%,#7C3AED 40%,${AMBER} 100%)`, color: '#fff', boxShadow: '0 4px 20px rgba(91,33,182,0.28)' }}>
           {loading
             ? <><span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> Analysing your space…</>
             : '🏠 Generate Vastu & Feng Shui Reading'}
@@ -523,7 +523,7 @@ export default function VastuFengShui() {
             </p>
             <button onClick={() => { setText(''); setSubmitted(false); setChatMsgs([]); setChatInput(''); }}
               className="text-[10px] px-3 py-1 rounded-full border font-medium"
-              style={{ color: TEAL, borderColor: 'rgba(26,107,107,0.3)' }}>
+              style={{ color: TEAL, borderColor: 'rgba(91,33,182,0.3)' }}>
               ← New Reading
             </button>
           </div>
@@ -555,7 +555,7 @@ export default function VastuFengShui() {
                         style={m.role === 'user'
                           ? { background: `linear-gradient(135deg, ${TEAL}, #2A8A8A)`, color: 'white', borderBottomRightRadius: '4px' }
                           : { background: m.error ? '#FFF5F5' : 'white', color: '#1F2937', borderBottomLeftRadius: '4px',
-                              border: m.error ? '1px solid #FCA5A5' : '1px solid rgba(26,107,107,0.12)' }
+                              border: m.error ? '1px solid #FCA5A5' : '1px solid rgba(91,33,182,0.12)' }
                         }>
                         {m.content.split('\n').map((line, j) => (
                           <span key={j}>
@@ -574,7 +574,7 @@ export default function VastuFengShui() {
                   {chatLoading && (
                     <div className="flex justify-start">
                       <div className="rounded-2xl px-4 py-3 flex items-center gap-1.5"
-                        style={{ background: 'white', border: '1px solid rgba(26,107,107,0.12)' }}>
+                        style={{ background: 'white', border: '1px solid rgba(91,33,182,0.12)' }}>
                         {[0, 1, 2].map(i => (
                           <motion.div key={i} className="w-1.5 h-1.5 rounded-full"
                             style={{ background: TEAL }}
@@ -596,7 +596,7 @@ export default function VastuFengShui() {
                 {VASTU_FOLLOWUPS.map(q => (
                   <button key={q} onClick={() => sendFollowUp(q)}
                     className="text-xs px-3 py-1.5 rounded-full border transition-colors hover:bg-teal-50"
-                    style={{ borderColor: 'rgba(26,107,107,0.25)', color: TEAL, background: 'rgba(26,107,107,0.04)' }}>
+                    style={{ borderColor: 'rgba(91,33,182,0.25)', color: TEAL, background: 'rgba(26,107,107,0.04)' }}>
                     {q}
                   </button>
                 ))}
