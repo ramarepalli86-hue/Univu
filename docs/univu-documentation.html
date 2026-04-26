@@ -113,8 +113,8 @@
   <h1>UNIVU</h1>
   <p>Cosmic Blueprint — Complete Project Documentation</p>
   <div class="meta">
-    Next.js 14 &middot; React 18 &middot; TypeScript 5.4 &middot; Groq AI &middot; 19 Languages &middot; Vercel<br>
-    Last Updated: April 13, 2026 &middot; Repository: ramarepalli86-hue/univu &middot; Live: univu.vercel.app
+    Next.js 14 &middot; React 18 &middot; TypeScript 5.4 &middot; 3-Tier AI (Gemini → Cerebras → Groq) &middot; 19 Languages &middot; Vercel<br>
+    Last Updated: April 26, 2026 &middot; Repository: ramarepalli86-hue/univu &middot; Live: univu.vercel.app &middot; Admin Dashboard (local): http://localhost:3000/admin/dashboard
   </div>
 </div>
 
@@ -164,7 +164,7 @@
 
   <!-- Astrology Engine -->
   <div class="card">
-    <h2>3. Astrology Engine Requirements — <code>src/lib/astrology.ts</code> (~2067 lines)</h2>
+    <h2>3. Astrology Engine Requirements — <code>src/lib/astrology.ts</code> (~2173 lines)</h2>
     <p>All readings are <strong>computed dynamically</strong> per user input. No pre-stored data. No external astrology APIs.</p>
     
     <h3>3.1 Core Calculations</h3>
@@ -327,7 +327,7 @@
     <table>
       <tr><th>Requirement</th><th>Implementation</th></tr>
       <tr><td>Rate Limiting</td><td>100 requests/IP/minute (in-memory, <code>apiGuard.ts</code>)</td></tr>
-      <tr><td>Budget Guard</td><td>$100/month hard cap, $0.59/M tokens (llama-3.3-70b)</td></tr>
+  <tr><td>Budget Guard</td><td>$100/month hard cap. Providers: Gemini (free, quota-limited), Cerebras (free), Groq (paid — $0.59/1M tokens). Per-provider accounting implemented in <code>src/lib/budget.ts</code>.</td></tr>
       <tr><td>Input Sanitization</td><td><code>sanitise(value, maxLen)</code> — strips HTML, injection chars</td></tr>
       <tr><td>Origin Check</td><td>Only <code>univu.vercel.app</code>, Vercel previews, localhost</td></tr>
       <tr><td>No Geolocation</td><td>Browser geolocation blocked via Permissions-Policy header</td></tr>
@@ -517,10 +517,10 @@
         </div>
         <div class="flow-arrow-right">→</div>
         <div class="flow-box" style="border-color:#059669;background:rgba(5,150,105,0.06);">
-          <strong>3. Groq AI</strong><br>
-          llama-3.3-70b generates<br>
-          sign-specific forecast<br>
-          900-1200 tokens
+          <strong>3. AI (Gemini → Cerebras → Groq)</strong><br>
+          Primary: Gemini 2.5 (Flash, free, quota-limited)<br>
+          Fallback: Cerebras llama3.1-8b (free) → Groq llama-3.3-70b (paid $0.59/1M tokens)<br>
+          Generates sign-specific forecast (900–1200 tokens typical)
         </div>
       </div>
     </div>
@@ -546,10 +546,9 @@
         </div>
         <div class="flow-arrow-right">→</div>
         <div class="flow-box" style="border-color:#059669;background:rgba(5,150,105,0.06);">
-          <strong>3. Groq AI (vastu)</strong><br>
-          3 traditions analysis:<br>
-          Vastu + Feng Shui + Science<br>
-          1200 tokens, location-aware
+          <strong>3. AI (Gemini → Cerebras → Groq)</strong><br>
+          3-tradition analysis: Vastu + Feng Shui + Science<br>
+          Location-aware generation (≈1200 tokens); provider chain: Gemini → Cerebras → Groq
         </div>
       </div>
     </div>
@@ -645,7 +644,7 @@
 │       └── usage-alert/route.ts       ← Budget monitoring
 ├── components/
 │   ├── IntakeForm.tsx                 ← 12-field birth chart form
-│   ├── ReportCard.tsx                 ← 10-tab reading display                1713 lines
+│   ├── ReportCard.tsx                 ← 10-tab reading display                2063 lines
 │   ├── WeeklyForecast.tsx             ← STANDALONE weekly (3 sub-tabs)        330 lines  [NEW]
 │   ├── VastuFengShui.tsx              ← STANDALONE vastu (3 modes)            394 lines  [NEW]
 │   ├── Panchangam.tsx                 ← Daily Vedic calendar                  453 lines
@@ -663,10 +662,10 @@
 │   ├── index.ts                       ← i18n exports                         75 lines
 │   └── [19 language].json             ← Translation files
 └── lib/
-    ├── astrology.ts                   ← MAIN ENGINE                           2067 lines
-    ├── apiGuard.ts                    ← Rate limit + sanitize                 123 lines
-    ├── budget.ts                      ← AI spend guard                        68 lines
-    └── cities.ts                      ← City database</code></pre>
+  ├── astrology.ts                   ← MAIN ENGINE                           2173 lines
+  ├── apiGuard.ts                    ← Rate limit + sanitize                 123 lines
+  ├── budget.ts                      ← AI spend guard                        79 lines
+  └── cities.ts                      ← City database</code></pre>
   </div>
 
 </div>
@@ -899,8 +898,8 @@ API Route Handler
          │   └── sanitise() all string inputs
          │
          ├── budgetGuard() [AI routes only]
-         │   ├── Track tokens per warm instance
-         │   ├── $100/month cap ($0.59/1M tokens)
+         │   ├── Track tokens per warm instance and per-provider
+         │   ├── $100/month cap. Providers: Gemini (free, quota-limited), Cerebras (free), Groq ($0.59/1M tokens)
          │   ├── FORCE_SHUTDOWN env var override
          │   └── Reset counter on new month
          │
@@ -935,9 +934,9 @@ API Route Handler
 
   <!-- Pending Change Detail -->
   <div class="card">
-    <h2>8. Pending Change: Wire Top-Level Tabs in page.tsx</h2>
+    <h2>8. Top-Level Tabs — Status</h2>
     <div class="highlight">
-      <strong>What needs to happen:</strong> Modify <code>page.tsx</code> to expand the <code>view</code> state from <code>'astrology' | 'panchangam'</code> to <code>'astrology' | 'weekly' | 'vastu' | 'panchangam'</code>, add 4 nav buttons, and conditionally render the new standalone components.
+      <strong>Current status:</strong> Top-level tabs expanded to include <code>weekly</code> and <code>vastu</code>. Standalone components <code>WeeklyForecast</code> and <code>VastuFengShui</code> are implemented and wired into the app.
     </div>
 
     <h3>Specific Changes Required</h3>
@@ -976,7 +975,7 @@ API Route Handler
     <h2>9. Deployment Checklist</h2>
     <table>
       <tr><th>#</th><th>Step</th><th>Command</th><th>Status</th></tr>
-      <tr><td>1</td><td>Wire top-level tabs in page.tsx</td><td>Code edit</td><td><span class="badge badge-red">Pending</span></td></tr>
+  <tr><td>1</td><td>Wire top-level tabs in page.tsx</td><td>Code edit</td><td><span class="badge badge-green">Done</span></td></tr>
       <tr><td>2</td><td>Build and verify</td><td><code>npx next build</code></td><td><span class="badge badge-red">Pending</span></td></tr>
       <tr><td>3</td><td>Test locally</td><td><code>npm run dev</code></td><td><span class="badge badge-red">Pending</span></td></tr>
       <tr><td>4</td><td>Commit changes</td><td><code>git add -A && git commit -m "feat: 4 top-level tabs"</code></td><td><span class="badge badge-red">Pending</span></td></tr>

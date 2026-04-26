@@ -15,9 +15,10 @@ const MONTHLY_BUDGET_USD = 100;
 
 // Cost per 1M tokens by provider — free tiers cost $0
 const COST_PER_M_TOKENS: Record<string, number> = {
-  gemini:   0.00,
-  cerebras: 0.00,
-  groq:     0.59,
+  gemini:      0.00,
+  cerebras:    0.00,
+  groq:        0.59,
+  openrouter:  0.00,  // using free-tier models only (:free suffix)
 };
 
 // Module-level singleton — persists within a warm serverless instance

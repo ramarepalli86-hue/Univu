@@ -1,0 +1,74 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>UNIVU — Roadmap (Next Work Items)</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <style>
+    body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;line-height:1.5;padding:32px;color:#0f172a}
+    h1{font-size:1.6rem;margin-bottom:6px}
+    .card{background:#fff;border-radius:10px;padding:18px;margin:14px 0;box-shadow:0 6px 18px rgba(15,23,42,0.06)}
+    pre{background:#0f172a;color:#f8fafc;padding:12px;border-radius:6px;overflow:auto}
+    ul{margin-top:8px}
+    .pill{display:inline-block;background:#eef2ff;color:#3730a3;padding:6px 10px;border-radius:999px;font-weight:600}
+  </style>
+</head>
+<body>
+  <h1>UNIVU — Short Roadmap for Next Session (Tomorrow)</h1>
+  <p class="pill">Priority: High — fix production-facing bugs & polish features</p>
+
+  <div class="card">
+    <h2>1) Fix Gemini API failures</h2>
+    <p>Goal: investigate and resolve the "Error fetching from googleapis" failures seen in logs so Gemini can be the primary provider (fast, cheap).</p>
+    <h3>Checklist</h3>
+    <ul>
+      <li>Reproduce the error locally using a small /api/personal-reading call with Gemini as primary provider.</li>
+      <li>Check env vars and quotas: ensure GOOGLE_API_KEY / GOOGLE_PROJECT are set in local environment and Vercel if deployed.</li>
+      <li>Inspect error: retry logic, rate-limit headers, 401 vs 429 vs 5xx handling.</li>
+      <li>Add longer exponential backoff and clearer logging in <code>src/lib/aiProvider.ts</code>.</li>
+      <li>Write an integration test that simulates a 5xx from Gemini and confirms Cerebras fallback triggers.</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>2) Correct <code>CelestialScene.tsx</code></h2>
+    <p>Goal: replace decorative orbits with computed planetary positions from <code>src/lib/astrology.ts</code> so the 3D intro matches the user's chart.</p>
+    <h3>Checklist</h3>
+    <ul>
+      <li>Add a small adapter in <code>src/lib/astrology.ts</code> to export world-space XYZ for each planet given lat/lon/datetime.</li>
+      <li>In <code>CelestialScene.tsx</code> consume the adapter and animate planets along true ecliptic positions.</li>
+      <li>Ensure performance: LOD, instance meshes for small bodies, and optional "demo mode" with precomputed positions.</li>
+      <li>Smoke test on mobile (Three.js performance budget).</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>3) Explore Nano/Banana free AI calls</h2>
+    <p>Goal: find reliable free or low-cost inference providers to expand fallbacks and reduce Groq spend.</p>
+    <h3>Spikes</h3>
+    <ul>
+      <li>Evaluate Nano (if available): API, model sizes, latency, auth model.</li>
+      <li>Evaluate Banana.dev free tiers: supported models, reliability, latency.</li>
+      <li>Prototype a small adapter in <code>src/lib/aiProvider.ts</code> to add Nano/Banana as a pre-fallback step (Gemini → Nano/Banana → Cerebras → Groq).</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>4) Make StoryAnimator more mythological</h2>
+    <p>Goal: adjust story prompts and scene text to read like short mythic vignettes — rich imagery, archetypes, and classical cadence.</p>
+    <h3>Tasks</h3>
+    <ul>
+      <li>Tune <code>/api/enrich-story</code> prompt templates to include: archetype mapping, mythic similes, and 3-4 vivid sensory details per scene.</li>
+      <li>Update <code>StoryAnimator.tsx</code> to accept a <code>tone: 'mythic' | 'cinematic'</code> prop and switch visual cues (color grading, music cues).</li>
+      <li>Add small unit test for enriched story output shape.</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>5) Next project planning (notes)</h2>
+    <p>Quick notes you mentioned about a new project — we'll capture high-level ideas tomorrow. Prepare a 1-page PRD: goal, users, MVP features, timeline.</p>
+  </div>
+
+  <footer style="margin-top:18px;color:#475569;font-size:0.9rem">Created: April 26, 2026 — Roadmap prepared from latest session notes. Ready to act on these tomorrow. </footer>
+</body>
+</html>

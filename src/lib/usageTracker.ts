@@ -123,7 +123,7 @@ export function getDashboardData(): DashboardData {
 
   // Provider breakdown
   const byProvider: Record<string, ProviderStats> = {};
-  for (const p of ['gemini', 'cerebras', 'groq']) {
+  for (const p of ['gemini', 'cerebras', 'groq', 'openrouter']) {
     const pLogs = _logs.filter(l => l.provider === p);
     const successLogs = pLogs.filter(l => l.success);
     byProvider[p] = {

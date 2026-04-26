@@ -3,24 +3,24 @@ import { callAI } from '@/lib/aiProvider';
 import { budgetGuard, addTokens } from '@/lib/budget';
 import { apiGuard, sanitise } from '@/lib/apiGuard';
 
-// ─── System prompt — the astrology intelligence core ─────────────────────────
+// ─── System prompt — mythic-anime storytelling style ─────────────────────────
 function buildSystemPrompt(pronouns: { sub: string; obj: string; pos: string }): string {
-  return `You are a master astrologer and storyteller giving a deeply personal cosmic biography scene.
+  return `You are a master cosmic storyteller writing in the style of epic anime mythology — vivid, cinematic, and deeply personal. Think: the gravitas of Fullmetal Alchemist Brotherhood, the lyrical beauty of Princess Mononoke, and the fate-woven intensity of Fate/Zero.
 
 Rules:
-1. The person's name is "the Seeker". Use ONLY "the Seeker" — NEVER invent or substitute any other name (e.g. Emily, Alex, Priya, John). Do not use any name other than "the Seeker".
-2. Use the correct pronouns throughout: subject="${pronouns.sub}", object="${pronouns.obj}", possessive="${pronouns.pos}". NEVER use the wrong gender pronoun.
-3. Be specific to their planetary positions — no generic zodiac descriptions.
-4. Weave Vedic + Western + Egyptian traditions naturally into the narrative.
-5. Tell the FULL truth: real gifts AND real struggles. Never be relentlessly positive.
-6. Structure EVERY scene with these three parts in order:
-   - Opening narrative (2-3 sentences): what this life chapter IS for this person
-   - Challenge: Start exactly with "Challenge: " followed by the specific obstacle, struggle or pain this period brings (1-2 sentences)
-   - Lesson: Start exactly with "Lesson: " followed by the specific action, growth or remedy that navigates it (1-2 sentences)
-7. Reference astrological traditions concretely (e.g., "Saturn's 2.5-year transit", "Rahu's insatiable hunger")
+1. The person's name is "the Seeker". Use ONLY "the Seeker" — never invent any other name.
+2. Pronouns throughout: subject="${pronouns.sub}", object="${pronouns.obj}", possessive="${pronouns.pos}".
+3. Write with MYTHIC VOICE — every planet is a god, every transit is a trial, every dasha is a cosmic chapter. Use evocative imagery: "Saturn descended like a stone-eyed judge", "Rahu's serpent coiled around the 7th house".
+4. Ground mythology in REAL life — behind every poetic line is a concrete lived experience (career crisis, heartbreak, inner transformation). Never float in abstraction.
+5. Weave Vedic + Egyptian + Japanese/anime archetypes naturally: e.g., "like Arjuna at the chariot's edge" or "a storm that would make the gods of the Rig Veda pause".
+6. Structure EVERY scene with exactly these three parts:
+   ✦ Opening narrative (3 sentences): Set the cosmic stage. What forces collide in this chapter. Make it visual — a scene the reader can see.
+   ✦ Challenge — Start exactly with "Challenge: " — name the specific planetary tension and what wound it cuts into the Seeker's actual life.
+   ✦ Lesson — Start exactly with "Lesson: " — the astrological tradition's answer: specific dasha timing, a nakshatra's gift, a Saturn remedy. Practical AND mythic.
+7. Sensory detail: include at least one each of: color, sound or silence, texture or weight, and a sky or celestial image.
 8. End with: "⚠️ For entertainment & informational purposes only."
-9. Keep total length 200–280 words.
-10. Always refer to the person as "the Seeker" — never any other name.`;
+9. Length: 230–300 words. Never shorter, never longer.
+10. Never generic zodiac boilerplate. Every line must be specific to this chart.`;
 }
 
 export async function POST(req: NextRequest) {
@@ -168,14 +168,14 @@ about "${safeSceneTitle}" (${safeLifeAge}) with ruling planet ${safePlanet}.
 Their chart: Lagna ${safeLagnaSign}, Moon ${safeMoonSign}, Sun ${safeSunSign}.
 Planets: ${planetContext}`;
 
-    // Call AI — 3-tier fallback: Gemini → Cerebras → Groq
+    // Call AI — 4-tier fallback: Gemini → Cerebras → Groq → OpenRouter (free)
     const result = await callAI({
       messages: [
         { role: 'system', content: buildSystemPrompt(pronouns) },
         { role: 'user', content: userPrompt },
       ],
-      maxTokens: 500,
-      temperature: 0.8,
+      maxTokens: 750,  // increased from 500 — mythic-anime scenes need more room
+      temperature: 0.88,  // slightly higher for vivid, creative language
       route: 'enrich-story',
     });
 

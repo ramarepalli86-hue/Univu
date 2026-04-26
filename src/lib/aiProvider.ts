@@ -11,6 +11,7 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import Cerebras from '@cerebras/cerebras_cloud_sdk';
 import Groq from 'groq-sdk';
+import OpenAI from 'openai';
 import { trackRequest } from '@/lib/usageTracker';
 
 // ─── Lazy singleton clients ─────────────────────────────────────────────────
@@ -42,6 +43,24 @@ function getGroq(): Groq | null {
   return _groq;
 }
 
+// OpenRouter — free-tier models (llama-3.1-8b:free, mistral-7b:free, gemma-3-27b:free)
+// Uses OpenAI-compatible API. Get a free key at https://openrouter.ai
+let _openrouter: OpenAI | null = null;
+function getOpenRouter(): OpenAI | null {
+  if (_openrouter) return _openrouter;
+  const key = process.env.OPENROUTER_API_KEY;
+  if (!key) return null;
+  _openrouter = new OpenAI({
+    apiKey: key,
+    baseURL: 'https://openrouter.ai/api/v1',
+    defaultHeaders: {
+      'HTTP-Referer': 'https://univu.vercel.app',
+      'X-Title': 'Univu Astrology',
+    },
+  });
+  return _openrouter;
+}
+
 // ─── Shared types ───────────────────────────────────────────────────────────
 
 export interface AIMessage {
@@ -60,7 +79,7 @@ export interface AIRequestOptions {
 export interface AIResponse {
   text: string;
   tokensUsed: number;
-  provider: 'gemini' | 'cerebras' | 'groq';
+  provider: 'gemini' | 'cerebras' | 'groq' | 'openrouter';
 }
 
 // ─── Provider implementations ───────────────────────────────────────────────
@@ -164,15 +183,51 @@ async function callGroq(opts: AIRequestOptions): Promise<AIResponse> {
   return { text, tokensUsed, provider: 'groq' };
 }
 
+// OpenRouter free-tier models — tried in priority order.
+// Add OPENROUTER_API_KEY to .env.local to enable this tier.
+const OPENROUTER_FREE_MODELS = [
+  'google/gemma-3-27b-it:free',      // strongest free model on OpenRouter
+  'meta-llama/llama-3.1-8b-instruct:free',
+  'mistralai/mistral-7b-instruct:free',
+];
+
+async function callOpenRouter(opts: AIRequestOptions): Promise<AIResponse> {
+  const client = getOpenRouter();
+  if (!client) throw new Error('OPENROUTER_API_KEY not configured');
+
+  let lastErr: unknown;
+  for (const model of OPENROUTER_FREE_MODELS) {
+    try {
+      const completion = await client.chat.completions.create({
+        model,
+        messages: opts.messages.map(m => ({ role: m.role, content: m.content })),
+        max_tokens: opts.maxTokens,
+        temperature: opts.temperature,
+      });
+      const text = completion.choices[0]?.message?.content || '';
+      const tokensUsed = completion.usage?.total_tokens || 0;
+      if (text) {
+        console.log(`[AI] OpenRouter ${model} responded (${tokensUsed} tokens)`);
+        return { text, tokensUsed, provider: 'openrouter' };
+      }
+    } catch (e) {
+      lastErr = e;
+      console.warn(`[AI] OpenRouter ${model} failed:`, e instanceof Error ? e.message.slice(0, 80) : e);
+    }
+  }
+  throw lastErr || new Error('All OpenRouter free models failed');
+}
+
 // ─── 3-Tier Fallback ────────────────────────────────────────────────────────
 
 const PROVIDERS: {
-  name: 'gemini' | 'cerebras' | 'groq';
+  name: 'gemini' | 'cerebras' | 'groq' | 'openrouter';
   call: (opts: AIRequestOptions) => Promise<AIResponse>;
 }[] = [
-  { name: 'gemini',   call: callGemini },
-  { name: 'cerebras', call: callCerebras },
-  { name: 'groq',     call: callGroq },
+  { name: 'gemini',      call: callGemini },
+  { name: 'cerebras',    call: callCerebras },
+  { name: 'groq',        call: callGroq },
+  { name: 'openrouter',  call: callOpenRouter },  // 4th tier — free OpenRouter models
 ];
 
 /**
@@ -184,13 +239,30 @@ const PROVIDERS: {
 export async function callAI(opts: AIRequestOptions): Promise<AIResponse> {
   const errors: string[] = [];
   const routeLabel = opts.route || 'unknown';
+  // Helper: retry with exponential backoff for transient provider errors
+  async function tryProviderWithRetries(providerCall: (o: AIRequestOptions) => Promise<AIResponse>, attempts = 2) {
+    let attempt = 0;
+    let lastErr: unknown = null;
+    while (attempt <= attempts) {
+      try {
+        return await providerCall(opts);
+      } catch (e) {
+        lastErr = e;
+        const waitMs = Math.pow(2, attempt) * 150 + Math.random() * 100;
+        await new Promise(r => setTimeout(r, waitMs));
+        attempt += 1;
+      }
+    }
+    throw lastErr;
+  }
 
   for (const provider of PROVIDERS) {
     const t0 = Date.now();
     try {
-      const result = await provider.call(opts);
+      // Try provider with a small retry/backoff to survive transient network or quota blips
+      const result = await tryProviderWithRetries(provider.call, 2);
       const latency = Date.now() - t0;
-      if (result.text) {
+      if (result && result.text) {
         if (errors.length > 0) {
           console.log(`[AI] ${provider.name} succeeded after ${errors.length} fallback(s): ${errors.join(' → ')}`);
         } else {

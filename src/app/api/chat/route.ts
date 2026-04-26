@@ -55,7 +55,7 @@ export async function POST(req: NextRequest) {
         { role: 'system', content: systemContent },
         ...safeMessages,
       ],
-      maxTokens: 800,
+      maxTokens: 1800,  // increased from 800 — detailed astrological answers need room
       temperature: 0.7,
       route: 'chat',
     });

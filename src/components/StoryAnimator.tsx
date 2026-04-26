@@ -26,6 +26,8 @@ interface StoryAnimatorProps {
   name: string;
   gender?: string;
   storyText: string;
+  /** Rendering/prompt tone: 'default' | 'mythic' */
+  tone?: 'default' | 'mythic';
   storyEvents?: StoryEvent[];
   lagnaSign?: string;
   moonSign?: string;
@@ -736,6 +738,7 @@ export default function StoryAnimator({
   name, gender, storyText, storyEvents = [], lagnaSign = 'Aries',
   moonSign = 'Cancer', sunSign = 'Leo', birthYear = 1990,
   planets = [], currentDasha = 'Jupiter',
+  tone = 'default',
 }: StoryAnimatorProps) {
   const [currentScene, setCurrentScene] = useState(0);
   const [autoPlay, setAutoPlay] = useState(false);
@@ -746,6 +749,16 @@ export default function StoryAnimator({
   const autoPlayRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const scenes = buildScenesFromData(name, gender, storyText, storyEvents, lagnaSign, moonSign, sunSign, birthYear, planets, currentDasha);
+
+  // Lightweight client-side mythic tone transformer. This keeps the transformation local
+  // so we can preview 'mythic' tone immediately without server calls. For production
+  // enrichment, the /api/enrich-story endpoint will accept a tone param.
+  const transformedStoryText = tone === 'mythic'
+    ? storyText
+        .replace(/\band\b/gi, '— and —')
+        .replace(/\bwas\b/gi, 'was, as the stars foretold,')
+        .replace(/\bthe Seeker\b/gi, 'the Seeker, child of the sky')
+    : storyText;
 
   // Enrich a scene with GPT-4o-mini
   const enrichScene = useCallback(async (sceneIdx: number) => {

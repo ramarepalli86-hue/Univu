@@ -9,6 +9,8 @@ interface CelestialSceneProps {
   rashi?: string;
   nakshatra?: string;
   isPlaying?: boolean;
+  /** Optional precomputed world-space planet positions from astrology.ts */
+  planetPositions?: { name: string; x: number; y: number; z: number }[];
 }
 
 const SIGN_COLORS: Record<string, number> = {
@@ -259,14 +261,31 @@ export default function CelestialScene({
         3.0 * Math.sin(moonAngle)
       );
 
-      // Planets orbit
-      for (const p of planets) {
-        const a = time * p.speed;
-        p.mesh.position.set(
-          p.orbit * Math.cos(a),
-          Math.sin(a * 0.7) * p.tilt,
-          p.orbit * Math.sin(a)
-        );
+      // Planets orbit (if external positions provided, use them)
+      if (Array.isArray((window as any).__providedPlanetPositions) && (window as any).__providedPlanetPositions.length) {
+        const provided: { name: string; x: number; y: number; z: number }[] = (window as any).__providedPlanetPositions;
+        for (const p of planets) {
+          const found = provided.find(pp => pp.name.toLowerCase().startsWith(p.mesh.name?.toLowerCase?.() || ''));
+          if (found) {
+            p.mesh.position.set(found.x, found.y, found.z);
+            continue;
+          }
+          const a = time * p.speed;
+          p.mesh.position.set(
+            p.orbit * Math.cos(a),
+            Math.sin(a * 0.7) * p.tilt,
+            p.orbit * Math.sin(a)
+          );
+        }
+      } else {
+        for (const p of planets) {
+          const a = time * p.speed;
+          p.mesh.position.set(
+            p.orbit * Math.cos(a),
+            Math.sin(a * 0.7) * p.tilt,
+            p.orbit * Math.sin(a)
+          );
+        }
       }
 
       // Saturn ring follows Saturn
