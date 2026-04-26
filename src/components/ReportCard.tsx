@@ -17,9 +17,9 @@ interface ReportCardProps {
   reading: FullReading;
 }
 
-const TEAL   = '#5B21B6';
-const AMBER  = '#F59E0B';
-const TEAL_L = '#7C3AED';
+const TEAL   = '#B8860B';
+const AMBER  = '#8B1A1A';
+const TEAL_L = '#9A7520';
 
 const TABS = [
   { id: 'overview',   label: '✨ Cosmic Snapshot' },
@@ -45,7 +45,7 @@ function PersonalText({ text }: { text: string }) {
           return <h3 key={i} className="text-base font-bold mt-5 mb-1" style={{ color: TEAL }}>{line.replace(/\*\*/g, '')}</h3>;
         }
         if (line.trim().startsWith('⚠️')) {
-          return <p key={i} className="text-xs italic mt-4 pt-3 border-t" style={{ color: '#9CA3AF', borderColor: '#E5E7EB' }}>{line}</p>;
+          return <p key={i} className="text-xs italic mt-4 pt-3 border-t" style={{ color: '#8A7050', borderColor: '#E5E7EB' }}>{line}</p>;
         }
         const parts = line.split(/(\*\*[^*]+\*\*)/g);
         return (
@@ -68,7 +68,7 @@ function ReadingSkeleton() {
       <div className="flex items-center gap-2 mb-4">
         <motion.div className="w-2 h-2 rounded-full" style={{ background: AMBER }}
           animate={{ opacity: [0.3,1,0.3] }} transition={{ duration: 0.9, repeat: Infinity }} />
-        <span className="text-xs" style={{ color: '#9CA3AF' }}>Crafting your personalized reading…</span>
+        <span className="text-xs" style={{ color: '#8A7050' }}>Crafting your personalized reading…</span>
       </div>
       {[88,65,80,55,72,90,60,75].map((w,i) => (
         <div key={i} className="h-3 rounded-full" style={{ width: `${w}%`, background: '#F3F4F6' }} />
@@ -158,11 +158,11 @@ function NakshatraBanner({ reading }: { reading: FullReading }) {
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-[9px] font-bold uppercase tracking-widest mb-0" style={{ color: AMBER }}>Your Birth Star</p>
-          <h2 className="text-base sm:text-lg font-bold leading-tight" style={{ color: TEAL }}>{nk} <span className="text-xs font-medium" style={{ color: '#6B7280' }}>Pada {pada}</span></h2>
-          <p className="text-[10px] font-medium" style={{ color: '#6B7280' }}>{quality}</p>
+          <h2 className="text-base sm:text-lg font-bold leading-tight" style={{ color: TEAL }}>{nk} <span className="text-xs font-medium" style={{ color: '#6B4A20' }}>Pada {pada}</span></h2>
+          <p className="text-[10px] font-medium" style={{ color: '#6B4A20' }}>{quality}</p>
         </div>
         <div className="hidden sm:flex flex-col items-end gap-0.5 text-right flex-shrink-0">
-          <p className="text-[9px] uppercase tracking-wider" style={{ color: '#9CA3AF' }}>Shares with</p>
+          <p className="text-[9px] uppercase tracking-wider" style={{ color: '#8A7050' }}>Shares with</p>
           {famous.split(' · ').slice(0, 2).map(f => (
             <p key={f} className="text-[10px] font-semibold" style={{ color: '#374151' }}>{f}</p>
           ))}
@@ -249,7 +249,7 @@ function ConcernBanner({ concern }: { concern: string }) {
     <div className="mb-5 rounded-xl p-4 border" style={{ background: 'rgba(212,136,10,0.07)', borderColor: 'rgba(212,136,10,0.3)' }}>
       <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: AMBER }}>📌 Your Question</p>
       <p className="text-sm font-medium italic" style={{ color: '#374151' }}>&ldquo;{concern}&rdquo;</p>
-      <p className="text-[11px] mt-1.5" style={{ color: '#9CA3AF' }}>The AI reading below addresses this directly.</p>
+      <p className="text-[11px] mt-1.5" style={{ color: '#8A7050' }}>The AI reading below addresses this directly.</p>
     </div>
   );
 }
@@ -437,7 +437,7 @@ function WeeklyReportSection({ reading }: { reading: FullReading }) {
       {/* Header */}
       <div>
         <h2 className="text-lg font-bold" style={{ fontFamily: 'Cinzel,Georgia,serif', color: TEAL }}>📅 Weekly Forecast</h2>
-        <p className="text-xs mt-1" style={{ color: '#6B7280' }}>
+        <p className="text-xs mt-1" style={{ color: '#6B4A20' }}>
           AI-powered forecasts — personal to your chart, by Vedic Rashi, Western Zodiac, or Chinese Year animal.
         </p>
       </div>
@@ -449,7 +449,7 @@ function WeeklyReportSection({ reading }: { reading: FullReading }) {
             className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium rounded-lg transition-all"
             style={subTab === st.id
               ? { background: `linear-gradient(135deg,${TEAL},${TEAL_L})`, color: '#fff', boxShadow: '0 2px 6px rgba(26,107,107,0.2)' }
-              : { color: '#6B7280' }}>
+              : { color: '#6B4A20' }}>
             <span>{st.icon}</span> {st.label}
           </button>
         ))}
@@ -462,7 +462,7 @@ function WeeklyReportSection({ reading }: { reading: FullReading }) {
             className="px-3 py-1.5 text-xs font-medium rounded-lg border transition-all"
             style={timeframe === tf.id
               ? { background: 'rgba(212,136,10,0.1)', color: AMBER, borderColor: 'rgba(212,136,10,0.3)' }
-              : { background: '#FAFAF8', color: '#6B7280', borderColor: '#E5E7EB' }}>
+              : { background: '#FAFAF8', color: '#6B4A20', borderColor: '#E5E7EB' }}>
             {tf.label}
           </button>
         ))}
@@ -474,7 +474,7 @@ function WeeklyReportSection({ reading }: { reading: FullReading }) {
           <p className="text-xs font-bold uppercase tracking-wider" style={{ color: TEAL }}>
             Select Vedic Moon Sign (Rashi)
           </p>
-          <p className="text-[10px]" style={{ color: '#9CA3AF' }}>
+          <p className="text-[10px]" style={{ color: '#8A7050' }}>
             Your Moon sign is <strong style={{ color: TEAL }}>{reading.moonSign}</strong> — highlighted below.
           </p>
           <div className="grid grid-cols-3 sm:grid-cols-4 gap-1.5">
@@ -485,7 +485,7 @@ function WeeklyReportSection({ reading }: { reading: FullReading }) {
                 <button key={r} onClick={() => setSelectedRashi(r)}
                   className="relative px-2 py-2 text-xs font-medium rounded-lg border transition-all text-left"
                   style={isSel
-                    ? { background: `linear-gradient(135deg,rgba(91,33,182,0.12),rgba(245,158,11,0.08))`, borderColor: TEAL, color: TEAL }
+                    ? { background: `linear-gradient(135deg,rgba(184,134,11,0.12),rgba(139,26,26,0.08))`, borderColor: TEAL, color: TEAL }
                     : { background: '#FAFAF8', borderColor: '#E5E7EB', color: '#4B5563' }}>
                   <span className="mr-1">{RASHI_EMOJI[r] || '•'}</span>
                   {r.split(' (')[0]}
@@ -502,7 +502,7 @@ function WeeklyReportSection({ reading }: { reading: FullReading }) {
           <p className="text-xs font-bold uppercase tracking-wider" style={{ color: TEAL }}>
             Select Western Sun Sign
           </p>
-          <p className="text-[10px]" style={{ color: '#9CA3AF' }}>
+          <p className="text-[10px]" style={{ color: '#8A7050' }}>
             Your Sun sign is <strong style={{ color: TEAL }}>{reading.westernSunSign}</strong> — highlighted below.
           </p>
           <div className="grid grid-cols-3 sm:grid-cols-4 gap-1.5">
@@ -513,7 +513,7 @@ function WeeklyReportSection({ reading }: { reading: FullReading }) {
                 <button key={s} onClick={() => setSelectedZodiac(s)}
                   className="relative px-2 py-2 text-xs font-medium rounded-lg border transition-all text-left"
                   style={isSel
-                    ? { background: `linear-gradient(135deg,rgba(91,33,182,0.12),rgba(245,158,11,0.08))`, borderColor: TEAL, color: TEAL }
+                    ? { background: `linear-gradient(135deg,rgba(184,134,11,0.12),rgba(139,26,26,0.08))`, borderColor: TEAL, color: TEAL }
                     : { background: '#FAFAF8', borderColor: '#E5E7EB', color: '#4B5563' }}>
                   <span className="mr-1">{ZODIAC_EMOJI[s] || '•'}</span>
                   {s}
@@ -530,7 +530,7 @@ function WeeklyReportSection({ reading }: { reading: FullReading }) {
           <p className="text-xs font-bold uppercase tracking-wider" style={{ color: TEAL }}>
             Select Chinese Zodiac Animal
           </p>
-          <p className="text-[10px]" style={{ color: '#9CA3AF' }}>
+          <p className="text-[10px]" style={{ color: '#8A7050' }}>
             Your animal is <strong style={{ color: TEAL }}>{reading.chineseZodiac?.animal}</strong> — highlighted below.
           </p>
           <div className="grid grid-cols-3 sm:grid-cols-4 gap-1.5">
@@ -541,7 +541,7 @@ function WeeklyReportSection({ reading }: { reading: FullReading }) {
                 <button key={a} onClick={() => setSelectedAnimal(a)}
                   className="relative px-2 py-2 text-xs font-medium rounded-lg border transition-all text-left"
                   style={isSel
-                    ? { background: `linear-gradient(135deg,rgba(91,33,182,0.12),rgba(245,158,11,0.08))`, borderColor: TEAL, color: TEAL }
+                    ? { background: `linear-gradient(135deg,rgba(184,134,11,0.12),rgba(139,26,26,0.08))`, borderColor: TEAL, color: TEAL }
                     : { background: '#FAFAF8', borderColor: '#E5E7EB', color: '#4B5563' }}>
                   <span className="mr-1">{ANIMAL_EMOJI[a] || '•'}</span>
                   {a}
@@ -555,7 +555,7 @@ function WeeklyReportSection({ reading }: { reading: FullReading }) {
 
       {subTab === 'personal' && !text && !loading && (
         <div className="rounded-xl p-4 border" style={{ background: 'rgba(26,107,107,0.04)', borderColor: 'rgba(26,107,107,0.15)' }}>
-          <p className="text-xs" style={{ color: '#6B7280' }}>
+          <p className="text-xs" style={{ color: '#6B4A20' }}>
             🔮 This reading uses your <strong>exact birth chart</strong> — {reading.lagnaSign} Lagna, {reading.moonSign} Moon, {reading.moonNakshatraName} Nakshatra, {reading.currentDasha}/{reading.currentAntardasha} dasha — for a deeply personal forecast.
           </p>
         </div>
@@ -565,7 +565,7 @@ function WeeklyReportSection({ reading }: { reading: FullReading }) {
       {(subTab !== 'personal' || (!text && !loading)) && lastKey !== fetchKey && (
         <button onClick={handleGenerate} disabled={loading}
           className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm transition-all disabled:opacity-40 disabled:cursor-not-allowed"
-          style={{ background: `linear-gradient(135deg,${TEAL} 0%,#7C3AED 40%,${AMBER} 100%)`, color: '#fff', boxShadow: '0 4px 20px rgba(91,33,182,0.28)' }}>
+          style={{ background: `linear-gradient(135deg,${TEAL} 0%,#7C3AED 40%,${AMBER} 100%)`, color: '#fff', boxShadow: '0 4px 20px rgba(184,134,11,0.28)' }}>
           {loading
             ? <><span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> Consulting the stars…</>
             : subTab === 'personal' ? '🔮 Generate My Personal Forecast'
@@ -588,7 +588,7 @@ function WeeklyReportSection({ reading }: { reading: FullReading }) {
             </p>
             <button onClick={() => { setText(''); setLastKey(''); setWChatMsgs([]); setWChatInput(''); }}
               className="text-[10px] px-3 py-1 rounded-full border font-medium"
-              style={{ color: TEAL, borderColor: 'rgba(91,33,182,0.3)' }}>
+              style={{ color: TEAL, borderColor: 'rgba(184,134,11,0.3)' }}>
               ← New Forecast
             </button>
           </div>
@@ -601,7 +601,7 @@ function WeeklyReportSection({ reading }: { reading: FullReading }) {
                 style={{ background: 'linear-gradient(135deg, rgba(26,107,107,0.15), rgba(212,136,10,0.1))' }}>📅</div>
               <div>
                 <p className="text-xs font-bold" style={{ color: TEAL }}>Ask about your week</p>
-                <p className="text-[10px]" style={{ color: '#9CA3AF' }}>Get more detail about specific days or activities</p>
+                <p className="text-[10px]" style={{ color: '#8A7050' }}>Get more detail about specific days or activities</p>
               </div>
             </div>
 
@@ -616,7 +616,7 @@ function WeeklyReportSection({ reading }: { reading: FullReading }) {
                         style={m.role === 'user'
                           ? { background: `linear-gradient(135deg, ${TEAL}, ${TEAL_L})`, color: 'white', borderBottomRightRadius: '4px' }
                           : { background: m.error ? '#FFF5F5' : 'white', color: '#1F2937', borderBottomLeftRadius: '4px',
-                              border: m.error ? '1px solid #FCA5A5' : '1px solid rgba(91,33,182,0.12)' }}>
+                              border: m.error ? '1px solid #FCA5A5' : '1px solid rgba(184,134,11,0.12)' }}>
                         {m.content.split('\n').map((line, j) => (
                           <span key={j}>
                             {line.split(/(\*\*[^*]+\*\*)/).map((part, k) =>
@@ -632,7 +632,7 @@ function WeeklyReportSection({ reading }: { reading: FullReading }) {
                   {wChatLoading && (
                     <div className="flex justify-start">
                       <div className="rounded-2xl px-4 py-3 flex items-center gap-1.5"
-                        style={{ background: 'white', border: '1px solid rgba(91,33,182,0.12)' }}>
+                        style={{ background: 'white', border: '1px solid rgba(184,134,11,0.12)' }}>
                         {[0,1,2].map(di => (
                           <motion.div key={di} className="w-1.5 h-1.5 rounded-full" style={{ background: TEAL }}
                             animate={{ opacity: [0.3,1,0.3], y: [0,-3,0] }}
@@ -651,7 +651,7 @@ function WeeklyReportSection({ reading }: { reading: FullReading }) {
                 {WEEKLY_FOLLOWUPS.map(q => (
                   <button key={q} onClick={() => sendWeeklyFollowUp(q)}
                     className="text-xs px-3 py-1.5 rounded-full border transition-colors hover:bg-teal-50"
-                    style={{ borderColor: 'rgba(91,33,182,0.25)', color: TEAL, background: 'rgba(26,107,107,0.04)' }}>
+                    style={{ borderColor: 'rgba(184,134,11,0.25)', color: TEAL, background: 'rgba(26,107,107,0.04)' }}>
                     {q}
                   </button>
                 ))}
@@ -675,7 +675,7 @@ function WeeklyReportSection({ reading }: { reading: FullReading }) {
             </div>
           </div>
 
-          <p className="text-xs mt-3 pt-3 border-t text-center" style={{ color: '#9CA3AF', borderColor: 'rgba(0,0,0,0.07)' }}>
+          <p className="text-xs mt-3 pt-3 border-t text-center" style={{ color: '#8A7050', borderColor: 'rgba(0,0,0,0.07)' }}>
             For entertainment &amp; information only · Not professional advice · Consult a qualified professional before making any major life decision
           </p>
         </div>
@@ -812,18 +812,18 @@ function VastuSection({ reading }: { reading: FullReading }) {
     finally { setLoading(false); }
   }
 
-  const TEAL_LOC = '#5B21B6';
-  const AMBER_LOC = '#F59E0B';
+  const TEAL_LOC = '#B8860B';
+  const AMBER_LOC = '#8B1A1A';
   const inpCls = 'w-full px-3 py-2.5 rounded-xl text-sm outline-none transition-all';
-  const inpSt: React.CSSProperties = { border: '1.5px solid #DDD8CE', background: '#fff', color: '#0F0A23' };
-  const focusSt: React.CSSProperties = { borderColor: TEAL_LOC, boxShadow: '0 0 0 3px rgba(91,33,182,0.12)' };
+  const inpSt: React.CSSProperties = { border: '1.5px solid #DDD8CE', background: '#fff', color: '#1A0A00' };
+  const focusSt: React.CSSProperties = { borderColor: TEAL_LOC, boxShadow: '0 0 0 3px rgba(184,134,11,0.12)' };
 
   return (
     <div className="space-y-5">
       {/* Header */}
       <div>
         <h2 className="text-lg font-bold" style={{ fontFamily:'Cinzel,Georgia,serif', color: TEAL_LOC }}>🏠 Vastu &amp; Feng Shui Compass</h2>
-        <p className="text-xs mt-1" style={{ color:'#6B7280' }}>
+        <p className="text-xs mt-1" style={{ color:'#6B4A20' }}>
           Three traditions, one space — Vedic Vastu Shastra + Chinese Feng Shui + modern environmental science. Location-aware, adjusted for your city&apos;s sun path, winds, and climate.
         </p>
       </div>
@@ -851,10 +851,10 @@ function VastuSection({ reading }: { reading: FullReading }) {
                 }}
                 className="rounded-xl p-2.5 text-left border transition-all"
                 style={active
-                  ? { background:'linear-gradient(135deg,rgba(91,33,182,0.12),rgba(245,158,11,0.08))', border:`1.5px solid ${TEAL_LOC}` }
+                  ? { background:'linear-gradient(135deg,rgba(184,134,11,0.12),rgba(139,26,26,0.08))', border:`1.5px solid ${TEAL_LOC}` }
                   : { background:'#FAFAF8', border:'1.5px solid #E5E7EB' }}>
                 <div className="text-xs font-bold" style={{ color: active ? TEAL_LOC : '#4A4540' }}>{opt.label}</div>
-                <div className="text-[10px] mt-0.5" style={{ color:'#9CA3AF' }}>{opt.sub}</div>
+                <div className="text-[10px] mt-0.5" style={{ color:'#8A7050' }}>{opt.sub}</div>
               </button>
             );
           })}
@@ -874,7 +874,7 @@ function VastuSection({ reading }: { reading: FullReading }) {
           }}
           placeholder="Type the city where the home is or will be built…"
         />
-        <p className="text-[10px]" style={{ color:'#9CA3AF' }}>
+        <p className="text-[10px]" style={{ color:'#8A7050' }}>
           🔒 Privacy-first: We don&apos;t use browser location. Type to search — powered by OpenStreetMap.
         </p>
         {form.houseLat !== 0 && (
@@ -883,7 +883,7 @@ function VastuSection({ reading }: { reading: FullReading }) {
           </p>
         )}
         {form.houseLat !== 0 && (
-          <p className="text-[10px]" style={{ color:'#6B7280' }}>
+          <p className="text-[10px]" style={{ color:'#6B4A20' }}>
             ☀️ {sunWindProfile(form.houseLat, form.houseLng)}
           </p>
         )}
@@ -891,9 +891,9 @@ function VastuSection({ reading }: { reading: FullReading }) {
 
       {/* ── OPTIONAL: Person details ── */}
       {form.personEnabled && (
-        <div className="rounded-xl p-4 space-y-3" style={{ background:'rgba(26,107,107,0.04)', border:'1px solid rgba(91,33,182,0.12)' }}>
+        <div className="rounded-xl p-4 space-y-3" style={{ background:'rgba(26,107,107,0.04)', border:'1px solid rgba(184,134,11,0.12)' }}>
           <p className="text-xs font-bold uppercase tracking-wider" style={{ color: TEAL_LOC }}>👤 Your Details (optional — improves personalisation)</p>
-          <p className="text-[10px]" style={{ color:'#9CA3AF' }}>Pre-filled from your main reading. You can change these for a different person.</p>
+          <p className="text-[10px]" style={{ color:'#8A7050' }}>Pre-filled from your main reading. You can change these for a different person.</p>
           <div className="grid sm:grid-cols-3 gap-3">
             <div>
               <label className="block text-[10px] font-semibold mb-1 uppercase tracking-wide" style={{ color:'#4A4540' }}>Date of Birth</label>
@@ -928,7 +928,7 @@ function VastuSection({ reading }: { reading: FullReading }) {
       {form.partnerEnabled && (
         <div className="rounded-xl p-4 space-y-3" style={{ background:'rgba(212,136,10,0.05)', border:'1px solid rgba(212,136,10,0.18)' }}>
           <p className="text-xs font-bold uppercase tracking-wider" style={{ color: AMBER_LOC }}>💑 Partner&apos;s Details (optional)</p>
-          <p className="text-[10px]" style={{ color:'#9CA3AF' }}>For couples buying or building a home together — Vastu will balance both charts.</p>
+          <p className="text-[10px]" style={{ color:'#8A7050' }}>For couples buying or building a home together — Vastu will balance both charts.</p>
           <div className="grid sm:grid-cols-3 gap-3">
             <div>
               <label className="block text-[10px] font-semibold mb-1 uppercase tracking-wide" style={{ color:'#4A4540' }}>Date of Birth</label>
@@ -966,7 +966,7 @@ function VastuSection({ reading }: { reading: FullReading }) {
       {!submitted && (
         <button onClick={handleGenerate} disabled={loading || !form.houseCity}
           className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl font-semibold text-sm transition-all disabled:opacity-40 disabled:cursor-not-allowed"
-          style={{ background:`linear-gradient(135deg,${TEAL_LOC} 0%,#7C3AED 40%,${AMBER_LOC} 100%)`, color:'#fff', boxShadow:'0 4px 20px rgba(91,33,182,0.28)' }}>
+          style={{ background:`linear-gradient(135deg,${TEAL_LOC} 0%,#7C3AED 40%,${AMBER_LOC} 100%)`, color:'#fff', boxShadow:'0 4px 20px rgba(184,134,11,0.28)' }}>
           {loading
             ? <><span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> Analysing your space…</>
             : '🏠 Generate Vastu & Feng Shui Reading'}
@@ -982,12 +982,12 @@ function VastuSection({ reading }: { reading: FullReading }) {
             </p>
             <button onClick={() => { setText(''); setSubmitted(false); }}
               className="text-[10px] px-3 py-1 rounded-full border font-medium"
-              style={{ color: TEAL_LOC, borderColor:'rgba(91,33,182,0.3)' }}>
+              style={{ color: TEAL_LOC, borderColor:'rgba(184,134,11,0.3)' }}>
               ← New Reading
             </button>
           </div>
           <PersonalText text={text} />
-          <p className="text-xs mt-3 pt-3 border-t text-center" style={{ color:'#9CA3AF', borderColor:'rgba(0,0,0,0.07)' }}>
+          <p className="text-xs mt-3 pt-3 border-t text-center" style={{ color:'#8A7050', borderColor:'rgba(0,0,0,0.07)' }}>
             For entertainment &amp; information only · Vastu &amp; Feng Shui are traditional wisdom, not professional structural or architectural advice · Consult a licensed architect for structural changes
           </p>
         </div>
@@ -1150,7 +1150,7 @@ function AISection({ sectionId, reading }: { sectionId: string; reading: FullRea
             style={{ background: 'linear-gradient(135deg, rgba(26,107,107,0.15), rgba(212,136,10,0.1))' }}>💬</div>
           <div>
             <p className="text-xs font-bold" style={{ color: TEAL }}>Ask a follow-up</p>
-            <p className="text-[10px]" style={{ color: '#9CA3AF' }}>Dig deeper into anything from your reading</p>
+            <p className="text-[10px]" style={{ color: '#8A7050' }}>Dig deeper into anything from your reading</p>
           </div>
         </div>
 
@@ -1169,7 +1169,7 @@ function AISection({ sectionId, reading }: { sectionId: string; reading: FullRea
                     style={m.role === 'user'
                       ? { background: `linear-gradient(135deg, ${TEAL}, ${TEAL_L})`, color: 'white', borderBottomRightRadius: '4px' }
                       : { background: m.error ? '#FFF5F5' : 'white', color: '#1F2937', borderBottomLeftRadius: '4px',
-                          border: m.error ? '1px solid #FCA5A5' : '1px solid rgba(91,33,182,0.12)' }
+                          border: m.error ? '1px solid #FCA5A5' : '1px solid rgba(184,134,11,0.12)' }
                     }>
                     {m.content.split('\n').map((line, j) => (
                       <span key={j}>
@@ -1188,7 +1188,7 @@ function AISection({ sectionId, reading }: { sectionId: string; reading: FullRea
               {chatLoading && (
                 <div className="flex justify-start">
                   <div className="rounded-2xl px-4 py-3 flex items-center gap-1.5"
-                    style={{ background: 'white', border: '1px solid rgba(91,33,182,0.12)' }}>
+                    style={{ background: 'white', border: '1px solid rgba(184,134,11,0.12)' }}>
                     {[0, 1, 2].map(di => (
                       <motion.div key={di} className="w-1.5 h-1.5 rounded-full"
                         style={{ background: TEAL }}
@@ -1210,7 +1210,7 @@ function AISection({ sectionId, reading }: { sectionId: string; reading: FullRea
             {followUps.map(q => (
               <button key={q} onClick={() => sendFollowUp(q)}
                 className="text-xs px-3 py-1.5 rounded-full border transition-colors hover:bg-teal-50"
-                style={{ borderColor: 'rgba(91,33,182,0.25)', color: TEAL, background: 'rgba(26,107,107,0.04)' }}>
+                style={{ borderColor: 'rgba(184,134,11,0.25)', color: TEAL, background: 'rgba(26,107,107,0.04)' }}>
                 {q}
               </button>
             ))}
@@ -1241,14 +1241,14 @@ function AISection({ sectionId, reading }: { sectionId: string; reading: FullRea
         </div>
       </div>
 
-      <p className="text-xs mt-3 pt-3 border-t text-center" style={{ color:'#9CA3AF', borderColor:'rgba(0,0,0,0.07)' }}>
+      <p className="text-xs mt-3 pt-3 border-t text-center" style={{ color:'#8A7050', borderColor:'rgba(0,0,0,0.07)' }}>
         For entertainment &amp; information only · Not professional advice · Consult a qualified professional before making any major life decision
       </p>
     </div>
   );
   if (fetched) return (
     <div className="text-center py-10 space-y-3">
-      <p className="text-sm" style={{ color: '#6B7280' }}>Could not load reading right now.</p>
+      <p className="text-sm" style={{ color: '#6B4A20' }}>Could not load reading right now.</p>
       <button onClick={() => setFetched(false)} className="text-xs px-4 py-2 rounded-full font-medium text-white" style={{ background: TEAL }}>Try Again</button>
     </div>
   );
@@ -1421,7 +1421,7 @@ function localisePanch(
 function StatBadge({ label, value, accent }: { label: string; value: string; accent?: boolean }) {
   return (
     <div className="rounded-xl p-3 border" style={{ background: accent ? 'rgba(26,107,107,0.06)' : '#FAFAF8', borderColor: accent ? 'rgba(26,107,107,0.2)' : '#E5E7EB' }}>
-      <p className="text-[10px] uppercase tracking-wider mb-0.5" style={{ color: '#9CA3AF' }}>{label}</p>
+      <p className="text-[10px] uppercase tracking-wider mb-0.5" style={{ color: '#8A7050' }}>{label}</p>
       <p className="text-sm font-semibold leading-tight" style={{ color: accent ? TEAL : '#1F2937' }}>{value}</p>
     </div>
   );
@@ -1449,7 +1449,7 @@ export default function ReportCard({ t: _t, reading }: ReportCardProps) {
         <h1 className="text-2xl sm:text-3xl font-display font-bold" style={{ color:'#1F2937' }}>
           {reading.name}&apos;s Cosmic Blueprint
         </h1>
-        <p className="text-sm mt-1" style={{ color:'#6B7280' }}>Born {reading.dob} · {reading.birthCity}</p>
+        <p className="text-sm mt-1" style={{ color:'#6B4A20' }}>Born {reading.dob} · {reading.birthCity}</p>
         {/* Tradition pill + Language selector row */}
         <div className="flex items-center justify-center gap-3 mt-2 flex-wrap">
           <span className="inline-block text-xs font-semibold px-3 py-1 rounded-full" style={{ background:'rgba(26,107,107,0.1)', color: TEAL, border:'1px solid rgba(26,107,107,0.2)' }}>
@@ -1536,8 +1536,8 @@ export default function ReportCard({ t: _t, reading }: ReportCardProps) {
           <button key={id} onClick={() => setTab(id)}
             className="whitespace-nowrap px-3 py-2 text-xs sm:text-sm font-medium rounded-xl transition-all"
             style={tab === id
-              ? { background:`linear-gradient(135deg,${TEAL},${TEAL_L})`, color:'#fff', boxShadow:'0 2px 8px rgba(91,33,182,0.25)' }
-              : { color:'#6B7280' }
+              ? { background:`linear-gradient(135deg,${TEAL},${TEAL_L})`, color:'#fff', boxShadow:'0 2px 8px rgba(184,134,11,0.25)' }
+              : { color:'#6B4A20' }
             }>{label}
           </button>
         ))}
@@ -1559,7 +1559,7 @@ export default function ReportCard({ t: _t, reading }: ReportCardProps) {
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead>
-                      <tr className="text-left text-xs border-b" style={{ color:'#9CA3AF', borderColor:'#E5E7EB' }}>
+                      <tr className="text-left text-xs border-b" style={{ color:'#8A7050', borderColor:'#E5E7EB' }}>
                         {['Planet','Rashi','House','Nakshatra','Pada'].map(h => <th key={h} className="pb-2 font-medium pr-4">{h}</th>)}
                       </tr>
                     </thead>
@@ -1581,7 +1581,7 @@ export default function ReportCard({ t: _t, reading }: ReportCardProps) {
               {/* Personal planet-in-house meanings */}
               <div>
                 <h3 className="text-base font-bold mb-1" style={{ color:TEAL }}>💡 Your Planets — Personal Impact</h3>
-                <p className="text-xs mb-3" style={{ color: '#9CA3AF' }}>Each planet's nature, what it gives you, and what your specific placement means for your life right now.</p>
+                <p className="text-xs mb-3" style={{ color: '#8A7050' }}>Each planet's nature, what it gives you, and what your specific placement means for your life right now.</p>
                 <div className="space-y-3">
                   {reading.planets.map(p => {
                     // Nature of planet (benefic/malefic/neutral)
@@ -1760,8 +1760,8 @@ export default function ReportCard({ t: _t, reading }: ReportCardProps) {
                         </div>
                         {/* Gifts row */}
                         <div className="px-3 pt-1.5">
-                          <p className="text-[10px] font-semibold uppercase tracking-wide mb-0.5" style={{ color: '#9CA3AF' }}>What {p.name} gives you</p>
-                          <p className="text-xs leading-relaxed" style={{ color: '#6B7280' }}>{gifts}</p>
+                          <p className="text-[10px] font-semibold uppercase tracking-wide mb-0.5" style={{ color: '#8A7050' }}>What {p.name} gives you</p>
+                          <p className="text-xs leading-relaxed" style={{ color: '#6B4A20' }}>{gifts}</p>
                         </div>
                         {/* Personal meaning */}
                         <div className="px-3 pt-1.5 pb-3">
@@ -1837,15 +1837,15 @@ export default function ReportCard({ t: _t, reading }: ReportCardProps) {
                   style={{ minWidth:`${Math.max(span*3,48)}px`,
                     background: isCurrent ? `linear-gradient(135deg,${TEAL},${TEAL_L})` : 'rgba(26,107,107,0.05)',
                     borderColor: isCurrent ? TEAL : 'rgba(26,107,107,0.15)',
-                    boxShadow: isCurrent ? '0 2px 8px rgba(91,33,182,0.25)' : 'none',
+                    boxShadow: isCurrent ? '0 2px 8px rgba(184,134,11,0.25)' : 'none',
                   }}>
                   <p className="text-[10px] font-bold" style={{ color:isCurrent?'#fff':TEAL }}>{d.planet}</p>
-                  <p className="text-[9px]" style={{ color:isCurrent?'rgba(255,255,255,0.7)':'#9CA3AF' }}>{d.startYear}–{d.endYear}</p>
+                  <p className="text-[9px]" style={{ color:isCurrent?'rgba(255,255,255,0.7)':'#8A7050' }}>{d.startYear}–{d.endYear}</p>
                 </div>
               );
             })}
           </div>
-          <p className="text-xs" style={{ color:'#6B7280' }}>
+          <p className="text-xs" style={{ color:'#6B4A20' }}>
             Currently in <strong style={{ color:TEAL }}>{reading.currentDasha} Mahadasha</strong>
             {reading.currentAntardasha ? ` · ${reading.currentAntardasha} Antardasha` : ''}.
           </p>
@@ -1863,7 +1863,7 @@ export default function ReportCard({ t: _t, reading }: ReportCardProps) {
             <div>
               <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: AMBER }}>Chinese Zodiac Reading</p>
               <p className="text-lg font-bold" style={{ color: '#1F2937' }}>{reading.chineseZodiac?.yinYang} {reading.chineseZodiac?.element} {reading.chineseZodiac?.animal}</p>
-              <p className="text-xs" style={{ color: '#6B7280' }}>Stem {reading.chineseZodiac?.heavenlyStem} · Branch {reading.chineseZodiac?.earthlyBranch}</p>
+              <p className="text-xs" style={{ color: '#6B4A20' }}>Stem {reading.chineseZodiac?.heavenlyStem} · Branch {reading.chineseZodiac?.earthlyBranch}</p>
             </div>
           </div>
 
@@ -1901,7 +1901,7 @@ export default function ReportCard({ t: _t, reading }: ReportCardProps) {
               <div className="rounded-xl p-3 border" style={{ borderColor: '#E5E7EB', background: 'rgba(26,107,107,0.04)' }}>
                 <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: TEAL }}>💚 Most Compatible Signs</p>
                 <p className="text-sm font-medium" style={{ color: '#1F2937' }}>{reading.chineseZodiac?.compatibility}</p>
-                <p className="text-xs mt-1" style={{ color: '#9CA3AF' }}>Natural allies in love, friendship & business</p>
+                <p className="text-xs mt-1" style={{ color: '#8A7050' }}>Natural allies in love, friendship & business</p>
               </div>
               <div className="rounded-xl p-3 border" style={{ borderColor: '#E5E7EB', background: 'rgba(212,136,10,0.04)' }}>
                 <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: AMBER }}>🍀 Lucky Numbers & Colors</p>
@@ -1920,7 +1920,7 @@ export default function ReportCard({ t: _t, reading }: ReportCardProps) {
             <div>
               <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: AMBER }}>Egyptian Decan Reading</p>
               <p className="text-lg font-bold" style={{ color: '#1F2937' }}>{reading.egyptianDecan?.sign} · Decan {reading.egyptianDecan?.decanNumber}</p>
-              <p className="text-xs" style={{ color: '#6B7280' }}>Ruler: {reading.egyptianDecan?.ruler} · Deity: {reading.egyptianDecan?.deity}</p>
+              <p className="text-xs" style={{ color: '#6B4A20' }}>Ruler: {reading.egyptianDecan?.ruler} · Deity: {reading.egyptianDecan?.deity}</p>
             </div>
           </div>
 
@@ -1965,7 +1965,7 @@ export default function ReportCard({ t: _t, reading }: ReportCardProps) {
 
             {/* Traits strip */}
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-widest mb-1.5" style={{ color: '#9CA3AF' }}>Your Egyptian Soul Traits</p>
+              <p className="text-[10px] font-bold uppercase tracking-widest mb-1.5" style={{ color: '#8A7050' }}>Your Egyptian Soul Traits</p>
               <div className="flex flex-wrap gap-1.5">
                 {(reading.egyptianDecan?.traits || '').split(/[,.]/).filter(t => t.trim()).map(trait => (
                   <span key={trait} className="text-xs px-2.5 py-1 rounded-full" style={{ background: 'rgba(212,136,10,0.1)', color: '#92400E' }}>{trait.trim()}</span>
@@ -1983,7 +1983,7 @@ export default function ReportCard({ t: _t, reading }: ReportCardProps) {
             <div>
               <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: AMBER }}>Mayan Tzolkin Calendar</p>
               <p className="text-lg font-bold" style={{ color: '#1F2937' }}>{reading.mayanTzolkin?.daySign}</p>
-              <p className="text-xs" style={{ color: '#6B7280' }}>Galactic Tone {reading.mayanTzolkin?.tone} of 13 · 260-day sacred cycle</p>
+              <p className="text-xs" style={{ color: '#6B4A20' }}>Galactic Tone {reading.mayanTzolkin?.tone} of 13 · 260-day sacred cycle</p>
             </div>
           </div>
 
@@ -2033,7 +2033,7 @@ export default function ReportCard({ t: _t, reading }: ReportCardProps) {
             <span className="text-2xl">{NAKSHATRA_SYMBOL[reading.moonNakshatraName] || '⭐'}</span>
             <div>
               <p className="text-[11px] font-bold uppercase tracking-wide" style={{ color: AMBER }}>{reading.moonNakshatraName} — Kindred Souls</p>
-              <p className="text-xs" style={{ color: '#6B7280' }}>Famous people born under your nakshatra</p>
+              <p className="text-xs" style={{ color: '#6B4A20' }}>Famous people born under your nakshatra</p>
             </div>
           </div>
           <div className="space-y-1.5">
@@ -2044,7 +2044,7 @@ export default function ReportCard({ t: _t, reading }: ReportCardProps) {
               </div>
             ))}
           </div>
-          <p className="text-xs mt-3 italic" style={{ color: '#9CA3AF' }}>
+          <p className="text-xs mt-3 italic" style={{ color: '#8A7050' }}>
             You share the {reading.moonNakshatraName} cosmic frequency — {NAKSHATRA_QUALITY[reading.moonNakshatraName] || 'ancient wisdom and unique potential'}.
           </p>
         </div>}
@@ -2052,11 +2052,11 @@ export default function ReportCard({ t: _t, reading }: ReportCardProps) {
 
       {/* ── Footer Legal Disclaimer ── */}
       <div className="rounded-xl px-5 py-4 mb-2 text-center" style={{ background:'rgba(26,107,107,0.05)', border:'1px solid rgba(26,107,107,0.18)' }}>
-        <p className="text-xs leading-relaxed" style={{ color:'#6B7280' }}>
+        <p className="text-xs leading-relaxed" style={{ color:'#6B4A20' }}>
           ⚠️ <strong>For entertainment and informational purposes only.</strong> This is not a substitute for professional medical, psychological, legal, or financial advice.{' '}
           <strong>Consult a qualified professional before making any major life decision.</strong>
         </p>
-        <p className="text-xs mt-1.5" style={{ color:'#9CA3AF' }}>© {new Date().getFullYear()} Univu · All rights reserved</p>
+        <p className="text-xs mt-1.5" style={{ color:'#8A7050' }}>© {new Date().getFullYear()} Univu · All rights reserved</p>
       </div>
     </motion.div>
   );

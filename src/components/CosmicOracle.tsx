@@ -3,8 +3,8 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const TEAL = '#5B21B6';
-const AMBER = '#F59E0B';
+const TEAL = '#B8860B';
+const AMBER = '#8B1A1A';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -95,7 +95,7 @@ export default function CosmicOracle({ chartContext }: AstroChatProps) {
       <button
         onClick={() => setOpen(o => !o)}
         className="fixed bottom-20 sm:bottom-6 right-4 sm:right-6 z-[9999] w-14 h-14 rounded-full flex items-center justify-center shadow-xl transition-transform hover:scale-105 active:scale-95"
-        style={{ background: `linear-gradient(135deg, ${TEAL}, #7C3AED)`, boxShadow: `0 4px 20px rgba(91,33,182,0.40)` }}
+        style={{ background: `linear-gradient(135deg, ${TEAL}, #7C3AED)`, boxShadow: `0 4px 20px rgba(184,134,11,0.40)` }}
         aria-label="Open Cosmic Oracle chat"
       >
         {open
@@ -187,7 +187,7 @@ export default function CosmicOracle({ chartContext }: AstroChatProps) {
                     {STARTER_QUESTIONS.map(q => (
                       <button key={q} onClick={() => sendMessage(q)}
                         className="text-xs px-3 py-1.5 rounded-full border transition-colors hover:bg-teal-50"
-                        style={{ borderColor: 'rgba(91,33,182,0.25)', color: TEAL, background: 'rgba(26,107,107,0.04)' }}>
+                        style={{ borderColor: 'rgba(184,134,11,0.25)', color: TEAL, background: 'rgba(26,107,107,0.04)' }}>
                         {q}
                       </button>
                     ))}
@@ -226,7 +226,7 @@ export default function CosmicOracle({ chartContext }: AstroChatProps) {
                   </svg>
                 </button>
               </div>
-              <p className="text-[10px] text-center mt-1.5" style={{ color: '#9CA3AF' }}>For entertainment & information only</p>
+              <p className="text-[10px] text-center mt-1.5" style={{ color: '#8A7050' }}>For entertainment & information only</p>
             </div>
           </motion.div>
         )}

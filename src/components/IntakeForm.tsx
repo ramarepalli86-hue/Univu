@@ -36,22 +36,22 @@ interface IntakeFormProps {
   loading?: boolean;
 }
 
-const TEAL = '#5B21B6';
-const TEAL_L = '#7C3AED';
-const AMBER = '#F59E0B';
-const TEXT = '#0F0A23';
+const TEAL = '#B8860B';
+const TEAL_L = '#9A7520';
+const AMBER = '#8B1A1A';
+const TEXT = '#1A0A00';
 const TEXT_MID = '#374151';
-const TEXT_MUTED = '#6B7280';
-const LABEL_C = '#3B0764';
+const TEXT_MUTED = '#6B4A20';
+const LABEL_C = '#3D1500';
 const BG_WHITE = '#FFFFFF';
 const BORDER = '#DDD8F5';
-const TEAL_BG = 'rgba(91,33,182,0.07)';
-const TEAL_BR = 'rgba(91,33,182,0.22)';
-const AMBER_BG = 'rgba(245,158,11,0.08)';
+const TEAL_BG = 'rgba(184,134,11,0.07)';
+const TEAL_BR = 'rgba(184,134,11,0.22)';
+const AMBER_BG = 'rgba(139,26,26,0.08)';
 
 const inputBase = 'w-full px-4 py-3 rounded-xl text-sm outline-none transition-all duration-200 appearance-none';
 const inputSt = { background: BG_WHITE, border: `1.5px solid ${BORDER}`, color: TEXT } as React.CSSProperties;
-const focusSt = { borderColor: TEAL, boxShadow: '0 0 0 3px rgba(91,33,182,0.12)' } as React.CSSProperties;
+const focusSt = { borderColor: TEAL, boxShadow: '0 0 0 3px rgba(184,134,11,0.12)' } as React.CSSProperties;
 
 const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 
@@ -370,7 +370,7 @@ export default function IntakeForm({ t, locale, onLocaleChange, onSubmit, loadin
         {/* Submit */}
         <button type="submit" disabled={!form.consent || loading}
           className="w-full flex items-center justify-center gap-2.5 py-3.5 rounded-xl font-semibold text-base transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed"
-          style={{ background: `linear-gradient(135deg, ${TEAL} 0%, #7C3AED 40%, ${AMBER} 100%)`, color: '#FFFFFF', letterSpacing: '0.03em', boxShadow: '0 4px 20px rgba(91,33,182,0.30)' }}>
+          style={{ background: `linear-gradient(135deg, ${TEAL} 0%, #7C3AED 40%, ${AMBER} 100%)`, color: '#FFFFFF', letterSpacing: '0.03em', boxShadow: '0 4px 20px rgba(184,134,11,0.30)' }}>
           {loading
             ? <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
             : <><IoSparkles size={18} /> Reveal My Cosmic Blueprint</>}

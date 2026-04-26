@@ -11,7 +11,8 @@ const csp = [
   `style-src ${SELF} ${UNSAFE_INLINE} https://fonts.googleapis.com`,
   `font-src ${SELF} https://fonts.gstatic.com`,
   `img-src ${SELF} data: blob: https://replicate.delivery https://pbxt.replicate.delivery`,
-  `connect-src ${SELF} https://api.groq.com https://generativelanguage.googleapis.com https://api.cerebras.ai https://openrouter.ai https://nominatim.openstreetmap.org`,
+  `connect-src ${SELF} https://api.groq.com https://generativelanguage.googleapis.com https://api.cerebras.ai https://openrouter.ai https://nominatim.openstreetmap.org https://storage.googleapis.com`,
+  `media-src ${SELF} blob: data: https://storage.googleapis.com`,
   `frame-ancestors 'none'`,   // blocks all embedding / clickjacking
   `base-uri ${SELF}`,
   `form-action ${SELF}`,

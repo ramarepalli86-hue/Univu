@@ -567,13 +567,13 @@ function buildScenesFromData(
   const paragraphs = storyText.split('\n').filter(p => p.trim().length > 40).slice(0, 7);
 
   const sceneConfigs = [
-    { chapter: 'Chapter I',   title: 'The Arrival',   subtitle: `Born Under ${lagnaSign} Rising`,  pose: 'newborn' as const, planet: 'Moon',    bgGradient: 'from-indigo-950 via-purple-950 to-slate-950',  accentColor: '#C0C8E0', lifeAge: 'Birth' },
-    { chapter: 'Chapter II',  title: 'The Unfolding', subtitle: 'Childhood & Wonder',              pose: 'child' as const,   planet: 'Moon',    bgGradient: 'from-blue-950 via-cyan-950 to-slate-950',      accentColor: '#7DD3FC', lifeAge: 'Ages 0–12' },
-    { chapter: 'Chapter III', title: 'The Awakening', subtitle: 'Youth & Discovery',               pose: 'youth' as const,   planet: 'Jupiter', bgGradient: 'from-emerald-950 via-teal-950 to-slate-950',   accentColor: '#6EE7B7', lifeAge: 'Ages 13–25' },
-    { chapter: 'Chapter IV',  title: 'The Forge',     subtitle: 'Ambition & Achievement',          pose: 'adult' as const,   planet: 'Sun',     bgGradient: 'from-amber-950 via-orange-950 to-slate-950',   accentColor: '#FCD34D', lifeAge: 'Ages 26–40' },
-    { chapter: 'Chapter V',   title: 'The Union',     subtitle: 'Love, Bonds & Partnership',       pose: 'couple' as const,  planet: 'Venus',   bgGradient: 'from-rose-950 via-pink-950 to-slate-950',      accentColor: '#FDA4AF', lifeAge: 'Ages 30–50' },
-    { chapter: 'Chapter VI',  title: 'The Deepening', subtitle: 'Wisdom & Harvest',                pose: 'elder' as const,   planet: 'Saturn',  bgGradient: 'from-violet-950 via-purple-950 to-slate-950',  accentColor: '#C4B5FD', lifeAge: 'Ages 50–70' },
-    { chapter: 'Chapter VII', title: 'The Eternal',   subtitle: 'Soul Purpose & Legacy',           pose: 'cosmic' as const,  planet: 'Ketu',    bgGradient: 'from-slate-950 via-indigo-950 to-black',       accentColor: '#E0E7FF', lifeAge: 'The Soul' },
+    { chapter: 'Chapter I',   title: 'The Arrival',   subtitle: `Born Under ${lagnaSign} Rising`,  pose: 'newborn' as const, planet: 'Moon',    bgGradient: 'from-amber-950 via-orange-950 to-stone-950',    accentColor: '#D4A017', lifeAge: 'Birth' },
+    { chapter: 'Chapter II',  title: 'The Unfolding', subtitle: 'Childhood & Wonder',              pose: 'child' as const,   planet: 'Moon',    bgGradient: 'from-green-950 via-emerald-950 to-stone-950',   accentColor: '#4CAF5A', lifeAge: 'Ages 0–12' },
+    { chapter: 'Chapter III', title: 'The Awakening', subtitle: 'Youth & Discovery',               pose: 'youth' as const,   planet: 'Jupiter', bgGradient: 'from-orange-950 via-amber-950 to-stone-950',    accentColor: '#E87820', lifeAge: 'Ages 13–25' },
+    { chapter: 'Chapter IV',  title: 'The Forge',     subtitle: 'Ambition & Achievement',          pose: 'adult' as const,   planet: 'Sun',     bgGradient: 'from-yellow-950 via-amber-950 to-stone-950',    accentColor: '#D4A017', lifeAge: 'Ages 26–40' },
+    { chapter: 'Chapter V',   title: 'The Union',     subtitle: 'Love, Bonds & Partnership',       pose: 'couple' as const,  planet: 'Venus',   bgGradient: 'from-rose-950 via-red-950 to-stone-950',        accentColor: '#DC6060', lifeAge: 'Ages 30–50' },
+    { chapter: 'Chapter VI',  title: 'The Deepening', subtitle: 'Wisdom & Harvest',                pose: 'elder' as const,   planet: 'Saturn',  bgGradient: 'from-red-950 via-rose-950 to-stone-950',        accentColor: '#C8804A', lifeAge: 'Ages 50–70' },
+    { chapter: 'Chapter VII', title: 'The Eternal',   subtitle: 'Soul Purpose & Legacy',           pose: 'cosmic' as const,  planet: 'Ketu',    bgGradient: 'from-stone-950 via-amber-950 to-black',         accentColor: '#E8C040', lifeAge: 'The Soul' },
   ];
 
   return sceneConfigs.map((cfg, i) => {
@@ -598,11 +598,90 @@ function buildScenesFromData(
   });
 }
 
+// ─── Veo 3 video hook — polls until clip is ready ────────────────────────────
+
+type VeoStatus = 'idle' | 'starting' | 'polling' | 'ready' | 'failed';
+interface VeoState { status: VeoStatus; videoUrl?: string; operationName?: string }
+
+function useVeoClip(
+  scene: StoryScene,
+  lagnaSign: string,
+  gender: string | undefined,
+  enabled: boolean,
+) {
+  const [state, setState] = useState<VeoState>({ status: 'idle' });
+  const pollRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    // Reset whenever the scene changes
+    setState({ status: 'idle' });
+    if (pollRef.current) clearTimeout(pollRef.current);
+  }, [scene.id]);
+
+  useEffect(() => {
+    if (!enabled || state.status !== 'idle') return;
+
+    setState({ status: 'starting' });
+    fetch('/api/veo-story', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        title: scene.title,
+        planet: scene.planet,
+        lagnaSign,
+        gender: gender || 'male',
+      }),
+    })
+      .then(r => r.json())
+      .then(data => {
+        if (data.operationName) {
+          setState({ status: 'polling', operationName: data.operationName });
+        } else {
+          console.warn('[Veo] No operationName:', data.error);
+          setState({ status: 'failed' });
+        }
+      })
+      .catch(() => setState({ status: 'failed' }));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [enabled, state.status]);
+
+  useEffect(() => {
+    if (state.status !== 'polling' || !state.operationName) return;
+
+    let attempts = 0;
+    const MAX = 60; // 3 min at 3 s intervals
+
+    const poll = async () => {
+      if (attempts++ >= MAX) { setState(s => ({ ...s, status: 'failed' })); return; }
+      try {
+        const r = await fetch(`/api/veo-story?op=${encodeURIComponent(state.operationName!)}`);
+        const data = await r.json();
+        if (data.done && data.videoUrl) {
+          setState({ status: 'ready', videoUrl: data.videoUrl });
+        } else if (data.done) {
+          setState(s => ({ ...s, status: 'failed' }));
+        } else {
+          pollRef.current = setTimeout(poll, 3000);
+        }
+      } catch {
+        pollRef.current = setTimeout(poll, 5000);
+      }
+    };
+
+    pollRef.current = setTimeout(poll, 4000); // first poll after 4 s
+    return () => { if (pollRef.current) clearTimeout(pollRef.current); };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.status, state.operationName]);
+
+  return state;
+}
+
 // ─── Single Scene Component ───────────────────────────────────────────────────
 
-function CinematicScene({ scene, name, gender, planets }: {
+function CinematicScene({ scene, name, gender, planets, veoUrl }: {
   scene: StoryScene; name: string; gender?: string;
   planets: Array<{ name: string; rashi: string; house: number }>;
+  veoUrl?: string;
 }) {
   const orbPlanets = planets.filter(p => p.name !== 'Rahu' && p.name !== 'Ketu').slice(0, 3);
 
@@ -629,7 +708,25 @@ function CinematicScene({ scene, name, gender, planets }: {
   const lessonText = lessonMatch?.[1]?.trim();
 
   return (
-    <div className={`relative w-full h-full flex flex-col items-center justify-start overflow-hidden bg-gradient-to-br ${scene.bgGradient}`}>
+    <div className={`film-projector relative w-full h-full flex flex-col items-center justify-start overflow-hidden bg-gradient-to-br ${scene.bgGradient}`}>
+
+      {/* ── Veo 3 video background — plays when clip is ready ── */}
+      {veoUrl && (
+        <div className="absolute inset-0 z-0">
+          <video
+            key={veoUrl}
+            autoPlay loop muted playsInline
+            className="w-full h-full object-cover"
+            style={{ opacity: 0.55 }}
+          >
+            <source src={veoUrl} type="video/mp4" />
+          </video>
+          {/* Darken overlay so text stays readable */}
+          <div className="absolute inset-0"
+            style={{ background: 'linear-gradient(to bottom, rgba(10,4,0,0.45) 0%, rgba(10,4,0,0.60) 100%)' }} />
+        </div>
+      )}
+
       <StarField count={scene.starsCount} color={scene.accentColor} />
       <motion.div className="absolute rounded-full blur-3xl pointer-events-none"
         style={{ width: '60%', height: '60%', top: '10%', left: '20%', backgroundColor: scene.accentColor + '08' }}
@@ -746,9 +843,14 @@ export default function StoryAnimator({
   const [enrichedTexts, setEnrichedTexts] = useState<Record<number, string>>({});
   const [loadingScene, setLoadingScene] = useState<number | null>(null);
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const [veoEnabled, setVeoEnabled] = useState(true); // user can toggle off
   const autoPlayRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const scenes = buildScenesFromData(name, gender, storyText, storyEvents, lagnaSign, moonSign, sunSign, birthYear, planets, currentDasha);
+
+  // Veo 3 — generate a video clip for the current scene
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const veo = useVeoClip(scenes[currentScene], lagnaSign, gender, veoEnabled);
 
   // Lightweight client-side mythic tone transformer. This keeps the transformation local
   // so we can preview 'mythic' tone immediately without server calls. For production
@@ -833,17 +935,18 @@ export default function StoryAnimator({
     const text = (enrichedTexts[currentScene] || scene.narrativeText)
       .replace(/\*\*/g, '').replace(/\*/g, '').replace(/#+\s/g, '').split('⚠️')[0].trim();
     const utterance = new SpeechSynthesisUtterance(text);
-    utterance.rate = 0.72;
-    utterance.pitch = 0.82;
+    utterance.rate = 0.62;   // kathakalakshepam pace — slow, deliberate
+    utterance.pitch = 0.75;  // deep, reverential, like a temple storyteller
     utterance.volume = 1.0;
-    // Prefer a deep, calm male voice — temple saint style
+    // Priority: Indian English → British English → any English (deep, non-compact)
     const voices = window.speechSynthesis.getVoices();
-    const preferred = voices.find(v => v.name.toLowerCase().includes('daniel'))
-      || voices.find(v => v.name.toLowerCase().includes('alex'))
+    const preferred =
+         voices.find(v => v.name === 'Ravi')                                              // macOS Indian male
       || voices.find(v => v.lang === 'en-IN' && !v.name.toLowerCase().includes('compact'))
+      || voices.find(v => v.name.toLowerCase().includes('daniel'))                        // deep UK male
+      || voices.find(v => v.name.toLowerCase().includes('arthur'))
       || voices.find(v => v.lang === 'en-GB' && !v.name.toLowerCase().includes('compact'))
-      || voices.find(v => v.lang.startsWith('en') && !v.name.toLowerCase().includes('compact'))
-      || voices.find(v => v.lang.startsWith('en'));
+      || voices.find(v => v.lang.startsWith('en') && !v.name.toLowerCase().includes('compact'));
     if (preferred) utterance.voice = preferred;
     utterance.onend = () => setIsSpeaking(false);
     utterance.onerror = () => setIsSpeaking(false);
@@ -863,7 +966,7 @@ export default function StoryAnimator({
   return (
     <div className={`relative ${isFullscreen ? 'fixed inset-0 z-50' : 'w-full rounded-2xl overflow-hidden'}`}>
       <SceneNav scenes={scenes} current={currentScene} onSelect={setCurrentScene} />
-      <div className="absolute top-4 right-4 z-50 flex gap-2">
+      <div className="absolute top-4 right-4 z-50 flex gap-2 flex-wrap justify-end">
         <button onClick={handleSpeak}
           className="px-3 py-1.5 rounded-full text-xs font-semibold backdrop-blur-md border border-white/20 text-white/80 hover:text-white transition-all"
           style={{ backgroundColor: isSpeaking ? (scene.accentColor + '40') : 'rgba(0,0,0,0.4)' }}
@@ -875,22 +978,51 @@ export default function StoryAnimator({
           style={{ backgroundColor: autoPlay ? scene.accentColor + '40' : 'rgba(0,0,0,0.4)' }}>
           {autoPlay ? '⏸ Pause' : '▶ Auto-Play'}
         </button>
+        {/* Veo toggle */}
+        <button onClick={() => setVeoEnabled(v => !v)}
+          className="px-3 py-1.5 rounded-full text-xs font-semibold backdrop-blur-md border border-white/20 text-white/80 hover:text-white transition-all"
+          style={{ backgroundColor: veoEnabled ? scene.accentColor + '40' : 'rgba(0,0,0,0.4)' }}
+          title="Toggle Veo 3 video background">
+          🎬 Veo
+        </button>
         <button onClick={() => setIsFullscreen(!isFullscreen)}
           className="px-3 py-1.5 rounded-full text-xs font-semibold backdrop-blur-md border border-white/20 text-white/80 hover:text-white"
           style={{ backgroundColor: 'rgba(0,0,0,0.4)' }}>
           {isFullscreen ? '⊙ Exit' : '⛶ Full'}
         </button>
       </div>
-      {/* AI enrichment indicator */}
+
+      {/* Veo 3 status indicators */}
+      {veoEnabled && veo.status === 'starting' && (
+        <div className="absolute top-14 right-4 z-50 flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/50 backdrop-blur-md border border-amber-500/30">
+          <motion.div className="w-2 h-2 rounded-full bg-amber-400"
+            animate={{ opacity: [0.4, 1, 0.4] }} transition={{ duration: 0.6, repeat: Infinity }} />
+          <span className="text-[10px] text-amber-300">Veo 3 — starting…</span>
+        </div>
+      )}
+      {veoEnabled && veo.status === 'polling' && (
+        <div className="absolute top-14 right-4 z-50 flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/50 backdrop-blur-md border border-amber-500/30">
+          <motion.div className="w-2 h-2 rounded-full bg-amber-400"
+            animate={{ opacity: [0.4, 1, 0.4] }} transition={{ duration: 0.8, repeat: Infinity }} />
+          <span className="text-[10px] text-amber-300">Veo 3 — generating…</span>
+        </div>
+      )}
+      {veoEnabled && veo.status === 'ready' && (
+        <div className="absolute top-14 right-4 z-50 flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/50 backdrop-blur-md border border-amber-500/50">
+          <span className="text-[10px] text-amber-300">🎬 Veo 3 playing</span>
+        </div>
+      )}
+
+      {/* AI story enrichment indicator */}
       {isEnriching && (
-        <div className="absolute top-14 right-4 z-50 flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/50 backdrop-blur-md border border-white/10">
+        <div className="absolute top-24 right-4 z-50 flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/50 backdrop-blur-md border border-white/10">
           <motion.div className="w-2 h-2 rounded-full bg-emerald-400"
             animate={{ opacity: [0.4, 1, 0.4] }} transition={{ duration: 0.8, repeat: Infinity }} />
           <span className="text-[10px] text-white/60">AI enriching story…</span>
         </div>
       )}
       {enrichedTexts[currentScene] && !isEnriching && (
-        <div className="absolute top-14 right-4 z-50 flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/50 backdrop-blur-md border border-emerald-500/30">
+        <div className="absolute top-24 right-4 z-50 flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/50 backdrop-blur-md border border-emerald-500/30">
           <span className="text-[10px] text-emerald-400">✨ AI-enhanced</span>
         </div>
       )}
@@ -899,7 +1031,8 @@ export default function StoryAnimator({
           <motion.div key={currentScene} className="absolute inset-0"
             initial={{ opacity: 0, x: 60 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -60 }}
             transition={{ duration: 0.8, ease: 'easeInOut' }}>
-            <CinematicScene scene={displayScene} name={name} gender={gender} planets={planets} />
+            <CinematicScene scene={displayScene} name={name} gender={gender} planets={planets}
+              veoUrl={veo.status === 'ready' ? veo.videoUrl : undefined} />
           </motion.div>
         </AnimatePresence>
       </div>

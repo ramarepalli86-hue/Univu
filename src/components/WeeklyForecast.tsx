@@ -3,9 +3,9 @@
 import { useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
 
-const TEAL   = '#5B21B6';
-const AMBER  = '#F59E0B';
-const TEAL_L = '#7C3AED';
+const TEAL   = '#B8860B';
+const AMBER  = '#8B1A1A';
+const TEAL_L = '#9A7520';
 
 // ── Sign / animal lists ────────────────────────────────────────────────────────
 
@@ -72,7 +72,7 @@ function PersonalText({ text }: { text: string }) {
           return <h3 key={i} className="text-base font-bold mt-5 mb-1" style={{ color: TEAL }}>{line.replace(/\*\*/g, '')}</h3>;
         }
         if (line.trim().startsWith('⚠️')) {
-          return <p key={i} className="text-xs italic mt-4 pt-3 border-t" style={{ color: '#9CA3AF', borderColor: '#E5E7EB' }}>{line}</p>;
+          return <p key={i} className="text-xs italic mt-4 pt-3 border-t" style={{ color: '#8A7050', borderColor: '#E5E7EB' }}>{line}</p>;
         }
         const parts = line.split(/(\*\*[^*]+\*\*)/g);
         return (
@@ -95,7 +95,7 @@ function ReadingSkeleton() {
       <div className="flex items-center gap-2 mb-4">
         <motion.div className="w-2 h-2 rounded-full" style={{ background: AMBER }}
           animate={{ opacity: [0.3,1,0.3] }} transition={{ duration: 0.9, repeat: Infinity }} />
-        <span className="text-xs" style={{ color: '#9CA3AF' }}>Consulting the stars…</span>
+        <span className="text-xs" style={{ color: '#8A7050' }}>Consulting the stars…</span>
       </div>
       {[88,65,80,55,72,90,60,75].map((w,i) => (
         <div key={i} className="h-3 rounded-full" style={{ width: `${w}%`, background: '#F3F4F6' }} />
@@ -184,7 +184,7 @@ export default function WeeklyForecast() {
         <h2 className="text-xl font-bold" style={{ fontFamily: 'Cinzel,Georgia,serif', color: TEAL }}>
           📅 Weekly &amp; Monthly Forecast
         </h2>
-        <p className="text-xs mt-1.5" style={{ color: '#6B7280' }}>
+        <p className="text-xs mt-1.5" style={{ color: '#6B4A20' }}>
           AI-powered forecasts by Vedic Rashi, Western Zodiac, or Chinese Year animal.
           <br />No birth chart needed — just pick your sign!
         </p>
@@ -196,8 +196,8 @@ export default function WeeklyForecast() {
           <button key={st.id} onClick={() => { setSubTab(st.id); setText(''); setLastKey(''); }}
             className="flex-1 min-w-[100px] flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-lg transition-all"
             style={subTab === st.id
-              ? { background: `linear-gradient(135deg,${TEAL},${TEAL_L})`, color: '#fff', boxShadow: '0 2px 8px rgba(91,33,182,0.25)' }
-              : { color: '#6B7280' }}>
+              ? { background: `linear-gradient(135deg,${TEAL},${TEAL_L})`, color: '#fff', boxShadow: '0 2px 8px rgba(184,134,11,0.25)' }
+              : { color: '#6B4A20' }}>
             <span>{st.icon}</span> {st.label}
           </button>
         ))}
@@ -210,7 +210,7 @@ export default function WeeklyForecast() {
             className="flex-1 min-w-[90px] px-3 py-2 text-xs font-semibold rounded-lg border transition-all text-center"
             style={timeframe === tf.id
               ? { background: 'rgba(212,136,10,0.1)', color: AMBER, borderColor: 'rgba(212,136,10,0.3)' }
-              : { background: '#FAFAF8', color: '#6B7280', borderColor: '#E5E7EB' }}>
+              : { background: '#FAFAF8', color: '#6B4A20', borderColor: '#E5E7EB' }}>
             {tf.label}
           </button>
         ))}
@@ -229,7 +229,7 @@ export default function WeeklyForecast() {
                 <button key={r} onClick={() => setSelectedRashi(r)}
                   className="px-2 py-2.5 text-xs font-medium rounded-lg border transition-all text-left"
                   style={isSel
-                    ? { background: `linear-gradient(135deg,rgba(91,33,182,0.12),rgba(245,158,11,0.08))`, borderColor: TEAL, color: TEAL }
+                    ? { background: `linear-gradient(135deg,rgba(184,134,11,0.12),rgba(139,26,26,0.08))`, borderColor: TEAL, color: TEAL }
                     : { background: '#FAFAF8', borderColor: '#E5E7EB', color: '#4B5563' }}>
                   <span className="mr-1">{RASHI_EMOJI[r] || '•'}</span>
                   {r.split(' (')[0]}
@@ -253,7 +253,7 @@ export default function WeeklyForecast() {
                 <button key={s} onClick={() => setSelectedZodiac(s)}
                   className="px-2 py-2.5 text-xs font-medium rounded-lg border transition-all text-left"
                   style={isSel
-                    ? { background: `linear-gradient(135deg,rgba(91,33,182,0.12),rgba(245,158,11,0.08))`, borderColor: TEAL, color: TEAL }
+                    ? { background: `linear-gradient(135deg,rgba(184,134,11,0.12),rgba(139,26,26,0.08))`, borderColor: TEAL, color: TEAL }
                     : { background: '#FAFAF8', borderColor: '#E5E7EB', color: '#4B5563' }}>
                   <span className="mr-1">{ZODIAC_EMOJI[s] || '•'}</span>
                   {s}
@@ -277,7 +277,7 @@ export default function WeeklyForecast() {
                 <button key={a} onClick={() => setSelectedAnimal(a)}
                   className="px-2 py-2.5 text-xs font-medium rounded-lg border transition-all text-left"
                   style={isSel
-                    ? { background: `linear-gradient(135deg,rgba(91,33,182,0.12),rgba(245,158,11,0.08))`, borderColor: TEAL, color: TEAL }
+                    ? { background: `linear-gradient(135deg,rgba(184,134,11,0.12),rgba(139,26,26,0.08))`, borderColor: TEAL, color: TEAL }
                     : { background: '#FAFAF8', borderColor: '#E5E7EB', color: '#4B5563' }}>
                   <span className="mr-1">{ANIMAL_EMOJI[a] || '•'}</span>
                   {a}
@@ -292,7 +292,7 @@ export default function WeeklyForecast() {
       {lastKey !== fetchKey && (
         <button onClick={handleGenerate} disabled={loading}
           className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl font-semibold text-sm transition-all disabled:opacity-40 disabled:cursor-not-allowed"
-          style={{ background: `linear-gradient(135deg,${TEAL} 0%,#7C3AED 40%,${AMBER} 100%)`, color: '#fff', boxShadow: '0 4px 20px rgba(91,33,182,0.28)' }}>
+          style={{ background: `linear-gradient(135deg,${TEAL} 0%,#7C3AED 40%,${AMBER} 100%)`, color: '#fff', boxShadow: '0 4px 20px rgba(184,134,11,0.28)' }}>
           {loading
             ? <><span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> Consulting the stars…</>
             : subTab === 'rashi' ? `🕉️ Get ${selectedRashi.split(' (')[0]} Rashi Forecast`
@@ -314,12 +314,12 @@ export default function WeeklyForecast() {
             </p>
             <button onClick={() => { setText(''); setLastKey(''); }}
               className="text-[10px] px-3 py-1 rounded-full border font-medium"
-              style={{ color: TEAL, borderColor: 'rgba(91,33,182,0.3)' }}>
+              style={{ color: TEAL, borderColor: 'rgba(184,134,11,0.3)' }}>
               ← New Forecast
             </button>
           </div>
           <PersonalText text={text} />
-          <p className="text-xs mt-3 pt-3 border-t text-center" style={{ color: '#9CA3AF', borderColor: 'rgba(0,0,0,0.07)' }}>
+          <p className="text-xs mt-3 pt-3 border-t text-center" style={{ color: '#8A7050', borderColor: 'rgba(0,0,0,0.07)' }}>
             For entertainment &amp; information only · Not professional advice
           </p>
         </div>

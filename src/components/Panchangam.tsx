@@ -3,9 +3,9 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 
-const TEAL   = '#5B21B6';
-const AMBER  = '#F59E0B';
-const TEAL_L = '#7C3AED';
+const TEAL   = '#B8860B';
+const AMBER  = '#8B1A1A';
+const TEAL_L = '#9A7520';
 
 // ── Localisation helpers ────────────────────────────────────────────────────
 
@@ -263,8 +263,8 @@ export default function Panchangam({ locale = 'en' }: PanchangamProps) {
     <button onClick={() => setSection(id)}
       className="px-4 py-2 text-xs font-semibold rounded-xl transition-all whitespace-nowrap"
       style={section === id
-        ? { background:`linear-gradient(135deg,${TEAL},${TEAL_L})`, color:'#fff', boxShadow:'0 2px 8px rgba(91,33,182,0.25)' }
-        : { color:'#6B7280' }
+        ? { background:`linear-gradient(135deg,${TEAL},${TEAL_L})`, color:'#fff', boxShadow:'0 2px 8px rgba(184,134,11,0.25)' }
+        : { color:'#6B4A20' }
       }>{label}</button>
   );
 
@@ -273,7 +273,7 @@ export default function Panchangam({ locale = 'en' }: PanchangamProps) {
       className="max-w-4xl mx-auto space-y-5">
 
       {/* ── Hero header ── */}
-      <div className="rounded-2xl overflow-hidden border" style={{ borderColor:'rgba(91,33,182,0.25)', background:'linear-gradient(135deg,rgba(26,107,107,0.1),rgba(212,136,10,0.07))' }}>
+      <div className="rounded-2xl overflow-hidden border" style={{ borderColor:'rgba(184,134,11,0.25)', background:'linear-gradient(135deg,rgba(26,107,107,0.1),rgba(212,136,10,0.07))' }}>
         <div className="px-5 py-5 flex items-start gap-4">
           <span className="text-5xl flex-shrink-0">🪔</span>
           <div className="flex-1">
@@ -282,8 +282,8 @@ export default function Panchangam({ locale = 'en' }: PanchangamProps) {
             )}
             <h2 className="text-2xl font-bold" style={{ color:'#1F2937' }}>{englishTitle}</h2>
             <p className="text-sm mt-0.5 font-medium" style={{ color:TEAL }}>{p.date}</p>
-            <p className="text-xs mt-1" style={{ color:'#6B7280' }}>{p.samvatsara} · {p.masa}</p>
-            <p className="text-xs mt-0.5 font-medium" style={{ color:'#6B7280' }}>{p.paksha}</p>
+            <p className="text-xs mt-1" style={{ color:'#6B4A20' }}>{p.samvatsara} · {p.masa}</p>
+            <p className="text-xs mt-0.5 font-medium" style={{ color:'#6B4A20' }}>{p.paksha}</p>
           </div>
         </div>
         {p.specialDays.length > 0 && (
@@ -321,7 +321,7 @@ export default function Panchangam({ locale = 'en' }: PanchangamProps) {
                   <p className="text-[10px] font-bold uppercase tracking-wide leading-tight" style={{ color:AMBER }}>{item.label}</p>
                 </div>
                 <p className="text-sm font-bold leading-snug mb-1" style={{ color:TEAL }}>{item.value}</p>
-                <p className="text-[10px] leading-snug" style={{ color:'#9CA3AF' }}>{item.desc}</p>
+                <p className="text-[10px] leading-snug" style={{ color:'#8A7050' }}>{item.desc}</p>
               </div>
             ))}
           </div>
@@ -340,7 +340,7 @@ export default function Panchangam({ locale = 'en' }: PanchangamProps) {
                 <div key={t.label} className="px-3 py-3">
                   <p className="text-[10px] font-bold mb-0.5" style={{ color:'#DC2626' }}>{t.label}</p>
                   <p className="text-sm font-semibold" style={{ color:'#374151' }}>{t.time}</p>
-                  <p className="text-[9px] mt-0.5" style={{ color:'#9CA3AF' }}>Ruled by {t.who}</p>
+                  <p className="text-[9px] mt-0.5" style={{ color:'#8A7050' }}>Ruled by {t.who}</p>
                 </div>
               ))}
             </div>
@@ -380,7 +380,7 @@ export default function Panchangam({ locale = 'en' }: PanchangamProps) {
                 <div>
                   <p className="text-sm font-bold" style={{ color:TEAL }}>{m.english}</p>
                   {nativeTitle && <p className="text-xs mt-0.5 font-medium" style={{ color:AMBER }}>{m.name}</p>}
-                  <p className="text-xs mt-0.5" style={{ color:'#6B7280' }}>{m.time}</p>
+                  <p className="text-xs mt-0.5" style={{ color:'#6B4A20' }}>{m.time}</p>
                 </div>
                 <div className="flex gap-0.5">
                   {Array.from({ length:5 }).map((_,i) => (
@@ -391,7 +391,7 @@ export default function Panchangam({ locale = 'en' }: PanchangamProps) {
               <div className="px-4 py-3 space-y-2">
                 <p className="text-sm leading-relaxed" style={{ color:'#374151' }}>{m.description}</p>
                 {(loc === 'te') && (
-                  <p className="text-xs p-2.5 rounded-lg leading-relaxed" style={{ background:'rgba(245,158,11,0.08)', color:'#92400E' }}>
+                  <p className="text-xs p-2.5 rounded-lg leading-relaxed" style={{ background:'rgba(139,26,26,0.08)', color:'#92400E' }}>
                     <strong>తెలుగులో:</strong> {m.telugu}
                   </p>
                 )}
@@ -423,7 +423,7 @@ export default function Panchangam({ locale = 'en' }: PanchangamProps) {
                 <div className="px-4 py-3">
                   <p className="text-[10px] font-bold uppercase tracking-wide mb-1.5" style={{ color:TEAL }}>✅ Auspicious Days</p>
                   <div className="flex flex-wrap gap-1 mb-2">
-                    {item.good.map(d => <span key={d} className="text-xs px-2 py-0.5 rounded-full font-medium" style={{ background:'rgba(91,33,182,0.12)', color:TEAL }}>{d}</span>)}
+                    {item.good.map(d => <span key={d} className="text-xs px-2 py-0.5 rounded-full font-medium" style={{ background:'rgba(184,134,11,0.12)', color:TEAL }}>{d}</span>)}
                   </div>
                   <p className="text-[10px] font-bold uppercase tracking-wide mb-1" style={{ color:'#DC2626' }}>❌ Avoid</p>
                   <div className="flex flex-wrap gap-1">
@@ -433,15 +433,15 @@ export default function Panchangam({ locale = 'en' }: PanchangamProps) {
                 <div className="px-4 py-3">
                   <p className="text-[10px] font-bold uppercase tracking-wide mb-1" style={{ color:AMBER }}>⭐ Best Nakshatras</p>
                   <p className="text-xs leading-relaxed mb-2" style={{ color:'#4B5563' }}>{item.nakshatras}</p>
-                  <p className="text-[10px] font-bold uppercase tracking-wide mb-0.5" style={{ color:'#9CA3AF' }}>🌙 Tithi Notes</p>
-                  <p className="text-xs" style={{ color:'#9CA3AF' }}>{item.tithi}</p>
+                  <p className="text-[10px] font-bold uppercase tracking-wide mb-0.5" style={{ color:'#8A7050' }}>🌙 Tithi Notes</p>
+                  <p className="text-xs" style={{ color:'#8A7050' }}>{item.tithi}</p>
                 </div>
               </div>
             </div>
             );
           })}
           <div className="rounded-xl p-3.5 border" style={{ borderColor:'#E5E7EB' }}>
-            <p className="text-xs leading-relaxed" style={{ color:'#9CA3AF' }}>
+            <p className="text-xs leading-relaxed" style={{ color:'#8A7050' }}>
               📜 These are general guidelines from traditional Panchangam texts. For exact muhurtham selection for major life events consult a qualified Jyotisha expert who will factor in your specific birth chart and current transits.
             </p>
           </div>
